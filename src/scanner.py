@@ -8,5 +8,7 @@ def load():
             barcodeDefs[parts[0]] = parts[1]
     return
 
-def scan():
-    return True
+def lookup(barcode):
+    if barcode in barcodeDefs:
+        return barcodeDefs.get(barcode)
+    return 'Unknown Barcode'
