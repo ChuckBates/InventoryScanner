@@ -3,5 +3,8 @@ sys.path.insert(1, '../src')
 
 import scanner
 
-def test_it_should_pass():
-    assert scanner.scan() is True
+class TestLoadBarcodeDefinitions:
+    def test_load(self):
+        assert len(scanner.barcodeDefs) == 0
+        scanner.load()
+        assert len(scanner.barcodeDefs) > 0
