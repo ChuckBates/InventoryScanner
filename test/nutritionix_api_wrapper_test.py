@@ -1,5 +1,4 @@
 import sys
-import pytest
 
 sys.path.insert(1, '../src')
 
@@ -9,16 +8,21 @@ class Test_when_calling_nutritionix_and_it_was_successful:
     def test_it_should_call_the_correct_url(self):
         assert api_wrapper.url == 'https://trackapi.nutritionix.com/v2/search/item'
     
-    item = api_wrapper.find('015400015288')
+    api_response = api_wrapper.find('015400015288')
 
+    def test_it_should_return_success(self):
+        assert self.api_response['successful'] == True
     def test_it_should_return_name(self):
-        assert self.item['name'] == 'Western Family Tomato Sauce'
+        assert self.api_response['item']['_id'] == '015400015288'
+    def test_it_should_return_name(self):
+        assert self.api_response['item']['name'] == 'Western Family Tomato Sauce'
     def test_it_should_return_image(self):
-        assert self.item['image'] == 'https://nutritionix-api.s3.amazonaws.com/54f7e93624aa687c0f260f0c.jpeg'
+        assert self.api_response['item']['image'] == 'https://nutritionix-api.s3.amazonaws.com/54f7e93624aa687c0f260f0c.jpeg'
 
-class Test_when_calling_nutritionix_and_the_upc_is_unknown:
-    def test_it_should_raise_an_error(self):        
-        with pytest.raises(ValueError) as e:
-            api_wrapper.find('123456')
-        
-        assert 'UPC is unknown' in str(e.value) 
+class Test_when_calling_nutritionix_and_the_upc_is_unknown: 
+    api_response = api_wrapper.find('123456')
+
+    def test_it_should_return_unsuccessful(self):          
+        assert self.api_response['successful'] == False
+    def test_it_should_return_upc_unknown_error(self):          
+        assert self.api_response['error'] == 'UPC is unknown'
