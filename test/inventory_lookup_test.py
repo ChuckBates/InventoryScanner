@@ -1,7 +1,7 @@
 import sys
 sys.path.insert(1, '../src')
 
-import scanner
+import inventory_lookup
 import inventory_repository as repo
 
 _id = "123456"
@@ -21,7 +21,7 @@ repo.save(inventory_item)
 
 class Test_when_scanning_a_barcode_and_it_is_in_cache:
     def test_it_should_return_the_inventory_item(self):
-        result = scanner.scan(_id)
+        result = inventory_lookup.find(_id)
 
         assert result['name'] == inventory_item['name']
         
@@ -29,6 +29,6 @@ class Test_when_scanning_a_barcode_and_it_is_in_cache:
 
 class Test_when_scanning_a_barcode_and_it_is_not_in_cache:
     def test_it_should_return_the_nutritionix_result(self):
-        result = scanner.scan('851045005013')
+        result = inventory_lookup.find('851045005013')
 
         assert result['name'] == 'Three Jerks Beef Jerky, Chipotle Adobo'
