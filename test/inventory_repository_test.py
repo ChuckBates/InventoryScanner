@@ -70,3 +70,9 @@ class Test_when_saving_and_required_fields_are_missing:
             repo.save(inventory_item)
 
         assert 'Missing required field: uom' in str(e.value)
+
+class Test_when_finding_and_the_item_is_not_found:
+    def test_it_should_return_none(self):
+        result = repo.find('')
+
+        assert result == None

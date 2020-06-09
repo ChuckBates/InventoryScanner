@@ -32,8 +32,11 @@ def save(inventory_item):
     mycol.update_one(query, mydict, upsert=True)
 
 def find(_id):
-    doc = mycol.find({"_id": _id})
-    return doc[0]
+    document_count = mycol.count_documents({'_id': _id})
+    if document_count == 0:
+        return None
+    documents = mycol.find({'_id': _id})
+    return documents[0]
 
 def delete(_id):
     mycol.delete_one({"_id": _id})
