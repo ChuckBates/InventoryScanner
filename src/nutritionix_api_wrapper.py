@@ -13,7 +13,7 @@ def find(barcode_id):
     api_response = {}
 
     if response.status_code != 200:
-        api_response['sucessful'] = False
+        api_response['successful'] = False
         api_response['error'] = 'Unknown error: ' + str(response.status_code)
         api_response['item'] = {}
         if response.status_code == 404:
