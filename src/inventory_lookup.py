@@ -1,6 +1,8 @@
 import inventory_repository as repo
 import nutritionix_api_wrapper as api_wrapper
 
+repo.load()
+
 def find(barcode):
     find_response = {}
     item = repo.find(barcode)
