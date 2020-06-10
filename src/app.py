@@ -69,6 +69,7 @@ def set_display_to_scan():
     item_picture_box.show()
     buttons_box.hide()
     barcode.focus()
+    barcode.append('Scan barcode to begin')
     reset_timer_to_reset_display()
     reset_image()
     app.update()
@@ -80,8 +81,6 @@ def reset_timer_to_reset_display():
 def reset_image():
     item_picture.image = picture
     item_picture.config(image = picture)
-    
-    app.update()
 
 text_color = 'white'
 text_font = 'Consolas'
@@ -116,14 +115,15 @@ barcode.text_size = text_size
 barcode.when_key_pressed = key_pressed
 barcode.append('Scan barcode to begin')
 
-item_name_label = Text(item_info_box, text='Name:', color=text_color, font=text_font, size=text_size, grid=[1,3])
-item_name = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,3])
-item_quantity_label = Text(item_info_box, text='Quantity:', color=text_color, font=text_font, size=text_size, grid=[1,4])
-item_quantity = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,4])
-item_size_label = Text(item_info_box, text='Size:', color=text_color, font=text_font, size=text_size, grid=[1,5])
-item_size = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,5])
+item_name_label = Text(item_info_box, text='Name:', color=text_color, font=text_font, size=text_size, grid=[1,3], align='left')
+item_quantity_label = Text(item_info_box, text='Quantity:', color=text_color, font=text_font, size=text_size, grid=[1,4], align='left')
+item_size_label = Text(item_info_box, text='Size:', color=text_color, font=text_font, size=text_size, grid=[1,5], align='left')
 
-item_picture_box = Box(app)
+item_name = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,3], align='left')
+item_quantity = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,4], align='left')
+item_size = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,5], align='left')
+
+item_picture_box = Box(app, height='fill', align='left')
 
 picture = PhotoImage(file='')
 item_picture = Label(item_picture_box.tk)
