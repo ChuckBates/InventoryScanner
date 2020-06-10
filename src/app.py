@@ -16,6 +16,7 @@ def item_found(item_info):
     item_size.value = str(item_info['size']) + item_info['uom']
 
     new_image = PhotoImage(file=item_info['image'])
+    item_picture.config(width=get_picture_width())
     item_picture.image = new_image
     item_picture.config(image = new_image)
     item_picture.pack()
@@ -53,6 +54,10 @@ def reset_display():
 
 def get_spacer_width():
     return int(int(app.tk.winfo_width() / 4) / 8)
+
+def get_picture_width():
+    space_width = int(int(app.tk.winfo_width() / 4) / 8)
+    return app.tk.winfo_width() - (space_width * 2)
 
 def set_display_to_scan():    
     left_space_text.width = get_spacer_width()
