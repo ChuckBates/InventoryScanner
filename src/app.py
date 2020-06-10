@@ -83,23 +83,25 @@ def reset_image():
     item_picture.config(image = picture)
 
 text_color = 'white'
+alt_text_color = '#ADDB67'
 text_font = 'Consolas'
 text_size = 20
+button_text_size = 40
 app = App(title='Inventory Scanner')
 
 buttons_box = Box(app, width='fill', height='fill', layout='auto')
 scan_in_button = PushButton(buttons_box, text='SCAN IN', command=scan_in_item, height='fill', width='fill')
 scan_in_button.font = text_font
-scan_in_button.text_color = text_color
-scan_in_button.text_size = text_size
+scan_in_button.text_color = '#00FF21'
+scan_in_button.text_size = button_text_size
 scan_out_button = PushButton(buttons_box, text='SCAN OUT', command=scan_out_item, height='fill', width='fill')
 scan_out_button.font = text_font
-scan_out_button.text_color = text_color
-scan_out_button.text_size = text_size
+scan_out_button.text_color = '#B60000'
+scan_out_button.text_size = button_text_size
 look_up_button = PushButton(buttons_box, text='LOOKUP', command=look_up_item, height='fill', width='fill')
 look_up_button.font = text_font
-look_up_button.text_color = text_color
-look_up_button.text_size = text_size
+look_up_button.text_color = '#FFD800'
+look_up_button.text_size = button_text_size
 
 left_space_box = Box(app, height='fill', align='left')
 left_space_text = Text(left_space_box, height='fill', width='fill', text='')
@@ -108,16 +110,15 @@ right_space_box = Box(app, height='fill', align='right')
 right_space_text = Text(right_space_box, height='fill', width='fill', text='')
 
 item_info_box = Box(app, width='fill', layout='grid')
-barcode = TextBox(item_info_box, width=23, grid=[2,2])
+barcode = TextBox(item_info_box, width=22, grid=[1,2,2,1], align='left')
 barcode.text_color = text_color
 barcode.font = text_font
 barcode.text_size = text_size
 barcode.when_key_pressed = key_pressed
-barcode.append('Scan barcode to begin')
 
-item_name_label = Text(item_info_box, text='Name:', color=text_color, font=text_font, size=text_size, grid=[1,3], align='left')
-item_quantity_label = Text(item_info_box, text='Quantity:', color=text_color, font=text_font, size=text_size, grid=[1,4], align='left')
-item_size_label = Text(item_info_box, text='Size:', color=text_color, font=text_font, size=text_size, grid=[1,5], align='left')
+item_name_label = Text(item_info_box, text='Name:', color=alt_text_color, font=text_font, size=text_size, grid=[1,3], align='left')
+item_quantity_label = Text(item_info_box, text='Quantity:', color=alt_text_color, font=text_font, size=text_size, grid=[1,4], align='left')
+item_size_label = Text(item_info_box, text='Size:', color=alt_text_color, font=text_font, size=text_size, grid=[1,5], align='left')
 
 item_name = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,3], align='left')
 item_quantity = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,4], align='left')
