@@ -1,4 +1,6 @@
 import sys
+import os
+from pathlib import Path
 sys.path.insert(1, '../src')
 
 import inventory_lookup
@@ -35,4 +37,11 @@ class Test_when_scanning_a_barcode_and_it_is_not_in_cache:
         assert self.result['status'] == 'partial'
     def test_it_should_return_the_partial_item(self):
         assert self.result['item']['name'] == 'Three Jerks Beef Jerky, Chipotle Adobo'
+        assert self.result['item']['image'] == Path(f'{os.getcwd()}/images/851045005013.png')
         assert ('quantity' in self.result['item']) == False
+
+class Test_clean_up:
+    def test_it_should_clean_up(self):
+        image_file = Path(f'{os.getcwd()}/images/851045005013.png')
+        os.remove(image_file)
+        assert image_file.is_file() is False
