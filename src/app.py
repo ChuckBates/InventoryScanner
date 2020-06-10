@@ -46,15 +46,21 @@ def look_up_item():
 def reset_display():
     item_info_box.hide()
     left_space_box.hide()
+    right_space_box.hide()
     item_picture_box.hide()
     buttons_box.show()
     reset_image()
 
+def get_spacer_width():
+    return int(int(app.tk.winfo_width() / 4) / 8)
+
 def set_display_to_scan():    
-    left_space_text.width = int(int(app.tk.winfo_width() / 4) / 8)
+    left_space_text.width = get_spacer_width()
+    right_space_text.width = get_spacer_width()
     clear_info()
     item_info_box.show()
     left_space_box.show()
+    right_space_box.show()
     item_picture_box.show()
     buttons_box.hide()
     barcode.focus()
@@ -94,7 +100,10 @@ look_up_button.text_size = text_size
 left_space_box = Box(app, height='fill', align='left')
 left_space_text = Text(left_space_box, height='fill', width='fill', text='')
 
-item_info_box = Box(app, width='fill', height='fill', layout='grid')
+right_space_box = Box(app, height='fill', align='right')
+right_space_text = Text(right_space_box, height='fill', width='fill', text='')
+
+item_info_box = Box(app, width='fill', layout='grid')
 barcode = TextBox(item_info_box, width=23, grid=[2,2])
 barcode.text_color = text_color
 barcode.font = text_font
