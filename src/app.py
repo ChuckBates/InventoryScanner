@@ -24,6 +24,7 @@ def clear_info():
     item_name.value = ''
     item_quantity.value = ''
     item_size.value = ''
+    reset_image()
 
 def key_pressed(event_data):
     reset_timer_to_reset_display()
