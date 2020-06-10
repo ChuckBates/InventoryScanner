@@ -28,7 +28,7 @@ def find(barcode_id):
         'name': json['brand_name'] + ' ' + json['food_name'],
         'image': json['photo']['thumb']
         }
-    api_response['sucessful'] = True
+    api_response['successful'] = True
     api_response['item'] = item
 
     return api_response

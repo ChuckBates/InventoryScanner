@@ -20,15 +20,19 @@ inventory_item = {
 repo.save(inventory_item)
 
 class Test_when_scanning_a_barcode_and_it_is_in_cache:
+    result = inventory_lookup.find(_id)
+    def test_it_should_return_successful(self):
+        assert self.result['status'] == 'successful'
     def test_it_should_return_the_inventory_item(self):
-        result = inventory_lookup.find(_id)
-
-        assert result['name'] == inventory_item['name']
+        assert self.result['item']['name'] == inventory_item['name']
+        assert self.result['item']['quantity'] == inventory_item['quantity']
         
-        repo.delete(_id)
+    repo.delete(_id)
 
 class Test_when_scanning_a_barcode_and_it_is_not_in_cache:
-    def test_it_should_return_the_nutritionix_result(self):
-        result = inventory_lookup.find('851045005013')
-
-        assert result['name'] == 'Three Jerks Beef Jerky, Chipotle Adobo'
+    result = inventory_lookup.find('851045005013')
+    def test_it_should_return_partial(self):
+        assert self.result['status'] == 'partial'
+    def test_it_should_return_the_partial_item(self):
+        assert self.result['item']['name'] == 'Three Jerks Beef Jerky, Chipotle Adobo'
+        assert ('quantity' in self.result['item']) == False
