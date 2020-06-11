@@ -3,9 +3,6 @@ import characters
 from functools import partial
 
 def click(btn):
-    s = 'Button %s clicked' % btn
-    root.title(s)
-
     if btn == '123':
         reset_pad()
         paint_number_pad()
@@ -17,10 +14,13 @@ def reset_pad():
     for child in lf.winfo_children():
         child.destroy()
 
-root = tkinter.Tk()
+def get_keypad(parent):    
+    global lf
+    lf = tkinter.LabelFrame(parent, text=' keypad ', bd=3)
+    lf.pack(padx=15, pady=10)
 
-lf = tkinter.LabelFrame(root, text=' keypad ', bd=3)
-lf.pack(padx=15, pady=10)
+    paint_letter_pad()
+    return lf
 
 def paint_letter_pad():
     row_one_column=0
@@ -65,7 +65,7 @@ def paint_number_pad():
     for label in characters.number_btn_list:
         cmd = partial(click, label)
 
-        key_width=7
+        key_width=15
         if label in characters.number_first_row:
             btn = tkinter.Button(lf, text=label, width=key_width, command=cmd)
             btn.grid(row=1, column=num_row_one_column)
@@ -82,6 +82,3 @@ def paint_number_pad():
             btn = tkinter.Button(lf, text=label, width=key_width, command=cmd)
             btn.grid(row=4, column=num_row_four_column)
             num_row_four_column+=1
-
-paint_letter_pad()
-root.mainloop()

@@ -199,6 +199,9 @@ item_name = Text(item_info_box, width='fill', color=text_color, font=text_font, 
 item_quantity = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,4], align='left')
 item_size = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,5], align='left')
 
+key_pad_box = Box(app, width='fill')
+key_pad = keyboard.get_keypad(key_pad_box.tk)
+
 item_picture_box = Box(app, height='fill', align='left')
 
 picture = PhotoImage(file='')
