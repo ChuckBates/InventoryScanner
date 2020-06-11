@@ -24,4 +24,5 @@ def convert_to_png(image_file):
     image = Image.open(image_file)    
     image.save(png_image_file, 'PNG')
 
+    os.remove(image_file)
     return png_image_file
