@@ -1,6 +1,7 @@
 import urllib.request
 import os
 from PIL import Image
+from pathlib import Path
 
 def download_image(barcode, image_url):
     file_path = f'{os.getcwd()}\images\{barcode}.jpeg'
@@ -21,6 +22,8 @@ def convert_to_png(image_file):
         return image_file
 
     png_image_file = png_image_file_parts[0] + '.png'
+    if Path(png_image_file).is_file():
+        return png_image_file
     image = Image.open(image_file)    
     image.save(png_image_file, 'PNG')
 
