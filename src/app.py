@@ -183,8 +183,7 @@ def spin_up_picture(image):
 def spin_up_key_pad(event_data):
     buttons_box.cancel(reset_display)
     new_item_confirm_button.show()
-    if 'key_pad' in globals():
-        reset_key_pad()
+    reset_key_pad()
     global key_pad
     key_pad = keyboard.get_keypad(key_pad_box.tk, event_data.widget)
 
