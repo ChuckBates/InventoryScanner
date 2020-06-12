@@ -3,6 +3,7 @@ import inventory_repository as repo
 import keyboard
 import string_tools
 import picture_widget
+import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture
 from tkinter import Label, PhotoImage
 
@@ -237,26 +238,21 @@ def swap_to_text_label():
     item_size_text.show()
     app.update()
 
-text_color = 'white'
-alt_text_color = '#ADDB67'
-text_font = 'Consolas'
-text_size = 20
-button_text_size = 40
 app = App(title='Inventory Scanner')
 
 buttons_box = Box(app, width='fill', height='fill', layout='auto')
 scan_in_button = PushButton(buttons_box, text='SCAN IN', command=scan_in_item, height='fill', width='fill')
-scan_in_button.font = text_font
+scan_in_button.font = display_config.text_font
 scan_in_button.text_color = '#00FF21'
-scan_in_button.text_size = button_text_size
+scan_in_button.text_size = display_config.button_text_size
 scan_out_button = PushButton(buttons_box, text='SCAN OUT', command=scan_out_item, height='fill', width='fill')
-scan_out_button.font = text_font
+scan_out_button.font = display_config.text_font
 scan_out_button.text_color = '#B60000'
-scan_out_button.text_size = button_text_size
+scan_out_button.text_size = display_config.button_text_size
 look_up_button = PushButton(buttons_box, text='LOOKUP', command=look_up_item, height='fill', width='fill')
-look_up_button.font = text_font
+look_up_button.font = display_config.text_font
 look_up_button.text_color = '#FFD800'
-look_up_button.text_size = button_text_size
+look_up_button.text_size = display_config.button_text_size
 
 left_space_box = Box(app, height='fill', align='left')
 left_space_text = Text(left_space_box, height='fill', width='fill', text='')
@@ -267,53 +263,53 @@ right_space_text = Text(right_space_box, height='fill', width='fill', text='')
 item_info_box = Box(app, width='fill', layout='grid')
 
 scan_in_barcode = TextBox(item_info_box, width=22, grid=[1,2,2,1], align='left')
-scan_in_barcode.text_color = text_color
-scan_in_barcode.font = text_font
-scan_in_barcode.text_size = text_size
+scan_in_barcode.text_color = display_config.text_color
+scan_in_barcode.font = display_config.text_font
+scan_in_barcode.text_size = display_config.text_size
 scan_in_barcode.when_key_pressed = scan_in_key_pressed
 
 scan_out_barcode = TextBox(item_info_box, width=22, grid=[1,2,2,1], align='left')
-scan_out_barcode.text_color = text_color
-scan_out_barcode.font = text_font
-scan_out_barcode.text_size = text_size
+scan_out_barcode.text_color = display_config.text_color
+scan_out_barcode.font = display_config.text_font
+scan_out_barcode.text_size = display_config.text_size
 scan_out_barcode.when_key_pressed = scan_out_key_pressed
 
 look_up_barcode = TextBox(item_info_box, width=22, grid=[1,2,2,1], align='left')
-look_up_barcode.text_color = text_color
-look_up_barcode.font = text_font
-look_up_barcode.text_size = text_size
+look_up_barcode.text_color = display_config.text_color
+look_up_barcode.font = display_config.text_font
+look_up_barcode.text_size = display_config.text_size
 look_up_barcode.when_key_pressed = look_up_key_pressed
 
 item_name_label = Text(item_info_box, text='Name:', color=alt_text_color, font=text_font, size=text_size, grid=[1,3], align='left')
 item_quantity_label = Text(item_info_box, text='Quantity:', color=alt_text_color, font=text_font, size=text_size, grid=[1,4], align='left')
 item_size_label = Text(item_info_box, text='Size:', color=alt_text_color, font=text_font, size=text_size, grid=[1,5], align='left')
 
-item_name_text = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,3], align='left')
-item_quantity_text = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,4], align='left')
-item_size_text = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,5], align='left')
+item_name_text = Text(item_info_box, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,3], align='left')
+item_quantity_text = Text(item_info_box, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,4], align='left')
+item_size_text = Text(item_info_box, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,5], align='left')
 
 item_name_text_box = TextBox(item_info_box, width=45, grid=[2,3], align='left')
-item_name_text_box.text_color = text_color
-item_name_text_box.font = text_font
-item_name_text_box.text_size = text_size
+item_name_text_box.text_color = display_config.text_color
+item_name_text_box.font = display_config.text_font
+item_name_text_box.text_size = display_config.text_size
 item_name_text_box.when_clicked = spin_up_key_pad
 
 item_quantity_text_box = TextBox(item_info_box, width=10, grid=[2,4], align='left')
-item_quantity_text_box.text_color = text_color
-item_quantity_text_box.font = text_font
-item_quantity_text_box.text_size = text_size
+item_quantity_text_box.text_color = display_config.text_color
+item_quantity_text_box.font = display_config.text_font
+item_quantity_text_box.text_size = display_config.text_size
 item_quantity_text_box.when_clicked = spin_up_key_pad
 
 item_size_text_box = TextBox(item_info_box, width=10, grid=[2,5], align='left')
-item_size_text_box.text_color = text_color
-item_size_text_box.font = text_font
-item_size_text_box.text_size = text_size
+item_size_text_box.text_color = display_config.text_color
+item_size_text_box.font = display_config.text_font
+item_size_text_box.text_size = display_config.text_size
 item_size_text_box.when_clicked = spin_up_key_pad
 
 new_item_confirm_button = PushButton(item_info_box, text='DONE', command=save_new_item, width='fill', grid=[2,6])
-new_item_confirm_button.font = text_font
+new_item_confirm_button.font = display_config.text_font
 new_item_confirm_button.text_color = '#00FF21'
-new_item_confirm_button.text_size = text_size
+new_item_confirm_button.text_size = display_config.text_size
 new_item_confirm_button.hide()
 
 hide_text_boxes()
