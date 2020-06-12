@@ -58,7 +58,7 @@ def save_new_item():
     new_item = {}
     new_item['_id'] = look_up_barcode.value
     new_item['name'] = item_name_text_box.value
-    new_item['quantity'] = item_quantity_text_box.value
+    new_item['quantity'] = int(item_quantity_text_box.value)
     new_item['image'] = found_item_image
     extract_response = string_tools.extract_size_and_uom(item_size_text_box.value)
     if extract_response['successful'] is True:
