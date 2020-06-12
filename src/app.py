@@ -4,6 +4,7 @@ import keyboard
 import string_tools
 import picture_widget
 import label_widget
+import button_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture
 
@@ -238,21 +239,18 @@ def swap_to_text_label():
     item_size_text.show()
     app.update()
 
+def spin_up_main_buttons(parent):
+    buttons = button_widget.get_main_buttons(parent)
+    commands = [scan_in_item, scan_out_item, look_up_item]
+    iteration = 0
+    for button in buttons:
+        button.update_command(commands[iteration])
+        iteration+=1
+
 app = App(title='Inventory Scanner')
 
 buttons_box = Box(app, width='fill', height='fill', layout='auto')
-scan_in_button = PushButton(buttons_box, text='SCAN IN', command=scan_in_item, height='fill', width='fill')
-scan_in_button.font = display_config.text_font
-scan_in_button.text_color = '#00FF21'
-scan_in_button.text_size = display_config.button_text_size
-scan_out_button = PushButton(buttons_box, text='SCAN OUT', command=scan_out_item, height='fill', width='fill')
-scan_out_button.font = display_config.text_font
-scan_out_button.text_color = '#B60000'
-scan_out_button.text_size = display_config.button_text_size
-look_up_button = PushButton(buttons_box, text='LOOKUP', command=look_up_item, height='fill', width='fill')
-look_up_button.font = display_config.text_font
-look_up_button.text_color = '#FFD800'
-look_up_button.text_size = display_config.button_text_size
+spin_up_main_buttons(buttons_box)
 
 left_space_box = Box(app, height='fill', align='left')
 left_space_text = Text(left_space_box, height='fill', width='fill', text='')
