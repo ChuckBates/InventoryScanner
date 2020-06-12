@@ -1,5 +1,7 @@
 import inventory_lookup
 import inventory_repository as repo
+import keyboard
+import string_tools
 from guizero import App, Text, TextBox, PushButton, Box, Picture
 from tkinter import Label, PhotoImage
 
@@ -14,8 +16,10 @@ def update_item_display(mode):
 def handle_item_look_up(item):
     if item['status'] == 'successful':
         item_found(item['item'])
+    elif item['status'] == 'partial':
+        handle_partial_item_lookup(item['item'])
     else:
-        item_name.value = 'Unknown item'
+        item_name_text.value = 'Unknown item'
     look_up_barcode.value = ''
 
 def handle_item_scan_in(item):
@@ -33,21 +37,45 @@ def handle_item_scan_out(item):
     scan_out_barcode.value = ''
 
 def item_found(item_info):
-    item_name.value = item_info['name']
-    item_quantity.value = item_info['quantity']
-    item_size.value = str(item_info['size']) + item_info['uom']
+    if 'name' in item_info:
+        item_name_text.value = item_info['name']
+    if 'quantity' in item_info:
+        item_quantity.value = item_info['quantity']
+    if 'size' in item_info and 'uom' in item_info:
+        item_size.value = str(item_info['size']) + item_info['uom']
 
-    new_image = PhotoImage(file=item_info['image'])
-    item_picture.config(width=get_picture_width())
-    item_picture.image = new_image
-    item_picture.config(image = new_image)
-    item_picture.pack()
+    if 'image' in item_info:
+        global found_item_image
+        found_item_image = item_info['image']
+        new_image = PhotoImage(file=item_info['image'])
+        item_picture.config(width=get_picture_width())
+        item_picture.image = new_image
+        item_picture.config(image = new_image)
+        item_picture.pack()
+    
+def handle_partial_item_lookup(item):
+    key_pad_box.show()
+    item_found(item)
+    swap_to_text_box(item)
+
+def save_new_item():
+    new_item = {}
+    new_item['_id'] = look_up_barcode.value
+    new_item['name'] = item_name_text_box.value
+    new_item['quantity'] = item_quantity_text_box.value
+    new_item['image'] = found_item_image
+    extract_response = string_tools.extract_size_and_uom(item_size_text_box.value)
+    if extract_response['successful'] is True:
+        new_item['size'] = extract_response['size']
+        new_item['uom'] = extract_response['uom']
+        repo.save(new_item)
+
+        reset_display()
 
 def clear_info():
-    item_name.value = ''
-    item_quantity.value = ''
-    item_size.value = ''
-    reset_image()
+    item_name_text.value = ''
+    item_quantity_text.value = ''
+    item_size_text.value = ''
 
 def scan_in_key_pressed(event_data):
     reset_timer_to_reset_display()
@@ -75,6 +103,7 @@ def look_up_key_pressed(event_data):
 
 def scan_in_item():
     scan_in_barcode.show()
+    scan_in_barcode.clear()
     scan_out_barcode.hide()
     look_up_barcode.hide()
     set_display_to_scan_in()
@@ -82,6 +111,7 @@ def scan_in_item():
 def scan_out_item():
     scan_in_barcode.hide()
     scan_out_barcode.show()
+    scan_out_barcode.clear()
     look_up_barcode.hide()
     set_display_to_scan_out()
 
@@ -89,6 +119,7 @@ def look_up_item():
     scan_in_barcode.hide()
     scan_out_barcode.hide()
     look_up_barcode.show()
+    look_up_barcode.clear()
     set_display_to_look_up()
 
 def reset_display():
@@ -96,6 +127,7 @@ def reset_display():
     left_space_box.hide()
     right_space_box.hide()
     item_picture_box.hide()
+    key_pad_box.hide()
     buttons_box.show()
     reset_image()
 
@@ -129,12 +161,14 @@ def set_display_to_blank():
     right_space_text.width = get_spacer_width()
     clear_info()
     item_info_box.show()
+    swap_to_text_label()
     left_space_box.show()
     right_space_box.show()
     item_picture_box.show()
     buttons_box.hide()
     reset_timer_to_reset_display()
     reset_image()
+    reset_key_pad()
 
 def reset_timer_to_reset_display():
     buttons_box.cancel(reset_display)
@@ -143,6 +177,64 @@ def reset_timer_to_reset_display():
 def reset_image():
     item_picture.image = picture
     item_picture.config(image = picture)
+
+def spin_up_key_pad(event_data):
+    buttons_box.cancel(reset_display)
+    new_item_confirm_button.show()
+    if 'key_pad' in globals():
+        reset_key_pad()
+    global key_pad
+    key_pad = keyboard.get_keypad(key_pad_box.tk, event_data.widget)
+
+def reset_key_pad():
+    if 'key_pad' in globals():
+        key_pad.destroy()
+
+def swap_to_text_box(item):
+    hide_texts()
+    new_name = ''
+    if 'name' in item:
+        new_name = item['name']
+    item_name_text_box.show()
+    item_name_text_box.value = new_name
+    
+    new_quantity = ''
+    if 'quantity' in item:
+        new_quantity = item['quantity']
+    item_quantity_text_box.show()
+    item_quantity_text_box.value = new_quantity
+    
+    new_size = ''
+    if 'size' in item:
+        new_size = item['size']
+    item_size_text_box.show()
+    item_size_text_box.value = new_size
+
+    app.update()
+
+def hide_text_boxes():
+    item_name_text_box.clear()
+    item_name_text_box.hide()
+    item_quantity_text_box.clear()
+    item_quantity_text_box.hide()
+    item_size_text_box.clear()
+    item_size_text_box.hide()
+    new_item_confirm_button.hide()
+
+def hide_texts():
+    item_name_text.clear()
+    item_name_text.hide()
+    item_quantity_text.clear()
+    item_quantity_text.hide()
+    item_size_text.clear()
+    item_size_text.hide()
+
+def swap_to_text_label():    
+    hide_text_boxes()
+    item_name_text.show()
+    item_quantity_text.show()
+    item_size_text.show()
+    app.update()
 
 text_color = 'white'
 alt_text_color = '#ADDB67'
@@ -195,19 +287,44 @@ item_name_label = Text(item_info_box, text='Name:', color=alt_text_color, font=t
 item_quantity_label = Text(item_info_box, text='Quantity:', color=alt_text_color, font=text_font, size=text_size, grid=[1,4], align='left')
 item_size_label = Text(item_info_box, text='Size:', color=alt_text_color, font=text_font, size=text_size, grid=[1,5], align='left')
 
-item_name = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,3], align='left')
-item_quantity = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,4], align='left')
-item_size = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,5], align='left')
+item_name_text = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,3], align='left')
+item_quantity_text = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,4], align='left')
+item_size_text = Text(item_info_box, width='fill', color=text_color, font=text_font, size=text_size, grid=[2,5], align='left')
 
-key_pad_box = Box(app, width='fill')
-key_pad = keyboard.get_keypad(key_pad_box.tk)
+item_name_text_box = TextBox(item_info_box, width=45, grid=[2,3], align='left')
+item_name_text_box.text_color = text_color
+item_name_text_box.font = text_font
+item_name_text_box.text_size = text_size
+item_name_text_box.when_clicked = spin_up_key_pad
 
-item_picture_box = Box(app, height='fill', align='left')
+item_quantity_text_box = TextBox(item_info_box, width=10, grid=[2,4], align='left')
+item_quantity_text_box.text_color = text_color
+item_quantity_text_box.font = text_font
+item_quantity_text_box.text_size = text_size
+item_quantity_text_box.when_clicked = spin_up_key_pad
+
+item_size_text_box = TextBox(item_info_box, width=10, grid=[2,5], align='left')
+item_size_text_box.text_color = text_color
+item_size_text_box.font = text_font
+item_size_text_box.text_size = text_size
+item_size_text_box.when_clicked = spin_up_key_pad
+
+new_item_confirm_button = PushButton(item_info_box, text='DONE', command=save_new_item, width='fill', grid=[2,6])
+new_item_confirm_button.font = text_font
+new_item_confirm_button.text_color = '#00FF21'
+new_item_confirm_button.text_size = text_size
+new_item_confirm_button.hide()
+
+hide_text_boxes()
+
+item_picture_box = Box(app, width='fill', align='top')
 
 picture = PhotoImage(file='')
 item_picture = Label(item_picture_box.tk)
 item_picture.image = picture
 item_picture.config(image = picture)
+
+key_pad_box = Box(app, width='fill', align='bottom')
 
 reset_display()
 
