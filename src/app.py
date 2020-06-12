@@ -6,16 +6,17 @@ import picture_widget
 import label_widget
 import button_widget
 import spacer_widget
+import barcode_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture
 
 def update_item_display(mode):
     if mode == 'look_up':
-        handle_item_look_up(inventory_lookup.find(look_up_barcode.value))    
+        handle_item_look_up(inventory_lookup.find(barcode_widget.look_up_value()))    
     elif mode == 'scan_in':
-        handle_item_scan_in(inventory_lookup.find(scan_in_barcode.value))
+        handle_item_scan_in(inventory_lookup.find(barcode_widget.scan_in_value()))
     elif mode == 'scan_out':
-        handle_item_scan_out(inventory_lookup.find(scan_out_barcode.value))
+        handle_item_scan_out(inventory_lookup.find(barcode_widget.scan_out_value()))
 
 def handle_item_look_up(item):
     if item['status'] == 'successful':
@@ -30,14 +31,14 @@ def handle_item_scan_in(item):
         item['item']['quantity'] = item['item']['quantity'] + 1
         repo.save(item['item'])
         item_found(item['item'])
-    scan_in_barcode.value = ''
+    barcode_widget.reset_values()
 
 def handle_item_scan_out(item):
     if item['status'] == 'successful':
         item['item']['quantity'] = item['item']['quantity'] - 1
         repo.save(item['item'])
         item_found(item['item'])
-    scan_out_barcode.value = ''
+    barcode_widget.reset_values()
 
 def item_found(item_info):
     if 'name' in item_info:
@@ -59,7 +60,7 @@ def handle_partial_item_lookup(item):
 
 def save_new_item():
     new_item = {}
-    new_item['_id'] = look_up_barcode.value
+    new_item['_id'] = barcode_widget.look_up_value()
     new_item['name'] = item_name_text_box.value
     new_item['quantity'] = int(item_quantity_text_box.value)
     new_item['image'] = found_item_image
@@ -100,27 +101,6 @@ def look_up_key_pressed(event_data):
         clear_info()
         update_item_display('look_up')
 
-def scan_in_item():
-    scan_in_barcode.show()
-    scan_in_barcode.clear()
-    scan_out_barcode.hide()
-    look_up_barcode.hide()
-    set_display_to_scan_in()
-
-def scan_out_item():
-    scan_in_barcode.hide()
-    scan_out_barcode.show()
-    scan_out_barcode.clear()
-    look_up_barcode.hide()
-    set_display_to_scan_out()
-
-def look_up_item():
-    scan_in_barcode.hide()
-    scan_out_barcode.hide()
-    look_up_barcode.show()
-    look_up_barcode.clear()
-    set_display_to_look_up()
-
 def reset_display():
     item_info_box.hide()
     spacer_widget.hide_spacers()
@@ -134,21 +114,18 @@ def get_picture_width():
     return app.tk.winfo_width() - (space_width * 2)
 
 def set_display_to_scan_in(): 
+    barcode_widget.set_to_scan_in()
     set_display_to_blank()   
-    scan_in_barcode.focus()
-    scan_in_barcode.append('Scan barcode to begin')
     app.update()
 
 def set_display_to_scan_out(): 
+    barcode_widget.set_to_scan_out()
     set_display_to_blank()   
-    scan_out_barcode.focus()
-    scan_out_barcode.append('Scan barcode to begin')
     app.update()
 
 def set_display_to_look_up(): 
+    barcode_widget.set_to_look_up()
     set_display_to_blank()   
-    look_up_barcode.focus()
-    look_up_barcode.append('Scan barcode to begin')
     app.update()
 
 def set_display_to_blank():
@@ -234,9 +211,17 @@ def swap_to_text_label():
     item_size_text.show()
     app.update()
 
+def spin_up_barcodes(parent):
+    barcodes = barcode_widget.get_barcodes(parent)
+    commands = [scan_in_key_pressed, scan_out_key_pressed, look_up_key_pressed]
+    iteration = 0
+    for barcode in barcodes:
+        barcode.when_key_pressed = commands[iteration]
+        iteration+=1
+
 def spin_up_main_buttons(parent):
     buttons = button_widget.get_main_buttons(parent)
-    commands = [scan_in_item, scan_out_item, look_up_item]
+    commands = [set_display_to_scan_in, set_display_to_scan_out, set_display_to_look_up]
     iteration = 0
     for button in buttons:
         button.update_command(commands[iteration])
@@ -250,24 +235,7 @@ spin_up_main_buttons(buttons_box)
 spacer_widget.spin_up_spacers(app)
 
 item_info_box = Box(app, width='fill', layout='grid')
-
-scan_in_barcode = TextBox(item_info_box, width=22, grid=[1,2,2,1], align='left')
-scan_in_barcode.text_color = display_config.text_color
-scan_in_barcode.font = display_config.text_font
-scan_in_barcode.text_size = display_config.text_size
-scan_in_barcode.when_key_pressed = scan_in_key_pressed
-
-scan_out_barcode = TextBox(item_info_box, width=22, grid=[1,2,2,1], align='left')
-scan_out_barcode.text_color = display_config.text_color
-scan_out_barcode.font = display_config.text_font
-scan_out_barcode.text_size = display_config.text_size
-scan_out_barcode.when_key_pressed = scan_out_key_pressed
-
-look_up_barcode = TextBox(item_info_box, width=22, grid=[1,2,2,1], align='left')
-look_up_barcode.text_color = display_config.text_color
-look_up_barcode.font = display_config.text_font
-look_up_barcode.text_size = display_config.text_size
-look_up_barcode.when_key_pressed = look_up_key_pressed
+spin_up_barcodes(item_info_box)
 
 label_widget.spin_up_item_labels(item_info_box)
 
