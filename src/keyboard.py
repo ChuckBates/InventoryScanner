@@ -51,7 +51,7 @@ def paint_letter_pad():
             btn.grid(row=3, column=row_three_column, columnspan=2)
             row_three_column+=1
         elif label in characters.letter_fourth_row:
-            if label == '___________________':
+            if label == ' ':
                 btn = tkinter.Button(label_frame, text=label, width=32, command=cmd)
                 btn.grid(row=4, column=row_four_column, columnspan=6)
                 row_four_column+=4
