@@ -5,6 +5,7 @@ import string_tools
 import picture_widget
 import label_widget
 import button_widget
+import spacer_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture
 
@@ -122,15 +123,11 @@ def look_up_item():
 
 def reset_display():
     item_info_box.hide()
-    left_space_box.hide()
-    right_space_box.hide()
+    spacer_widget.hide_spacers()
     item_picture_box.hide()
     key_pad_box.hide()
     buttons_box.show()
     reset_image()
-
-def get_spacer_width():
-    return int(int(app.tk.winfo_width() / 4) / 8)
 
 def get_picture_width():
     space_width = int(int(app.tk.winfo_width() / 4) / 8)
@@ -155,13 +152,11 @@ def set_display_to_look_up():
     app.update()
 
 def set_display_to_blank():
-    left_space_text.width = get_spacer_width()
-    right_space_text.width = get_spacer_width()
+    spacer_widget.update_spacer_width(app)
     clear_info()
     item_info_box.show()
     swap_to_text_label()
-    left_space_box.show()
-    right_space_box.show()
+    spacer_widget.show_spacers()
     item_picture_box.show()
     buttons_box.hide()
     reset_timer_to_reset_display()
@@ -252,11 +247,7 @@ app = App(title='Inventory Scanner')
 buttons_box = Box(app, width='fill', height='fill', layout='auto')
 spin_up_main_buttons(buttons_box)
 
-left_space_box = Box(app, height='fill', align='left')
-left_space_text = Text(left_space_box, height='fill', width='fill', text='')
-
-right_space_box = Box(app, height='fill', align='right')
-right_space_text = Text(right_space_box, height='fill', width='fill', text='')
+spacer_widget.spin_up_spacers(app)
 
 item_info_box = Box(app, width='fill', layout='grid')
 
