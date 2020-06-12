@@ -3,6 +3,7 @@ import inventory_repository as repo
 import keyboard
 import string_tools
 import picture_widget
+import label_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture
 from tkinter import Label, PhotoImage
@@ -280,9 +281,7 @@ look_up_barcode.font = display_config.text_font
 look_up_barcode.text_size = display_config.text_size
 look_up_barcode.when_key_pressed = look_up_key_pressed
 
-item_name_label = Text(item_info_box, text='Name:', color=alt_text_color, font=text_font, size=text_size, grid=[1,3], align='left')
-item_quantity_label = Text(item_info_box, text='Quantity:', color=alt_text_color, font=text_font, size=text_size, grid=[1,4], align='left')
-item_size_label = Text(item_info_box, text='Size:', color=alt_text_color, font=text_font, size=text_size, grid=[1,5], align='left')
+label_widget.spin_up_item_labels(item_info_box)
 
 item_name_text = Text(item_info_box, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,3], align='left')
 item_quantity_text = Text(item_info_box, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,4], align='left')
