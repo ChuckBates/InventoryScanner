@@ -2,6 +2,7 @@ import inventory_lookup
 import inventory_repository as repo
 import keyboard
 import string_tools
+import picture_widget
 from guizero import App, Text, TextBox, PushButton, Box, Picture
 from tkinter import Label, PhotoImage
 
@@ -46,11 +47,7 @@ def item_found(item_info):
     if 'image' in item_info:
         global found_item_image
         found_item_image = item_info['image']
-        new_image = PhotoImage(file=item_info['image'])
-        item_picture.config(width=get_picture_width())
-        item_picture.image = new_image
-        item_picture.config(image = new_image)
-        item_picture.pack()
+        spin_up_picture(item_info['image'])
     
 def handle_partial_item_lookup(item):
     key_pad_box.show()
@@ -174,8 +171,14 @@ def reset_timer_to_reset_display():
     buttons_box.after(10000, reset_display)
 
 def reset_image():
-    item_picture.image = picture
-    item_picture.config(image = picture)
+    item_picture.image = picture_widget.get_default_picture()
+    item_picture.config(image = picture_widget.get_default_picture())
+
+def spin_up_picture(image):
+    global item_picture
+    if 'item_picture' in globals():
+        item_picture.destroy()
+    item_picture = picture_widget.get_picture(item_picture_box.tk, image)
 
 def spin_up_key_pad(event_data):
     buttons_box.cancel(reset_display)
@@ -318,10 +321,7 @@ hide_text_boxes()
 
 item_picture_box = Box(app, width='fill', align='top')
 
-picture = PhotoImage(file='')
-item_picture = Label(item_picture_box.tk)
-item_picture.image = picture
-item_picture.config(image = picture)
+spin_up_picture('')
 
 key_pad_box = Box(app, width='fill', align='bottom')
 
