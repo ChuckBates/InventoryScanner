@@ -6,7 +6,6 @@ import picture_widget
 import label_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture
-from tkinter import Label, PhotoImage
 
 def update_item_display(mode):
     if mode == 'look_up':
