@@ -20,7 +20,6 @@ def handle_item_look_up(item):
         handle_partial_item_lookup(item['item'])
     else:
         item_name_text.value = 'Unknown item'
-    look_up_barcode.value = ''
 
 def handle_item_scan_in(item):
     if item['status'] == 'successful':
@@ -40,9 +39,9 @@ def item_found(item_info):
     if 'name' in item_info:
         item_name_text.value = item_info['name']
     if 'quantity' in item_info:
-        item_quantity.value = item_info['quantity']
+        item_quantity_text.value = item_info['quantity']
     if 'size' in item_info and 'uom' in item_info:
-        item_size.value = str(item_info['size']) + item_info['uom']
+        item_size_text.value = str(item_info['size']) + item_info['uom']
 
     if 'image' in item_info:
         global found_item_image
