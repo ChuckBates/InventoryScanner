@@ -26,16 +26,16 @@ def update_item_display(mode):
 def handle_item_look_up(item):
     if item['status'] == 'successful':
         item_found(item['item'])
-    elif item['status'] == 'partial':
-        handle_partial_item_lookup(item['item'])
     else:
-        item_name_text.value = 'Unknown item'
+        handle_new_item_entry(item)
 
 def handle_item_scan_in(item):
     if item['status'] == 'successful':
         item['item']['quantity'] = item['item']['quantity'] + 1
         repo.save(item['item'])
         item_found(item['item'])
+    else: 
+        handle_new_item_entry(item)
     barcode_widget.reset_values()
 
 def handle_item_scan_out(item):
@@ -43,6 +43,8 @@ def handle_item_scan_out(item):
         item['item']['quantity'] = item['item']['quantity'] - 1
         repo.save(item['item'])
         item_found(item['item'])
+    else: 
+        handle_new_item_entry(item)
     barcode_widget.reset_values()
 
 def item_found(item_info):
@@ -53,15 +55,20 @@ def item_found(item_info):
         found_item_image = item_info['image']
         picture_widget.set_picture(item_info['image'])
     
-def handle_partial_item_lookup(item):
-    keyboard_widget.show_key_pad()
-    item_found(item)
-    editable_text_widget.swap_to_text_box(item)
+def handle_new_item_entry(item):
+    update_partial_item = app.yesno('', 'Item not known, would you like to enter missing values?')
+    if update_partial_item:
+        if item['status'] == 'partial':                
+            item_found(item['item'])
+        keyboard_widget.show_key_pad()
+        editable_text_widget.swap_to_text_box(item['item'])
+    else:
+        reset_display()
 
 def save_new_item():
     values = editable_text_widget.get_values()
     new_item = {}
-    new_item['_id'] = barcode_widget.look_up_value()
+    new_item['_id'] = barcode_widget.get_value()
     new_item['name'] = values['item_name_text_box']
     new_item['quantity'] = int(values['item_quantity_text_box'])
     new_item['image'] = found_item_image

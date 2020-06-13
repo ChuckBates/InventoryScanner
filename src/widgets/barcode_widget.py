@@ -32,6 +32,14 @@ def scan_out_value():
 def look_up_value():
     return look_up_barcode.value
 
+def get_value():
+    if len(look_up_barcode.value) > 0:
+        return look_up_barcode.value
+    elif len(scan_in_barcode.value) > 0:
+        return scan_in_barcode.value
+    else:
+        return scan_out_barcode.value
+
 def reset_values():
     scan_in_barcode.value = ''
     scan_out_barcode.value = ''
