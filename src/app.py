@@ -2,6 +2,7 @@ import sys
 sys.path.append('widgets')
 sys.path.append('tools')
 
+import os
 import inventory_lookup
 import inventory_repository as repo
 import keyboard_widget
@@ -14,6 +15,7 @@ import barcode_widget
 import editable_text_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture
+from pathlib import Path
 
 def update_item_display(mode):
     if mode == 'look_up':
@@ -36,7 +38,7 @@ def handle_item_scan_in(item):
         item_found(item['item'])
     else: 
         handle_new_item_entry(item)
-    barcode_widget.reset_values()
+    # barcode_widget.reset_values()
 
 def handle_item_scan_out(item):
     if item['status'] == 'successful':
@@ -45,12 +47,12 @@ def handle_item_scan_out(item):
         item_found(item['item'])
     else: 
         handle_new_item_entry(item)
-    barcode_widget.reset_values()
+    # barcode_widget.reset_values()
 
 def item_found(item_info):
     editable_text_widget.populate_text(item_info)
-
-    if 'image' in item_info:
+    image_file = Path(item_info['image'])
+    if 'image' in item_info and image_file.is_file():
         global found_item_image
         found_item_image = item_info['image']
         picture_widget.set_picture(item_info['image'])
