@@ -105,10 +105,6 @@ def reset_display():
     button_widget.show_main_buttons()
     picture_widget.reset_picture()
 
-def get_picture_width():
-    space_width = int(int(app.tk.winfo_width() / 4) / 8)
-    return app.tk.winfo_width() - (space_width * 2)
-
 def set_display_to_scan_in(): 
     barcode_widget.set_to_scan_in()
     set_display_to_blank()   
@@ -125,6 +121,8 @@ def set_display_to_look_up():
     app.update()
 
 def set_display_to_blank():
+    reset_timer_to_reset_display()
+
     spacer_widget.update_spacer_width(app)
     editable_text_widget.clear_text()
     item_info_box.show()
@@ -133,7 +131,6 @@ def set_display_to_blank():
     spacer_widget.show_spacers()
     picture_widget.show_picture()
     button_widget.hide_main_buttons()
-    reset_timer_to_reset_display()
     picture_widget.reset_picture()
     keyboard_widget.reset_key_pad()
 
