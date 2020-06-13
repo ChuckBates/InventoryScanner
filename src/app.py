@@ -51,7 +51,7 @@ def item_found(item_info):
     if 'image' in item_info:
         global found_item_image
         found_item_image = item_info['image']
-        spin_up_picture(item_info['image'])
+        picture_widget.set_picture(item_info['image'])
     
 def handle_partial_item_lookup(item):
     keyboard_widget.show_key_pad()
@@ -100,10 +100,10 @@ def look_up_key_pressed(event_data):
 def reset_display():
     item_info_box.hide()
     spacer_widget.hide_spacers()
-    item_picture_box.hide()
+    picture_widget.hide_picture()
     keyboard_widget.hide_key_pad()
     buttons_box.show()
-    reset_image()
+    picture_widget.reset_picture()
 
 def get_picture_width():
     space_width = int(int(app.tk.winfo_width() / 4) / 8)
@@ -131,25 +131,15 @@ def set_display_to_blank():
     editable_text_widget.swap_to_text_label()
     button_widget.hide_edit_button()
     spacer_widget.show_spacers()
-    item_picture_box.show()
+    picture_widget.show_picture()
     buttons_box.hide()
     reset_timer_to_reset_display()
-    reset_image()
+    picture_widget.reset_picture()
     reset_key_pad()
 
 def reset_timer_to_reset_display():
     buttons_box.cancel(reset_display)
     buttons_box.after(10000, reset_display)
-
-def reset_image():
-    item_picture.image = picture_widget.get_default_picture()
-    item_picture.config(image = picture_widget.get_default_picture())
-
-def spin_up_picture(image):
-    global item_picture
-    if 'item_picture' in globals():
-        item_picture.destroy()
-    item_picture = picture_widget.get_picture(item_picture_box.tk, image)
 
 def spin_up_key_pad(event_data):
     buttons_box.cancel(reset_display)
@@ -196,9 +186,7 @@ editable_text_widget.hide_text_boxes()
 button_widget.spin_up_edit_button(item_info_box, save_new_item)
 button_widget.hide_edit_button()
 
-item_picture_box = Box(app, width='fill', align='top')
-
-spin_up_picture('')
+picture_widget.spin_up_picture(app)
 keyboard_widget.spin_up_key_pad_box(app)
 reset_display()
 
