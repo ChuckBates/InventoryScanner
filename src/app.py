@@ -54,7 +54,7 @@ def item_found(item_info):
         spin_up_picture(item_info['image'])
     
 def handle_partial_item_lookup(item):
-    key_pad_box.show()
+    keyboard_widget.show_key_pad()
     item_found(item)
     editable_text_widget.swap_to_text_box(item)
 
@@ -101,7 +101,7 @@ def reset_display():
     item_info_box.hide()
     spacer_widget.hide_spacers()
     item_picture_box.hide()
-    key_pad_box.hide()
+    keyboard_widget.hide_key_pad()
     buttons_box.show()
     reset_image()
 
@@ -156,7 +156,7 @@ def spin_up_key_pad(event_data):
     button_widget.show_edit_button()
     reset_key_pad()
     global key_pad
-    key_pad = keyboard_widget.get_keypad(key_pad_box.tk, event_data.widget)
+    key_pad = keyboard_widget.get_keypad(event_data.widget)
 
 def reset_key_pad():
     if 'key_pad' in globals():
@@ -199,9 +199,7 @@ button_widget.hide_edit_button()
 item_picture_box = Box(app, width='fill', align='top')
 
 spin_up_picture('')
-
-key_pad_box = Box(app, width='fill', align='bottom')
-
+keyboard_widget.spin_up_key_pad_box(app)
 reset_display()
 
 app.bg = '#011627'
