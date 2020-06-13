@@ -1,30 +1,27 @@
 import display_config
 from guizero import TextBox
 
-def get_barcodes(parent):
-    barcodes = []
+def get_barcodes(parent, commands):
     global scan_in_barcode
     scan_in_barcode = TextBox(parent, width=22, grid=[1,2,2,1], align='left')
     scan_in_barcode.text_color = display_config.text_color
     scan_in_barcode.font = display_config.text_font
     scan_in_barcode.text_size = display_config.text_size
-    barcodes.append(scan_in_barcode)
+    scan_in_barcode.when_key_pressed = commands[0]
 
     global scan_out_barcode
     scan_out_barcode = TextBox(parent, width=22, grid=[1,2,2,1], align='left')
     scan_out_barcode.text_color = display_config.text_color
     scan_out_barcode.font = display_config.text_font
     scan_out_barcode.text_size = display_config.text_size
-    barcodes.append(scan_out_barcode)
+    scan_out_barcode.when_key_pressed = commands[1]
 
     global look_up_barcode
     look_up_barcode = TextBox(parent, width=22, grid=[1,2,2,1], align='left')
     look_up_barcode.text_color = display_config.text_color
     look_up_barcode.font = display_config.text_font
     look_up_barcode.text_size = display_config.text_size
-    barcodes.append(look_up_barcode)
-
-    return barcodes
+    look_up_barcode.when_key_pressed = commands[2]
 
 def scan_in_value():
     return scan_in_barcode.value

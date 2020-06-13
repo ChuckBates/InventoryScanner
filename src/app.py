@@ -146,14 +146,6 @@ def spin_up_key_pad(event_data):
     button_widget.show_edit_button()
     keyboard_widget.spin_up_keypad(event_data.widget)
 
-def spin_up_barcodes(parent):
-    barcodes = barcode_widget.get_barcodes(parent)
-    commands = [scan_in_key_pressed, scan_out_key_pressed, look_up_key_pressed]
-    iteration = 0
-    for barcode in barcodes:
-        barcode.when_key_pressed = commands[iteration]
-        iteration+=1
-
 app = App(title='Inventory Scanner')
 
 main_buttons_commands = [set_display_to_scan_in, set_display_to_scan_out, set_display_to_look_up]
@@ -162,7 +154,9 @@ buttons = button_widget.spin_up_main_buttons(app, main_buttons_commands)
 spacer_widget.spin_up_spacers(app)
 
 item_info_box = Box(app, width='fill', layout='grid')
-spin_up_barcodes(item_info_box)
+
+barcodes_commands = [scan_in_key_pressed, scan_out_key_pressed, look_up_key_pressed]
+barcodes = barcode_widget.get_barcodes(item_info_box, barcodes_commands)
 
 label_widget.spin_up_item_labels(item_info_box)
 
