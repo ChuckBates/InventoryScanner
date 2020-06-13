@@ -1,6 +1,9 @@
+import sys
+sys.path.append('widgets')
+
 import inventory_lookup
 import inventory_repository as repo
-import keyboard
+import keyboard_widget
 import string_tools
 import picture_widget
 import label_widget
@@ -159,7 +162,7 @@ def spin_up_key_pad(event_data):
     new_item_confirm_button.show()
     reset_key_pad()
     global key_pad
-    key_pad = keyboard.get_keypad(key_pad_box.tk, event_data.widget)
+    key_pad = keyboard_widget.get_keypad(key_pad_box.tk, event_data.widget)
 
 def reset_key_pad():
     if 'key_pad' in globals():
