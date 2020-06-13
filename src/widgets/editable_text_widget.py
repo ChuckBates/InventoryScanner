@@ -32,10 +32,11 @@ def spin_up_editable_texts(parent, command):
     item_size_text_box.when_clicked = command
 
 def get_values():
-    result = {}
-    result['item_name_text_box'] = item_name_text_box.value,
-    result['item_quantity_text_box'] = item_quantity_text_box.value,
-    result['item_size_text_box'] = item_size_text_box.value
+    result = {
+        'item_name_text_box': item_name_text_box.value,
+        'item_quantity_text_box': item_quantity_text_box.value,
+        'item_size_text_box': item_size_text_box.value
+    }
     return result
     
 def hide_text_boxes():
@@ -45,7 +46,6 @@ def hide_text_boxes():
     item_quantity_text_box.hide()
     item_size_text_box.clear()
     item_size_text_box.hide()
-    # new_item_confirm_button.hide()
     
 def hide_texts():
     item_name_text.clear()
@@ -60,7 +60,6 @@ def swap_to_text_label():
     item_name_text.show()
     item_quantity_text.show()
     item_size_text.show()
-    # app.update()
 
 def swap_to_text_box(item):
     hide_texts()
@@ -81,8 +80,6 @@ def swap_to_text_box(item):
         new_size = item['size']
     item_size_text_box.show()
     item_size_text_box.value = new_size
-
-    # app.update()
 
 def clear_text():
     item_name_text.value = ''
