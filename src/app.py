@@ -38,7 +38,6 @@ def handle_item_scan_in(item):
         item_found(item['item'])
     else: 
         handle_new_item_entry(item)
-    # barcode_widget.reset_values()
 
 def handle_item_scan_out(item):
     if item['status'] == 'successful':
@@ -47,7 +46,6 @@ def handle_item_scan_out(item):
         item_found(item['item'])
     else: 
         handle_new_item_entry(item)
-    # barcode_widget.reset_values()
 
 def item_found(item_info):
     editable_text_widget.populate_text(item_info)
