@@ -1,5 +1,6 @@
 import sys
 sys.path.append('widgets')
+sys.path.append('tools')
 
 import inventory_lookup
 import inventory_repository as repo
