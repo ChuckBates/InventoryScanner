@@ -5,17 +5,21 @@ from guizero import Box
 
 def click(btn):
     if btn == '123':
-        reset_pad()
+        destroy_pad()
         paint_number_pad()
     elif btn == 'abc':
-        reset_pad()
+        destroy_pad()
         paint_letter_pad()
     else:
         text_container.append(btn)
 
-def reset_pad():
+def destroy_pad():
     for child in label_frame.winfo_children():
         child.destroy()
+
+def reset_key_pad():    
+    if 'label_frame' in globals():
+        label_frame.destroy()
 
 def show_key_pad():
     key_pad_box.show()
@@ -27,10 +31,11 @@ def spin_up_key_pad_box(parent):
     global key_pad_box   
     key_pad_box = Box(parent, width='fill', align='bottom')
 
-def get_keypad(tc): 
+def spin_up_keypad(tc): 
     tc.clear()
     global text_container
     text_container = tc
+    reset_key_pad()
     global label_frame
     label_frame = tkinter.LabelFrame(key_pad_box.tk, text=' keypad ', bd=3)
     label_frame.pack(padx=15, pady=10)

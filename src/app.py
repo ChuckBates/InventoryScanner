@@ -135,7 +135,7 @@ def set_display_to_blank():
     button_widget.hide_main_buttons()
     reset_timer_to_reset_display()
     picture_widget.reset_picture()
-    reset_key_pad()
+    keyboard_widget.reset_key_pad()
 
 def reset_timer_to_reset_display():
     app.cancel(reset_display)
@@ -144,13 +144,7 @@ def reset_timer_to_reset_display():
 def spin_up_key_pad(event_data):
     app.cancel(reset_display)
     button_widget.show_edit_button()
-    reset_key_pad()
-    global key_pad
-    key_pad = keyboard_widget.get_keypad(event_data.widget)
-
-def reset_key_pad():
-    if 'key_pad' in globals():
-        key_pad.destroy()
+    keyboard_widget.spin_up_keypad(event_data.widget)
 
 def spin_up_barcodes(parent):
     barcodes = barcode_widget.get_barcodes(parent)
