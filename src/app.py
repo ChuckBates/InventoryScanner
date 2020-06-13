@@ -102,7 +102,7 @@ def reset_display():
     spacer_widget.hide_spacers()
     picture_widget.hide_picture()
     keyboard_widget.hide_key_pad()
-    buttons_box.show()
+    button_widget.show_main_buttons()
     picture_widget.reset_picture()
 
 def get_picture_width():
@@ -132,17 +132,17 @@ def set_display_to_blank():
     button_widget.hide_edit_button()
     spacer_widget.show_spacers()
     picture_widget.show_picture()
-    buttons_box.hide()
+    button_widget.hide_main_buttons()
     reset_timer_to_reset_display()
     picture_widget.reset_picture()
     reset_key_pad()
 
 def reset_timer_to_reset_display():
-    buttons_box.cancel(reset_display)
-    buttons_box.after(10000, reset_display)
+    app.cancel(reset_display)
+    app.after(10000, reset_display)
 
 def spin_up_key_pad(event_data):
-    buttons_box.cancel(reset_display)
+    app.cancel(reset_display)
     button_widget.show_edit_button()
     reset_key_pad()
     global key_pad
@@ -160,18 +160,10 @@ def spin_up_barcodes(parent):
         barcode.when_key_pressed = commands[iteration]
         iteration+=1
 
-def spin_up_main_buttons(parent):
-    buttons = button_widget.get_main_buttons(parent)
-    commands = [set_display_to_scan_in, set_display_to_scan_out, set_display_to_look_up]
-    iteration = 0
-    for button in buttons:
-        button.update_command(commands[iteration])
-        iteration+=1
-
 app = App(title='Inventory Scanner')
 
-buttons_box = Box(app, width='fill', height='fill', layout='auto')
-spin_up_main_buttons(buttons_box)
+main_buttons_commands = [set_display_to_scan_in, set_display_to_scan_out, set_display_to_look_up]
+buttons = button_widget.spin_up_main_buttons(app, main_buttons_commands)
 
 spacer_widget.spin_up_spacers(app)
 
