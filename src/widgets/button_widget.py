@@ -22,3 +22,17 @@ def get_main_buttons(parent):
     buttons.append(look_up_button)
 
     return buttons
+
+def spin_up_edit_button(parent, command):
+    global new_item_confirm_button
+    new_item_confirm_button = PushButton(parent, text='DONE', command=command, width='fill', grid=[2,6])
+    new_item_confirm_button.font = display_config.text_font
+    new_item_confirm_button.text_color = '#00FF21'
+    new_item_confirm_button.text_size = display_config.text_size
+    new_item_confirm_button.hide()
+
+def hide_edit_button():
+    new_item_confirm_button.hide()
+
+def show_edit_button():
+    new_item_confirm_button.show()

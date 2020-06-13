@@ -129,6 +129,7 @@ def set_display_to_blank():
     editable_text_widget.clear_text()
     item_info_box.show()
     editable_text_widget.swap_to_text_label()
+    button_widget.hide_edit_button()
     spacer_widget.show_spacers()
     item_picture_box.show()
     buttons_box.hide()
@@ -152,7 +153,7 @@ def spin_up_picture(image):
 
 def spin_up_key_pad(event_data):
     buttons_box.cancel(reset_display)
-    new_item_confirm_button.show()
+    button_widget.show_edit_button()
     reset_key_pad()
     global key_pad
     key_pad = keyboard_widget.get_keypad(key_pad_box.tk, event_data.widget)
@@ -189,15 +190,11 @@ spin_up_barcodes(item_info_box)
 
 label_widget.spin_up_item_labels(item_info_box)
 
-
-new_item_confirm_button = PushButton(item_info_box, text='DONE', command=save_new_item, width='fill', grid=[2,6])
-new_item_confirm_button.font = display_config.text_font
-new_item_confirm_button.text_color = '#00FF21'
-new_item_confirm_button.text_size = display_config.text_size
-new_item_confirm_button.hide()
-
 editable_text_widget.spin_up_editable_texts(item_info_box, spin_up_key_pad)
 editable_text_widget.hide_text_boxes()
+
+button_widget.spin_up_edit_button(item_info_box, save_new_item)
+button_widget.hide_edit_button()
 
 item_picture_box = Box(app, width='fill', align='top')
 
