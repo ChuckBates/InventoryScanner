@@ -11,6 +11,7 @@ import label_widget
 import button_widget
 import spacer_widget
 import barcode_widget
+import editable_text_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture
 
@@ -45,12 +46,7 @@ def handle_item_scan_out(item):
     barcode_widget.reset_values()
 
 def item_found(item_info):
-    if 'name' in item_info:
-        item_name_text.value = item_info['name']
-    if 'quantity' in item_info:
-        item_quantity_text.value = item_info['quantity']
-    if 'size' in item_info and 'uom' in item_info:
-        item_size_text.value = str(item_info['size']) + item_info['uom']
+    editable_text_widget.populate_text(item_info)
 
     if 'image' in item_info:
         global found_item_image
@@ -60,15 +56,16 @@ def item_found(item_info):
 def handle_partial_item_lookup(item):
     key_pad_box.show()
     item_found(item)
-    swap_to_text_box(item)
+    editable_text_widget.swap_to_text_box(item)
 
 def save_new_item():
+    values = editable_text_widget.get_values()
     new_item = {}
     new_item['_id'] = barcode_widget.look_up_value()
-    new_item['name'] = item_name_text_box.value
-    new_item['quantity'] = int(item_quantity_text_box.value)
+    new_item['name'] = values['item_name_text_box']
+    new_item['quantity'] = int(values['item_quantity_text_box'])
     new_item['image'] = found_item_image
-    extract_response = string_tools.extract_size_and_uom(item_size_text_box.value)
+    extract_response = string_tools.extract_size_and_uom(values['item_size_text_box'])
     if extract_response['successful'] is True:
         new_item['size'] = extract_response['size']
         new_item['uom'] = extract_response['uom']
@@ -76,17 +73,12 @@ def save_new_item():
 
         reset_display()
 
-def clear_info():
-    item_name_text.value = ''
-    item_quantity_text.value = ''
-    item_size_text.value = ''
-
 def scan_in_key_pressed(event_data):
     reset_timer_to_reset_display()
     if 'Scan barcode to begin' in event_data.widget.value:
         event_data.widget.clear()
     if event_data.key == '\r':
-        clear_info()
+        editable_text_widget.clear_text()
         update_item_display('scan_in')
 
 def scan_out_key_pressed(event_data):
@@ -94,7 +86,7 @@ def scan_out_key_pressed(event_data):
     if 'Scan barcode to begin' in event_data.widget.value:
         event_data.widget.clear()
     if event_data.key == '\r':
-        clear_info()
+        editable_text_widget.clear_text()
         update_item_display('scan_out')
 
 def look_up_key_pressed(event_data):
@@ -102,7 +94,7 @@ def look_up_key_pressed(event_data):
     if 'Scan barcode to begin' in event_data.widget.value:
         event_data.widget.clear()
     if event_data.key == '\r':
-        clear_info()
+        editable_text_widget.clear_text()
         update_item_display('look_up')
 
 def reset_display():
@@ -134,9 +126,9 @@ def set_display_to_look_up():
 
 def set_display_to_blank():
     spacer_widget.update_spacer_width(app)
-    clear_info()
+    editable_text_widget.clear_text()
     item_info_box.show()
-    swap_to_text_label()
+    editable_text_widget.swap_to_text_label()
     spacer_widget.show_spacers()
     item_picture_box.show()
     buttons_box.hide()
@@ -169,52 +161,6 @@ def reset_key_pad():
     if 'key_pad' in globals():
         key_pad.destroy()
 
-def swap_to_text_box(item):
-    hide_texts()
-    new_name = ''
-    if 'name' in item:
-        new_name = item['name']
-    item_name_text_box.show()
-    item_name_text_box.value = new_name
-    
-    new_quantity = ''
-    if 'quantity' in item:
-        new_quantity = item['quantity']
-    item_quantity_text_box.show()
-    item_quantity_text_box.value = new_quantity
-    
-    new_size = ''
-    if 'size' in item:
-        new_size = item['size']
-    item_size_text_box.show()
-    item_size_text_box.value = new_size
-
-    app.update()
-
-def hide_text_boxes():
-    item_name_text_box.clear()
-    item_name_text_box.hide()
-    item_quantity_text_box.clear()
-    item_quantity_text_box.hide()
-    item_size_text_box.clear()
-    item_size_text_box.hide()
-    new_item_confirm_button.hide()
-
-def hide_texts():
-    item_name_text.clear()
-    item_name_text.hide()
-    item_quantity_text.clear()
-    item_quantity_text.hide()
-    item_size_text.clear()
-    item_size_text.hide()
-
-def swap_to_text_label():    
-    hide_text_boxes()
-    item_name_text.show()
-    item_quantity_text.show()
-    item_size_text.show()
-    app.update()
-
 def spin_up_barcodes(parent):
     barcodes = barcode_widget.get_barcodes(parent)
     commands = [scan_in_key_pressed, scan_out_key_pressed, look_up_key_pressed]
@@ -243,27 +189,6 @@ spin_up_barcodes(item_info_box)
 
 label_widget.spin_up_item_labels(item_info_box)
 
-item_name_text = Text(item_info_box, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,3], align='left')
-item_quantity_text = Text(item_info_box, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,4], align='left')
-item_size_text = Text(item_info_box, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,5], align='left')
-
-item_name_text_box = TextBox(item_info_box, width=45, grid=[2,3], align='left')
-item_name_text_box.text_color = display_config.text_color
-item_name_text_box.font = display_config.text_font
-item_name_text_box.text_size = display_config.text_size
-item_name_text_box.when_clicked = spin_up_key_pad
-
-item_quantity_text_box = TextBox(item_info_box, width=10, grid=[2,4], align='left')
-item_quantity_text_box.text_color = display_config.text_color
-item_quantity_text_box.font = display_config.text_font
-item_quantity_text_box.text_size = display_config.text_size
-item_quantity_text_box.when_clicked = spin_up_key_pad
-
-item_size_text_box = TextBox(item_info_box, width=10, grid=[2,5], align='left')
-item_size_text_box.text_color = display_config.text_color
-item_size_text_box.font = display_config.text_font
-item_size_text_box.text_size = display_config.text_size
-item_size_text_box.when_clicked = spin_up_key_pad
 
 new_item_confirm_button = PushButton(item_info_box, text='DONE', command=save_new_item, width='fill', grid=[2,6])
 new_item_confirm_button.font = display_config.text_font
@@ -271,7 +196,8 @@ new_item_confirm_button.text_color = '#00FF21'
 new_item_confirm_button.text_size = display_config.text_size
 new_item_confirm_button.hide()
 
-hide_text_boxes()
+editable_text_widget.spin_up_editable_texts(item_info_box, spin_up_key_pad)
+editable_text_widget.hide_text_boxes()
 
 item_picture_box = Box(app, width='fill', align='top')
 
