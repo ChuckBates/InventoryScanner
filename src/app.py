@@ -13,8 +13,9 @@ import button_widget
 import spacer_widget
 import barcode_widget
 import editable_text_widget
+import new_item_confirm_widget
 import display_config
-from guizero import App, Text, TextBox, PushButton, Box, Picture
+from guizero import App, Text, TextBox, PushButton, Box, Picture, info
 from pathlib import Path
 
 def update_item_display(mode):
@@ -56,14 +57,26 @@ def item_found(item_info):
         picture_widget.set_picture(item_info['image'])
     
 def handle_new_item_entry(item):
-    update_partial_item = app.yesno('', 'Item not known, would you like to enter missing values?')
-    if update_partial_item:
+    global potential_new_item
+    potential_new_item = item
+    spin_up_new_item_confirm()
+
+def new_item_yes():    
+    spacer_widget.hide_top_bottom_spacers()
+    new_item_confirm_widget.hide_new_item_confirm()
+    item_info_box.show()
+    picture_widget.show_picture()
+    if 'potential_new_item' in globals():
+        item = potential_new_item
         if item['status'] == 'partial':                
             item_found(item['item'])
         keyboard_widget.show_key_pad()
         editable_text_widget.swap_to_text_box(item['item'])
-    else:
-        reset_display()
+
+def new_item_no():
+    spacer_widget.hide_top_bottom_spacers()
+    new_item_confirm_widget.hide_new_item_confirm()
+    reset_display()
 
 def save_new_item():
     values = editable_text_widget.get_values()
@@ -106,7 +119,9 @@ def look_up_key_pressed(event_data):
 
 def reset_display():
     item_info_box.hide()
-    spacer_widget.hide_spacers()
+    spacer_widget.hide_side_spacers()
+    spacer_widget.hide_top_bottom_spacers()
+    new_item_confirm_widget.hide_new_item_confirm()
     picture_widget.hide_picture()
     keyboard_widget.hide_key_pad()
     button_widget.show_main_buttons()
@@ -130,12 +145,12 @@ def set_display_to_look_up():
 def set_display_to_blank():
     reset_timer_to_reset_display()
 
-    spacer_widget.update_spacer_width(app)
+    spacer_widget.update_side_spacer_width(app)
     editable_text_widget.clear_text()
     item_info_box.show()
     editable_text_widget.swap_to_text_label()
     button_widget.hide_edit_button()
-    spacer_widget.show_spacers()
+    spacer_widget.show_side_spacers()
     picture_widget.show_picture()
     button_widget.hide_main_buttons()
     picture_widget.reset_picture()
@@ -150,12 +165,23 @@ def spin_up_key_pad(event_data):
     button_widget.show_edit_button()
     keyboard_widget.spin_up_keypad(event_data.widget)
 
+def spin_up_new_item_confirm():
+    item_info_box.hide()
+    picture_widget.hide_picture()
+    keyboard_widget.hide_key_pad()
+    spacer_widget.show_top_bottom_spacers()
+    spacer_widget.update_top_bottom_spacer_width(app)
+    new_item_confirm_widget.show_new_item_confirm()
+
 app = App(title='Inventory Scanner')
 
 main_buttons_commands = [set_display_to_scan_in, set_display_to_scan_out, set_display_to_look_up]
 buttons = button_widget.spin_up_main_buttons(app, main_buttons_commands)
 
-spacer_widget.spin_up_spacers(app)
+spacer_widget.spin_up_side_spacers(app)
+spacer_widget.spin_up_top_bottom_spacers(app)
+spacer_widget.hide_top_bottom_spacers()
+new_item_confirm_widget.spin_up_new_item_confirm(app, [new_item_yes, new_item_no])
 
 item_info_box = Box(app, width='fill', layout='grid')
 
