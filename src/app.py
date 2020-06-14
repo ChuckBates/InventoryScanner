@@ -5,7 +5,7 @@ sys.path.append('tools')
 import os
 import inventory_lookup
 import inventory_repository as repo
-import keyboard_widget
+import key_pad_widget
 import string_tools
 import picture_widget
 import label_widget
@@ -70,7 +70,7 @@ def new_item_yes():
         item = potential_new_item
         if item['status'] == 'partial':                
             item_found(item['item'])
-        keyboard_widget.show_key_pad()
+        key_pad_widget.show_key_pad()
         editable_text_widget.swap_to_text_box(item['item'])
 
 def new_item_no():
@@ -123,7 +123,7 @@ def reset_display():
     spacer_widget.hide_top_bottom_spacers()
     new_item_confirm_widget.hide_new_item_confirm()
     picture_widget.hide_picture()
-    keyboard_widget.hide_key_pad()
+    key_pad_widget.hide_key_pad()
     button_widget.show_main_buttons()
     picture_widget.reset_picture()
 
@@ -154,7 +154,7 @@ def set_display_to_blank():
     picture_widget.show_picture()
     button_widget.hide_main_buttons()
     picture_widget.reset_picture()
-    keyboard_widget.reset_key_pad()
+    key_pad_widget.reset_key_pad()
 
 def reset_timer_to_reset_display():
     app.cancel(reset_display)
@@ -163,12 +163,12 @@ def reset_timer_to_reset_display():
 def spin_up_key_pad(event_data):
     app.cancel(reset_display)
     button_widget.show_edit_button()
-    keyboard_widget.spin_up_keypad(event_data.widget)
+    key_pad_widget.spin_up_keypad(event_data.widget)
 
 def spin_up_new_item_confirm():
     item_info_box.hide()
     picture_widget.hide_picture()
-    keyboard_widget.hide_key_pad()
+    key_pad_widget.hide_key_pad()
     spacer_widget.show_top_bottom_spacers()
     spacer_widget.update_top_bottom_spacer_width(app)
     new_item_confirm_widget.show_new_item_confirm()
@@ -197,7 +197,7 @@ button_widget.spin_up_edit_button(item_info_box, save_new_item)
 button_widget.hide_edit_button()
 
 picture_widget.spin_up_picture(app)
-keyboard_widget.spin_up_key_pad_box(app)
+key_pad_widget.spin_up_key_pad_box(app)
 reset_display()
 
 app.bg = '#011627'
