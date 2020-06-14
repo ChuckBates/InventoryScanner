@@ -11,8 +11,16 @@ def click(btn):
     elif btn == 'abc':
         destroy_pad()
         paint_letter_pad()
+    elif btn == '<x|':
+        remove_last_letter()
     else:
         text_container.append(btn)
+
+def remove_last_letter():
+    current = text_container.value
+    new = current[:-1]
+    text_container.clear()
+    text_container.append(new)
 
 def destroy_pad():
     for child in label_frame.winfo_children():
