@@ -11,7 +11,7 @@ def spin_up_editable_texts(parent, command):
     item_size_text = Text(parent, width='fill', color=display_config.text_color, font=display_config.text_font, size=display_config.text_size, grid=[2,5], align='left')
 
     global item_name_text_box
-    item_name_text_box = TextBox(parent, width=45, grid=[2,3], align='left')
+    item_name_text_box = TextBox(parent, width=45, grid=[2,3,2,1], align='left')
     item_name_text_box.text_color = display_config.text_color
     item_name_text_box.font = display_config.text_font
     item_name_text_box.text_size = display_config.text_size

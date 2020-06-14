@@ -72,6 +72,7 @@ def new_item_yes():
             item_found(item['item'])
         key_pad_widget.show_key_pad()
         editable_text_widget.swap_to_text_box(item['item'])
+        app.update()
 
 def new_item_no():
     spacer_widget.hide_top_bottom_spacers()
