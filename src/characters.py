@@ -18,26 +18,45 @@ number_third_row = [
 ]
 
 number_fourth_row = [
-    'abc', '0', '<x|', '<-¬'
+    'abc', '0', '<x|'
 ]
 
-letter_btn_list = [
+letter_lower_btn_list = [
     'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
     'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
     '^', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<x|',
     '123', ',', ' ', '.', '<-¬'
 ]
 
-letter_first_row = [
+letter_lower_first_row = [
     'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'
 ]
 
-letter_second_row = [
+letter_lower_second_row = [
     'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'
 ]
 
-letter_third_row = [
+letter_lower_third_row = [
     '^', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<x|'
+]
+
+letter_upper_btn_list = [
+    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
+    'A', 'S', 'D', 'F', 'G', 'H', 'K', 'K', 'L',
+    '^', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<x|',
+    '123', ',', ' ', '.', '<-¬'
+]
+
+letter_upper_first_row = [
+    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'
+]
+
+letter_upper_second_row = [
+    'A', 'S', 'D', 'F', 'G', 'H', 'K', 'K', 'L'
+]
+
+letter_upper_third_row = [
+    '^', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<x|'
 ]
 
 letter_fourth_row = [

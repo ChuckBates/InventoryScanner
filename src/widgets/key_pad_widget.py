@@ -10,11 +10,25 @@ def click(btn):
         paint_number_pad()
     elif btn == 'abc':
         destroy_pad()
-        paint_letter_pad()
+        paint_lower_letter_pad()
     elif btn == '<x|':
         remove_last_letter()
+    elif btn == '^':
+        print(is_upper_case())
+        global case
+        if is_upper_case():
+            case = 'lower'
+            destroy_pad()
+            paint_lower_letter_pad()
+        else:
+            case = 'upper'
+            destroy_pad()
+            paint_upper_letter_pad()
     else:
         text_container.append(btn)
+
+def is_upper_case():
+    return case == 'upper'
 
 def remove_last_letter():
     current = text_container.value
@@ -50,28 +64,60 @@ def spin_up_keypad(tc):
     label_frame = tkinter.LabelFrame(key_pad_box.tk, bg='#011627', relief='flat')
     label_frame.pack(padx=15, pady=10)
 
-    paint_letter_pad()
+    global case
+    case = 'lower'
+    paint_lower_letter_pad()
     return label_frame
 
-def paint_letter_pad():
+def paint_lower_letter_pad():
     row_one_column=0
     row_two_column=0
     row_three_column=0
     row_four_column=0
 
-    btn = list(range(len(characters.letter_btn_list)+3))
-    for label in characters.letter_btn_list:
+    btn = list(range(len(characters.letter_lower_btn_list)+3))
+    for label in characters.letter_lower_btn_list:
         cmd = partial(click, label)
 
         key_width=6
         btn = tkinter.Button(label_frame, text=label, width=key_width, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief='groove')
-        if label in characters.letter_first_row:
+        if label in characters.letter_lower_first_row:
             btn.grid(row=1, column=row_one_column)
             row_one_column+=1
-        elif label in characters.letter_second_row:        
+        elif label in characters.letter_lower_second_row:        
             btn.grid(row=2, column=row_two_column, columnspan=2)
             row_two_column+=1
-        elif label in characters.letter_third_row:
+        elif label in characters.letter_lower_third_row:
+            btn.grid(row=3, column=row_three_column, columnspan=2)
+            row_three_column+=1
+        elif label in characters.letter_fourth_row:
+            if label == ' ':
+                btn = tkinter.Button(label_frame, text=label, width=32, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief='groove')
+                btn.grid(row=4, column=row_four_column, columnspan=6)
+                row_four_column+=4
+            else:
+                btn.grid(row=4, column=row_four_column, columnspan=3)
+                row_four_column+=1
+
+def paint_upper_letter_pad():
+    row_one_column=0
+    row_two_column=0
+    row_three_column=0
+    row_four_column=0
+
+    btn = list(range(len(characters.letter_upper_btn_list)+3))
+    for label in characters.letter_upper_btn_list:
+        cmd = partial(click, label)
+
+        key_width=6
+        btn = tkinter.Button(label_frame, text=label, width=key_width, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief='groove')
+        if label in characters.letter_upper_first_row:
+            btn.grid(row=1, column=row_one_column)
+            row_one_column+=1
+        elif label in characters.letter_upper_second_row:        
+            btn.grid(row=2, column=row_two_column, columnspan=2)
+            row_two_column+=1
+        elif label in characters.letter_upper_third_row:
             btn.grid(row=3, column=row_three_column, columnspan=2)
             row_three_column+=1
         elif label in characters.letter_fourth_row:
