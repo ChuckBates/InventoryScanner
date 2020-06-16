@@ -65,6 +65,13 @@ def spin_up_keypad(tc):
     paint_letter_pad()
     return label_frame
 
+def map_enter_key(command):
+    for child in label_frame.winfo_children():
+        if child['text'] == '↵':
+            child.config(command=command)
+            child.update()
+            break
+
 def shift_letters(direction):
     for child in label_frame.winfo_children():
         current = child['text']

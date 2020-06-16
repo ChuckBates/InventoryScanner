@@ -191,6 +191,7 @@ def spin_up_key_pad(event_data):
     app.cancel(reset_display)
     button_widget.show_edit_button()
     key_pad_widget.spin_up_keypad(event_data.widget)
+    key_pad_widget.map_enter_key(try_save_new_item)
 
 def spin_up_confirm_message(commands, message):
     item_info_box.hide()
