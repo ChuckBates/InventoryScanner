@@ -13,7 +13,7 @@ import button_widget
 import spacer_widget
 import barcode_widget
 import editable_text_widget
-import new_item_confirm_widget
+import confirm_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture, info
 from pathlib import Path
@@ -63,7 +63,7 @@ def handle_new_item_entry(item):
 
 def new_item_yes():    
     spacer_widget.hide_top_bottom_spacers()
-    new_item_confirm_widget.hide_new_item_confirm()
+    confirm_widget.hide_new_item_confirm()
     item_info_box.show()
     picture_widget.show_picture()
     if 'potential_new_item' in globals():
@@ -76,7 +76,7 @@ def new_item_yes():
 
 def new_item_no():
     spacer_widget.hide_top_bottom_spacers()
-    new_item_confirm_widget.hide_new_item_confirm()
+    confirm_widget.hide_new_item_confirm()
     reset_display()
 
 def save_new_item():
@@ -122,7 +122,7 @@ def reset_display():
     item_info_box.hide()
     spacer_widget.hide_side_spacers()
     spacer_widget.hide_top_bottom_spacers()
-    new_item_confirm_widget.hide_new_item_confirm()
+    confirm_widget.hide_new_item_confirm()
     picture_widget.hide_picture()
     key_pad_widget.hide_key_pad()
     button_widget.show_main_buttons()
@@ -172,7 +172,7 @@ def spin_up_new_item_confirm():
     key_pad_widget.hide_key_pad()
     spacer_widget.show_top_bottom_spacers()
     spacer_widget.update_top_bottom_spacer_width(app)
-    new_item_confirm_widget.show_new_item_confirm()
+    confirm_widget.show_new_item_confirm([new_item_yes, new_item_no], 'Item not known!\r\rWould you like to enter missing values?')
 
 app = App(title='Inventory Scanner')
 
@@ -182,7 +182,7 @@ buttons = button_widget.spin_up_main_buttons(app, main_buttons_commands)
 spacer_widget.spin_up_side_spacers(app)
 spacer_widget.spin_up_top_bottom_spacers(app)
 spacer_widget.hide_top_bottom_spacers()
-new_item_confirm_widget.spin_up_new_item_confirm(app, [new_item_yes, new_item_no])
+confirm_widget.spin_up_confirm_widget(app)
 
 item_info_box = Box(app, width='fill', layout='grid')
 

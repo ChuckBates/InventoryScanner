@@ -1,9 +1,10 @@
 import display_config
 from guizero import Text, PushButton, Box
 
-def spin_up_new_item_confirm(parent, commands):
+def spin_up_confirm_widget(parent):
     global question
-    question = Text(parent, text='Item not known!\r\rWould you like to enter missing values?')
+    # question = Text(parent, text='Item not known!\r\rWould you like to enter missing values?')
+    question = Text(parent)
     question.font = display_config.text_font
     question.text_size = display_config.text_size
     question.text_color = display_config.text_color
@@ -11,12 +12,14 @@ def spin_up_new_item_confirm(parent, commands):
     global buttons_box
     buttons_box = Box(parent)
 
-    yes_button = PushButton(buttons_box, command=commands[0], text='Yes', align='left', width=5)
+    global yes_button
+    yes_button = PushButton(buttons_box, text='Yes', align='left', width=5)
     yes_button.font = display_config.text_font
     yes_button.text_color = '#00FF21'
     yes_button.text_size = display_config.button_text_size
     
-    no_button = PushButton(buttons_box, command=commands[1], text='No', align='right', width=5)
+    global no_button
+    no_button = PushButton(buttons_box, text='No', align='right', width=5)
     no_button.font = display_config.text_font
     no_button.text_color = '#B60000'
     no_button.text_size = display_config.button_text_size
@@ -25,6 +28,9 @@ def hide_new_item_confirm():
     question.hide()
     buttons_box.hide()
 
-def show_new_item_confirm():
+def show_new_item_confirm(commands, message):
+    question.value = message
     question.show()
+    yes_button.update_command(commands[0])
+    no_button.update_command(commands[1])
     buttons_box.show()
