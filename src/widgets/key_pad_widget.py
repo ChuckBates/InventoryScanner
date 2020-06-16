@@ -53,7 +53,6 @@ def spin_up_key_pad_box(parent):
     key_pad_box.bg = '#011627'
 
 def spin_up_keypad(tc): 
-    tc.clear()
     global text_container
     text_container = tc
     reset_key_pad()
