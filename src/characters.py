@@ -2,7 +2,7 @@ number_btn_list = [
     '7', '8', '9',
     '4', '5', '6', 
     '1', '2', '3', 
-    'abc', '0', '<x|'
+    'abc', '0', '⌫'
 ]
 
 number_first_row = [
@@ -18,14 +18,14 @@ number_third_row = [
 ]
 
 number_fourth_row = [
-    'abc', '0', '<x|'
+    'abc', '0', '⌫'
 ]
 
 letter_lower_btn_list = [
     'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
     'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
-    '^', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<x|',
-    '123', ',', ' ', '.', '<-¬'
+    '↑', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '⌫',
+    '123', ',', ' ', '.', '↵'
 ]
 
 letter_lower_first_row = [
@@ -37,14 +37,14 @@ letter_lower_second_row = [
 ]
 
 letter_lower_third_row = [
-    '^', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<x|'
+    '↑', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '⌫'
 ]
 
 letter_upper_btn_list = [
     'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
     'A', 'S', 'D', 'F', 'G', 'H', 'K', 'K', 'L',
-    '^', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<x|',
-    '123', ',', ' ', '.', '<-¬'
+    '↑', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫',
+    '123', ',', ' ', '.', '↵'
 ]
 
 letter_upper_first_row = [
@@ -56,9 +56,9 @@ letter_upper_second_row = [
 ]
 
 letter_upper_third_row = [
-    '^', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<x|'
+    '↑', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫'
 ]
 
 letter_fourth_row = [
-    '123', ',', ' ', '.', '<-¬'
+    '123', ',', ' ', '.', '↵'
 ]

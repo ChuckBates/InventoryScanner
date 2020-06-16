@@ -11,9 +11,9 @@ def click(btn):
     elif btn == 'abc':
         destroy_pad()
         paint_lower_letter_pad()
-    elif btn == '<x|':
+    elif btn == '⌫':
         remove_last_letter()
-    elif btn == '^':
+    elif btn == '↑':
         print(is_upper_case())
         global case
         if is_upper_case():
