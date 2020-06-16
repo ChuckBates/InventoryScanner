@@ -23,6 +23,16 @@ def get_barcodes(parent, commands):
     look_up_barcode.text_size = display_config.text_size
     look_up_barcode.when_key_pressed = commands[2]
 
+def disable():
+    scan_in_barcode.disable()
+    scan_out_barcode.disable()
+    look_up_barcode.disable()
+
+def enable():
+    scan_in_barcode.enable()
+    scan_out_barcode.enable()
+    look_up_barcode.enable()
+
 def scan_in_value():
     return scan_in_barcode.value
 

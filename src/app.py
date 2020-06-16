@@ -19,6 +19,7 @@ from guizero import App, Text, TextBox, PushButton, Box, Picture, info
 from pathlib import Path
 
 def update_item_display(mode):
+    barcode_widget.disable()
     if mode == 'look_up':
         handle_item_look_up(inventory_lookup.find(barcode_widget.look_up_value()))    
     elif mode == 'scan_in':
@@ -174,6 +175,7 @@ def set_display_to_blank():
     editable_text_widget.clear_text()
     item_info_box.show()
     editable_text_widget.swap_to_text_label()
+    barcode_widget.enable()
     button_widget.hide_edit_button()
     spacer_widget.show_side_spacers()
     picture_widget.show_picture()
