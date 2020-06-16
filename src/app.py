@@ -230,4 +230,5 @@ reset_display()
 
 app.bg = '#011627'
 # app.set_full_screen()
+app.tk.config(cursor='none')
 app.display()
