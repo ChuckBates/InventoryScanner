@@ -2,6 +2,7 @@ import sys
 import os
 from pathlib import Path
 sys.path.insert(1, '../src')
+sys.path.insert(1, '../src/tools')
 
 import inventory_lookup
 import inventory_repository as repo

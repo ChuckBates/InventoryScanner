@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, '../src')
+sys.path.insert(1, '../src/tools')
 
 import image_tools
 import os
