@@ -59,11 +59,11 @@ def item_found(item_info):
 def handle_new_item_entry(item):
     global potential_new_item
     potential_new_item = item
-    spin_up_new_item_confirm()
+    spin_up_confirm_message([new_item_yes, new_item_no], 'Item not known!\r\rWould you like to enter missing values?')
 
 def new_item_yes():    
     spacer_widget.hide_top_bottom_spacers()
-    confirm_widget.hide_new_item_confirm()
+    confirm_widget.hide_confirm()
     item_info_box.show()
     picture_widget.show_picture()
     if 'potential_new_item' in globals():
@@ -76,8 +76,14 @@ def new_item_yes():
 
 def new_item_no():
     spacer_widget.hide_top_bottom_spacers()
-    confirm_widget.hide_new_item_confirm()
+    confirm_widget.hide_confirm()
     reset_display()
+
+def try_save_new_item():
+    values = editable_text_widget.get_values()
+    values['_id'] = barcode_widget.get_value()
+
+    validate_new_item_info(values)
 
 def save_new_item():
     values = editable_text_widget.get_values()
@@ -93,6 +99,24 @@ def save_new_item():
         repo.save(new_item)
 
         reset_display()
+
+def validate_new_item_info(values):
+    if values['item_name_text_box'] == '' or not values['item_quantity_text_box'].isdigit() or not string_tools.extract_size_and_uom(values['item_size_text_box'])['successful']:
+        spin_up_confirm_message([failed_validation_yes, failed_validation_no], 'Item information invalid!\r\rWould you like to re-enter values?')   
+    else: 
+        save_new_item()
+
+def failed_validation_yes():
+    spacer_widget.hide_top_bottom_spacers()
+    confirm_widget.hide_confirm()
+    item_info_box.show()
+    picture_widget.show_picture()
+    key_pad_widget.show_key_pad()
+
+def failed_validation_no():
+    spacer_widget.hide_top_bottom_spacers()
+    confirm_widget.hide_confirm()
+    reset_display()
 
 def scan_in_key_pressed(event_data):
     reset_timer_to_reset_display()
@@ -122,7 +146,7 @@ def reset_display():
     item_info_box.hide()
     spacer_widget.hide_side_spacers()
     spacer_widget.hide_top_bottom_spacers()
-    confirm_widget.hide_new_item_confirm()
+    confirm_widget.hide_confirm()
     picture_widget.hide_picture()
     key_pad_widget.hide_key_pad()
     button_widget.show_main_buttons()
@@ -166,13 +190,13 @@ def spin_up_key_pad(event_data):
     button_widget.show_edit_button()
     key_pad_widget.spin_up_keypad(event_data.widget)
 
-def spin_up_new_item_confirm():
+def spin_up_confirm_message(commands, message):
     item_info_box.hide()
     picture_widget.hide_picture()
     key_pad_widget.hide_key_pad()
     spacer_widget.show_top_bottom_spacers()
     spacer_widget.update_top_bottom_spacer_width(app)
-    confirm_widget.show_new_item_confirm([new_item_yes, new_item_no], 'Item not known!\r\rWould you like to enter missing values?')
+    confirm_widget.show_confirm(commands, message)
 
 app = App(title='Inventory Scanner')
 
@@ -194,7 +218,7 @@ label_widget.spin_up_item_labels(item_info_box)
 editable_text_widget.spin_up_editable_texts(item_info_box, spin_up_key_pad)
 editable_text_widget.hide_text_boxes()
 
-button_widget.spin_up_edit_button(item_info_box, save_new_item)
+button_widget.spin_up_edit_button(item_info_box, try_save_new_item)
 button_widget.hide_edit_button()
 
 picture_widget.spin_up_picture(app)

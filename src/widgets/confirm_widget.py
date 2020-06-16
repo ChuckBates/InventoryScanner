@@ -24,11 +24,11 @@ def spin_up_confirm_widget(parent):
     no_button.text_color = '#B60000'
     no_button.text_size = display_config.button_text_size
 
-def hide_new_item_confirm():
+def hide_confirm():
     question.hide()
     buttons_box.hide()
 
-def show_new_item_confirm(commands, message):
+def show_confirm(commands, message):
     question.value = message
     question.show()
     yes_button.update_command(commands[0])
