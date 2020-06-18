@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, '../src/tools')
+sys.path.insert(1, '../src/device/tools')
 
 import string_tools
 

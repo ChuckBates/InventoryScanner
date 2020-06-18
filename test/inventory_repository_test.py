@@ -1,6 +1,6 @@
 import sys
 import pytest
-sys.path.insert(1, '../src')
+sys.path.insert(1, '../src/device')
 
 import inventory_repository as repo
 

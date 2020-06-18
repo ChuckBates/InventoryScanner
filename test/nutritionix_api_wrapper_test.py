@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(1, '../src')
+sys.path.insert(1, '../src/device')
 
 import nutritionix_api_wrapper as api_wrapper
 
