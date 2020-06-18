@@ -13,6 +13,7 @@ import button_widget
 import spacer_widget
 import barcode_widget
 import editable_text_widget
+import motion_widget
 import confirm_widget
 import display_config
 from guizero import App, Text, TextBox, PushButton, Box, Picture, info
