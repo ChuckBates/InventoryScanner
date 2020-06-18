@@ -230,5 +230,6 @@ reset_display()
 
 app.bg = '#011627'
 # app.set_full_screen()
+app.repeat(5000, motion_widget.check_for_motion)
 app.tk.config(cursor='none')
 app.display()
