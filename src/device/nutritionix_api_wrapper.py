@@ -2,7 +2,7 @@ import requests
 import json
 
 url = 'https://trackapi.nutritionix.com/v2/search/item'
-config = json.load(open('../config.json'))
+config = json.load(open('../../config.json'))
 
 def find(barcode_id):
     response = requests.get(url, params={'upc': barcode_id}, headers={

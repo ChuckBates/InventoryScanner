@@ -3,7 +3,7 @@ import json
 
 def load():
     global config
-    config = json.load(open('../config.json'))
+    config = json.load(open('../../config.json'))
     global pg_connection
     pg_connection = psycopg2.connect(host=config['postgres_host'], database=config['postgres_database'], user=config['postgres_username'], password=config['postgres_password'])
     global cursor
