@@ -11,6 +11,7 @@ def click(btn):
     elif btn == 'abc':
         destroy_pad()
         paint_letter_pad()
+        map_enter_key(enter_command)
     elif btn == '⌫':
         index = text_container.tk.index(tkinter.INSERT)
         text_container.tk.delete(index-1)
@@ -64,6 +65,8 @@ def spin_up_keypad(tc):
     return label_frame
 
 def map_enter_key(command):
+    global enter_command
+    enter_command = command
     for child in label_frame.winfo_children():
         if child['text'] == '↵':
             child.config(command=command)
