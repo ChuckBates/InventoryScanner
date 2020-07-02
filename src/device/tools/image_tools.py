@@ -4,7 +4,7 @@ from PIL import Image
 from pathlib import Path
 
 def download_image(barcode, image_url):
-    file_path = f'{os.getcwd()}\images\{barcode}.jpeg'
+    file_path = f'/home/pi/InventoryScanner/src/images/{barcode}.jpeg'
     download_response = {}
     try:
         urllib.request.urlretrieve(image_url, file_path)
