@@ -146,7 +146,6 @@ def look_up_key_pressed(event_data):
 
 def reset_display():
     item_info_box.hide()
-    spacer_widget.hide_side_spacers()
     spacer_widget.hide_top_bottom_spacers()
     confirm_widget.hide_confirm()
     picture_widget.hide_picture()
@@ -172,13 +171,11 @@ def set_display_to_look_up():
 def set_display_to_blank():
     reset_timer_to_reset_display()
 
-    spacer_widget.update_side_spacer_width(app)
     editable_text_widget.clear_text()
     item_info_box.show()
     editable_text_widget.swap_to_text_label()
     barcode_widget.enable()
     button_widget.hide_edit_button()
-    spacer_widget.show_side_spacers()
     picture_widget.show_picture()
     button_widget.hide_main_buttons()
     picture_widget.reset_picture()
@@ -207,7 +204,6 @@ app = App(title='Inventory Scanner')
 main_buttons_commands = [set_display_to_scan_in, set_display_to_scan_out, set_display_to_look_up]
 buttons = button_widget.spin_up_main_buttons(app, main_buttons_commands)
 
-spacer_widget.spin_up_side_spacers(app)
 spacer_widget.spin_up_top_bottom_spacers(app)
 spacer_widget.hide_top_bottom_spacers()
 confirm_widget.spin_up_confirm_widget(app)
