@@ -12,7 +12,8 @@ def click(btn):
         destroy_pad()
         paint_letter_pad()
     elif btn == '⌫':
-        remove_last_letter()
+        index = text_container.tk.index(tkinter.INSERT)
+        text_container.tk.delete(index-1)
     elif btn == '↑':
         global case
         if is_upper_case():
@@ -22,16 +23,13 @@ def click(btn):
             case = 'upper'
             shift_letters('upper')
     else:
-        text_container.append(btn)
+        value = btn
+        if is_upper_case():
+            value = value.upper()
+        text_container.tk.insert(tkinter.INSERT, value)
 
 def is_upper_case():
     return case == 'upper'
-
-def remove_last_letter():
-    current = text_container.value
-    new = current[:-1]
-    text_container.clear()
-    text_container.append(new)
 
 def destroy_pad():
     for child in label_frame.winfo_children():
