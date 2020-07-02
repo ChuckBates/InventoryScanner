@@ -56,7 +56,7 @@ def spin_up_keypad(tc):
     reset_key_pad()
     global label_frame
     label_frame = tkinter.LabelFrame(key_pad_box.tk, bg='#011627', relief='flat')
-    label_frame.pack(padx=15, pady=10)
+    label_frame.pack(padx=0, pady=0)
 
     global case
     case = 'lower'
@@ -84,12 +84,14 @@ def paint_letter_pad():
     row_three_column=0
     row_four_column=0
 
-    btn = list(range(len(characters.letter_lower_btn_list)+3))
+    btn = list(range(len(characters.letter_lower_btn_list)))
     for label in characters.letter_lower_btn_list:
         cmd = partial(click, label)
 
-        key_width=6
-        btn = tkinter.Button(label_frame, text=label, width=key_width, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief='groove')
+        key_width=2
+        key_height=2
+        key_relief='groove'
+        btn = tkinter.Button(label_frame, bd=0, text=label, width=key_width, height=key_height, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief=key_relief)
         if label in characters.letter_lower_first_row:
             btn.grid(row=1, column=row_one_column)
             row_one_column+=1
@@ -101,7 +103,7 @@ def paint_letter_pad():
             row_three_column+=1
         elif label in characters.letter_fourth_row:
             if label == ' ':
-                btn = tkinter.Button(label_frame, text=label, width=32, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief='groove')
+                btn = tkinter.Button(label_frame, bd=0, text=label, width=17, height=key_height, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief=key_relief)
                 btn.grid(row=4, column=row_four_column, columnspan=6)
                 row_four_column+=4
             else:
@@ -118,8 +120,9 @@ def paint_number_pad():
     for label in characters.number_btn_list:
         cmd = partial(click, label)
 
-        key_width=15        
-        btn = tkinter.Button(label_frame, text=label, width=key_width, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief='groove')
+        key_width=10     
+        key_height=2   
+        btn = tkinter.Button(label_frame, bd=0, text=label, width=key_width, height=key_height, command=cmd, bg="#011627", fg=display_config.text_color, font=display_config.text_font, relief='groove')
         if label in characters.number_first_row:
             btn.grid(row=1, column=num_row_one_column)
             num_row_one_column+=1
