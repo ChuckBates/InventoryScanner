@@ -61,7 +61,7 @@ def item_found(item_info):
 def handle_new_item_entry(item):
     global potential_new_item
     potential_new_item = item
-    spin_up_confirm_message([new_item_yes, new_item_no], 'Item not known!\r\rWould you like to enter missing values?')
+    spin_up_confirm_message([new_item_yes, new_item_no], 'Item not known!\rWould you like to\renter missing values?')
 
 def new_item_yes():    
     spacer_widget.hide_top_bottom_spacers()
@@ -104,7 +104,7 @@ def save_new_item():
 
 def validate_new_item_info(values):
     if values['item_name_text_box'] == '' or not values['item_quantity_text_box'].isdigit() or not string_tools.extract_size_and_uom(values['item_size_text_box'])['successful']:
-        spin_up_confirm_message([failed_validation_yes, failed_validation_no], 'Item information invalid!\r\rWould you like to re-enter values?')   
+        spin_up_confirm_message([failed_validation_yes, failed_validation_no], 'Item information invalid!\rWould you like to\rre-enter values?')   
     else: 
         save_new_item()
 
