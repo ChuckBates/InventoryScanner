@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using InventoryScannerCore.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryScannerCore.Controllers
 {

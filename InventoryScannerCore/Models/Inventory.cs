@@ -1,4 +1,4 @@
-﻿namespace InventoryScannerCore
+﻿namespace InventoryScannerCore.Models
 {
     public class Inventory
     {
