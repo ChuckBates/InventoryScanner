@@ -3,7 +3,7 @@ using InventoryScannerCore.Models;
 using InventoryScannerCore.Repositories;
 using Moq;
 
-namespace InventoryScannerCore.ApiTests
+namespace InventoryScannerCore.UnitTests
 {
     [TestFixture]
     public class InventoryControllerTests
