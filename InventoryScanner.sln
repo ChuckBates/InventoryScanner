@@ -7,7 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryScannerCore", "Inv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryScannerCore.UnitTests", "InventoryScannerCore.UnitTests\InventoryScannerCore.UnitTests.csproj", "{C647C812-B0D6-421F-8707-0F9A6E7F549A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryScannerCore.ApiTests", "InventoryScannerCore.ApiTests\InventoryScannerCore.ApiTests.csproj", "{83F8D14C-88CD-4046-8375-DD963F815601}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryScannerCore.ApiTests", "InventoryScannerCore.ApiTests\InventoryScannerCore.ApiTests.csproj", "{83F8D14C-88CD-4046-8375-DD963F815601}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{1E9897DB-3618-43F3-8B9E-5C26FBC28B5D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BDBECF0D-527F-4E46-9DA7-DC0FA11027D9}"
+	ProjectSection(SolutionItems) = preProject
+		postgres-init\create_tables.sql = postgres-init\create_tables.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +34,10 @@ Global
 		{83F8D14C-88CD-4046-8375-DD963F815601}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83F8D14C-88CD-4046-8375-DD963F815601}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83F8D14C-88CD-4046-8375-DD963F815601}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E9897DB-3618-43F3-8B9E-5C26FBC28B5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E9897DB-3618-43F3-8B9E-5C26FBC28B5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E9897DB-3618-43F3-8B9E-5C26FBC28B5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E9897DB-3618-43F3-8B9E-5C26FBC28B5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
