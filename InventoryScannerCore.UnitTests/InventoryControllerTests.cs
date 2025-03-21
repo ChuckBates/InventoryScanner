@@ -142,6 +142,35 @@ namespace InventoryScannerCore.UnitTests
             Assert.That(result.Error, Is.EqualTo(expectedResponse.Error));
         }
 
+        [Test]
+        public void When_calling_add_inventory_and_there_is_an_error()
+        {
+            var inventory = new Inventory(526485157884, "title", "description", 5, "image.url");
+            var error = "An error occurred.";
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).Throws(new Exception(error));
+
+            var result = inventoryController.Add(inventory);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Error));
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Error.Contains(error));
+        }
+
+        [Test]
+        public void When_calling_add_inventory_successfully()
+        {
+            var inventory = new Inventory(526485157884, "title", "description", 5, "image.url");
+            mockInventoryRepository.Setup(x => x.Insert(inventory));
+
+            var result = inventoryController.Add(inventory);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Error, Is.Empty);
+        }
+
         [TearDown]
         public void TearDown()
         {

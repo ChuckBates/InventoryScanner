@@ -54,5 +54,24 @@ namespace InventoryScannerCore.Controllers
 
             return response;
         }
+
+        [HttpPost(Name = "Add")]
+        public InventoryControllerResponse Add(Inventory inventory)
+        {
+            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
+
+            try
+            {
+                inventoryRepository.Insert(inventory);
+            }
+            catch (Exception e)
+            {
+                response.Status = ControllerResponseStatus.Error;
+                response.Error = "Error adding inventory data: " + e.Message;
+                return response;
+            }
+
+            return response;
+        }
     }
 }
