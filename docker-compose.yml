@@ -1,12 +1,19 @@
 services:
   inventoryscannercore:
     image: ${DOCKER_REGISTRY-}inventoryscannercore
+    container_name: "inventoryscanner-core"
+    ports:
+    - "5000:8080"
+    - "5001:8081"
     build:
       context: InventoryScannerCore
       dockerfile: Dockerfile
+    networks:
+      - default
 
   postgres:
     image: "postgres:latest"
+    container_name: "inventoryscanner-postgres"
     volumes:
       - "postgres-data:/var/lib/postgresql/data"
       - "./postgres-init:/docker-entrypoint-initdb.d"
@@ -16,6 +23,11 @@ services:
       - POSTGRES_DB=inventoryscanner
     ports:
     - "5432:5432"
+    networks:
+      - default
 
 volumes:
   postgres-data:
+
+networks:
+  default:
