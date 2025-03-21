@@ -11,9 +11,9 @@ namespace InventoryScannerCore.Repositories
     {
         NpgsqlConnection connection;
 
-        public InventoryRepository()
+        public InventoryRepository(Dictionary<string, string> config)
         {
-            string connectionString = "Server=postgres;Port=5432;Database=inventoryscanner;User Id=postgres;Password=postgres;";
+            string connectionString = $"Server={config["db-server"]};Port={config["db-port"]};Database={config["db-name"]};User Id={config["db-user"]};Password={config["db-password"]};";
             connection = new NpgsqlConnection(connectionString);
         }
 

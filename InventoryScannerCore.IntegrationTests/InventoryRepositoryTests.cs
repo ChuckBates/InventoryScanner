@@ -1,16 +1,28 @@
-using NUnit.Framework;
 using InventoryScannerCore.Models;
 using InventoryScannerCore.Repositories;
-using Assert = NUnit.Framework.Assert;
 
 namespace InventoryScannerCore.IntegrationTests
 {
-    [TestClass]
+    [TestFixture]
     public class InventoryRepositoryTests
     {
-        private InventoryRepository repository = new InventoryRepository();
+        private InventoryRepository repository;
 
-        [TestMethod]
+        [SetUp]
+        public void Setup()
+        {
+            var testConfig = new Dictionary<string, string>();
+            testConfig.Add("db-server", "localhost");
+            testConfig.Add("db-port", "5432");
+            testConfig.Add("db-name", "inventoryscanner");
+            testConfig.Add("db-user", "postgres");
+            testConfig.Add("db-password", "postgres");
+
+            repository = new InventoryRepository(testConfig);
+            repository.DeleteAll();
+        }
+
+        [Test]
         public void When_roud_tripping_an_inventory()
         {
             var expected = TestInventories().First();
@@ -29,7 +41,7 @@ namespace InventoryScannerCore.IntegrationTests
             repository.Delete(actual.Barcode);
         }
 
-        [TestMethod]
+        [Test]
         public void When_getting_an_inventory_and_it_does_not_exist()
         {
             var barcode = GenerateBarcode();
@@ -39,7 +51,7 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.IsNull(actual);
         }
 
-        [TestMethod]
+        [Test]
         public void When_getting_all_inventory()
         {
             repository.DeleteAll();
