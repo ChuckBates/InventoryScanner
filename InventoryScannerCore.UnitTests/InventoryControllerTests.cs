@@ -1,4 +1,5 @@
 using InventoryScannerCore.Controllers;
+using InventoryScannerCore.Enums;
 using InventoryScannerCore.Models;
 using InventoryScannerCore.Repositories;
 using Moq;
@@ -19,52 +20,126 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
+        public void When_calling_get_all_inventory_and_there_is_an_error()
+        {
+            var error = "An error occurred.";
+            mockInventoryRepository.Setup(x => x.GetAll()).Throws(new Exception(error));
+
+            var result = inventoryController.GetAll();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Error));
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Error.Contains(error));
+        }
+
+        [Test]
+        public void When_calling_get_all_inventory_and_nothing_is_returned()
+        {
+            mockInventoryRepository.Setup(x => x.GetAll()).Returns(new List<Inventory>());
+
+            var result = inventoryController.GetAll();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Error, Is.Empty);
+        }
+
+        [Test]
         public void When_calling_get_all_inventory_and_something_is_returned()
         {
-            mockInventoryRepository.Setup(x => x.GetAll()).Returns(new List<Inventory> { new Inventory() });
+            mockInventoryRepository.Setup(x => x.GetAll()).Returns(new List<Inventory> { new() });
 
             var result = inventoryController.GetAll();
 
-            Assert.IsNotEmpty(result);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
+            Assert.That(result.Data.Count, Is.GreaterThan(0));
+            Assert.That(result.Error, Is.Empty);
         }
 
         [Test]
-        public void When_calling_get_all_inventory_and_a_single_inventory_is_returned_with_no_quantity()
+        public void When_calling_get_all_inventory_and_a_single_inventory_is_returned()
         {
-            mockInventoryRepository.Setup(x => x.GetAll()).Returns(new List<Inventory> { new Inventory() { Quantity = 0 } });
+            var expectedInventory = new Inventory(526485157884, "title", "description", 5, "image.url");
+            var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, [expectedInventory]);
+            mockInventoryRepository.Setup(x => x.GetAll()).Returns([expectedInventory]);
 
             var result = inventoryController.GetAll();
 
-            Assert.That(result.First().Quantity, Is.EqualTo(0));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(expectedResponse.Status));
+            Assert.That(result.Data.Count, Is.EqualTo(1));
+            Assert.That(result.Data, Is.EquivalentTo(expectedResponse.Data));
+            Assert.That(result.Error, Is.EqualTo(expectedResponse.Error));
         }
 
         [Test]
-        public void When_calling_get_all_inventory_and_a_single_inventory_is_returned_with_non_zero_quantity()
+        public void When_calling_get_all_inventory_and_multiple_inventories_are_returned()
         {
-            mockInventoryRepository.Setup(x => x.GetAll()).Returns(new List<Inventory> { new Inventory() { Quantity = 1 } });
-
-            var result = inventoryController.GetAll();
-
-            Assert.That(result.First().Quantity, Is.GreaterThan(0));
-        }
-
-        [Test]
-        public void When_calling_get_all_inventory_and_multiple_inventories_are_returned_with_non_zero_quantities()
-        {
-            var inventories = new List<Inventory>
+            var expectedInventories = new List<Inventory>
             {
-                new() { Quantity = 1 },
-                new() { Quantity = 2 },
-                new() { Quantity = 3 }
+                new Inventory(526485157884, "title1", "description1", 5, "image.url/1"),
+                new Inventory(846357158269, "title2", "description2", 2, "image.url/2")
             };
+            var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, expectedInventories);
 
-            mockInventoryRepository.Setup(x => x.GetAll()).Returns(inventories);
+            mockInventoryRepository.Setup(x => x.GetAll()).Returns(expectedInventories);
 
             var result = inventoryController.GetAll();
 
-            Assert.That(result.Count(), Is.EqualTo(3));
-            Assert.That(result.First().Quantity, Is.EqualTo(1));
-            Assert.That(result.Skip(1).First().Quantity, Is.EqualTo(2));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(expectedResponse.Status));
+            Assert.That(result.Data.Count, Is.EqualTo(expectedInventories.Count));
+            Assert.That(result.Data, Is.EquivalentTo(expectedResponse.Data));
+            Assert.That(result.Error, Is.EqualTo(expectedResponse.Error));
+        }
+
+        [Test]
+        public void When_calling_get_inventory_and_there_is_an_error()
+        {
+            var barcode = 526485157884;
+            var error = "An error occurred.";
+            mockInventoryRepository.Setup(x => x.Get(barcode)).Throws(new Exception(error));
+
+            var result = inventoryController.Get(barcode);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Error));
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Error.Contains(error));
+        }
+
+        [Test]
+        public void When_calling_get_inventory_and_nothing_is_returned()
+        {
+            var barcode = 526485157884;
+            var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.NotFound, new List<Inventory>());
+            mockInventoryRepository.Setup(x => x.Get(barcode)).Returns((Inventory)null);
+
+            var result = inventoryController.Get(barcode);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(expectedResponse.Status));
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Error, Is.Empty);
+        }
+
+        [Test]
+        public void When_calling_get_inventory_and_something_is_returned()
+        {
+            var expectedInventory = new Inventory(526485157884, "title", "description", 5, "image.url");
+            var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, [expectedInventory]);
+            mockInventoryRepository.Setup(x => x.Get(expectedInventory.Barcode)).Returns(expectedInventory);
+
+            var result = inventoryController.Get(expectedInventory.Barcode);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
+            Assert.That(result.Data.Count, Is.EqualTo(1));
+            Assert.That(result.Data, Is.EquivalentTo(expectedResponse.Data));
+            Assert.That(result.Error, Is.EqualTo(expectedResponse.Error));
         }
 
         [TearDown]

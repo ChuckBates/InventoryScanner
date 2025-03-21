@@ -4,6 +4,15 @@ namespace InventoryScannerCore.Models
 {
     public class Inventory
     {
+        public Inventory()
+        {
+            Barcode = 0;
+            Title = "";
+            Description = "";
+            Quantity = 0;
+            ImageUrl = "";
+        }
+
         public Inventory(long barcode, string title, string description, int quantity, string imageurl)
         {
             Barcode = barcode;
@@ -13,6 +22,7 @@ namespace InventoryScannerCore.Models
             ImageUrl = imageurl;
 
         }
+
         public long Barcode { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

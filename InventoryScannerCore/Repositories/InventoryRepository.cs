@@ -13,7 +13,7 @@ namespace InventoryScannerCore.Repositories
 
         public InventoryRepository()
         {
-            string connectionString = "Server=localhost;Port=5432;Database=inventoryscanner;User Id=postgres;Password=postgres;";
+            string connectionString = "Server=postgres;Port=5432;Database=inventoryscanner;User Id=postgres;Password=postgres;";
             connection = new NpgsqlConnection(connectionString);
         }
 
