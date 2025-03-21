@@ -69,8 +69,11 @@ namespace InventoryScannerCore.Repositories
         public void Insert(Inventory inventory)
         {
             connection.Open();
-            var statement = $"INSERT INTO inventory (barcode, title, description, quantity, imageurl) values " +
-                $"({inventory.Barcode}, '{inventory.Title}', '{inventory.Description}', {inventory.Quantity}, '{inventory.ImageUrl}')";
+            var statement = $"" +
+                $"INSERT INTO inventory (barcode, title, description, quantity, imageurl) " +
+                $"values ({inventory.Barcode}, '{inventory.Title}', '{inventory.Description}', {inventory.Quantity}, '{inventory.ImageUrl}') " +
+                $"ON CONFLICT(barcode) " +
+                $"DO UPDATE SET title = '{inventory.Title}', description = '{inventory.Description}', quantity = {inventory.Quantity}, imageurl = '{inventory.ImageUrl}'";
             NpgsqlCommand command = new NpgsqlCommand(statement, connection);
             command.ExecuteNonQuery();
             connection.Close();

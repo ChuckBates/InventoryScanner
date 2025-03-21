@@ -79,6 +79,29 @@ namespace InventoryScannerCore.IntegrationTests
             inventories.ToList().ForEach(i => repository.Delete(i.Barcode));
         }
 
+        [Test]
+        public void When_inserting_an_inventory_and_it_already_exists()
+        {
+            var inventory = TestInventories().First();
+            repository.Insert(inventory);
+
+            inventory.Title += "-updated";
+            inventory.Description += "-updated";
+            inventory.Quantity += 10;
+            inventory.ImageUrl += "-updated";
+
+            repository.Insert(inventory);
+
+            var result = repository.Get(inventory.Barcode);
+
+            Assert.That(result.Title, Is.EqualTo(inventory.Title));
+            Assert.That(result.Description, Is.EqualTo(inventory.Description));
+            Assert.That(result.Quantity, Is.EqualTo(inventory.Quantity));
+            Assert.That(result.ImageUrl, Is.EqualTo(inventory.ImageUrl));
+
+            repository.Delete(inventory.Barcode);
+        }
+
         public static List<Inventory> TestInventories()
         {
             return new List<Inventory>
