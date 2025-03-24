@@ -11,10 +11,9 @@ namespace InventoryScannerCore.Repositories
     {
         NpgsqlConnection connection;
 
-        public InventoryRepository(Dictionary<string, string> config)
+        public InventoryRepository(SettingsService settings)
         {
-            string connectionString = $"Server={config["db-server"]};Port={config["db-port"]};Database={config["db-name"]};User Id={config["db-user"]};Password={config["db-password"]};";
-            connection = new NpgsqlConnection(connectionString);
+            connection = new NpgsqlConnection((string?)settings.GetConnectionString());
         }
 
         public IEnumerable<Inventory> GetAll()
