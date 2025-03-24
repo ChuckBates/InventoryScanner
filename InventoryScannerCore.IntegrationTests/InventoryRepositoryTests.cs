@@ -1,5 +1,7 @@
 using InventoryScannerCore.Models;
 using InventoryScannerCore.Repositories;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace InventoryScannerCore.IntegrationTests
 {
@@ -18,7 +20,21 @@ namespace InventoryScannerCore.IntegrationTests
             testConfig.Add("db-user", "postgres");
             testConfig.Add("db-password", "postgres");
 
-            repository = new InventoryRepository(testConfig);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IOptions<Settings>>(Options.Create(new Settings
+            {
+                DatabaseServer = "localhost",
+                DatabasePort = 5432,
+                DatabaseName = "inventoryscanner",
+                DatabaseUser = "postgres",
+                DatabasePassword = "postgres"
+            }));
+            serviceCollection.AddSingleton<SettingsService>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var settingsService = serviceProvider.GetService<SettingsService>();
+
+            repository = new InventoryRepository(settingsService);
             repository.DeleteAll();
         }
 
