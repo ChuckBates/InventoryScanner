@@ -26,8 +26,6 @@ namespace InventoryScannerCore.Repositories
                 using (var fileStream = new FileStream(imageSavePath, FileMode.Create))
                 {
                     await imageStream.CopyToAsync(fileStream);
-
-                    fileStream.Dispose();
                 }
 
                 return "success";
