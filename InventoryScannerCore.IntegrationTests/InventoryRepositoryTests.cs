@@ -1,7 +1,5 @@
 using InventoryScannerCore.Models;
 using InventoryScannerCore.Repositories;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace InventoryScannerCore.IntegrationTests
 {
@@ -13,26 +11,11 @@ namespace InventoryScannerCore.IntegrationTests
         [SetUp]
         public void Setup()
         {
-            var testConfig = new Dictionary<string, string>();
-            testConfig.Add("db-server", "localhost");
-            testConfig.Add("db-port", "5432");
-            testConfig.Add("db-name", "inventoryscanner");
-            testConfig.Add("db-user", "postgres");
-            testConfig.Add("db-password", "postgres");
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton<IOptions<Settings>>(Options.Create(new Settings
+            var settingsService = IntegrationTestHelper.GetSettingsService();
+            if (settingsService == null)
             {
-                DatabaseServer = "localhost",
-                DatabasePort = 5432,
-                DatabaseName = "inventoryscanner",
-                DatabaseUser = "postgres",
-                DatabasePassword = "postgres"
-            }));
-            serviceCollection.AddSingleton<SettingsService>();
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var settingsService = serviceProvider.GetService<SettingsService>();
+                throw new Exception("Settings service is null.");
+            }
 
             repository = new InventoryRepository(settingsService);
             repository.DeleteAll();

@@ -13,7 +13,7 @@ namespace InventoryScannerCore.Repositories
 
         public InventoryRepository(ISettingsService settings)
         {
-            connection = new NpgsqlConnection((string?)settings.GetConnectionString());
+            connection = new NpgsqlConnection((string?)settings.GetPostgresConnectionString());
         }
 
         public IEnumerable<Inventory> GetAll()

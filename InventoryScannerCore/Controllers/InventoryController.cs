@@ -9,7 +9,7 @@ namespace InventoryScannerCore.Controllers
     [Route("[controller]")]
     public class InventoryController(IInventoryRepository inventoryRepository) : Controller
     {
-        [HttpGet(Name = "GetAll")]
+        [HttpGet(Name = "GetAllInventory")]
         public InventoryControllerResponse GetAll()
         {
             var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
@@ -29,7 +29,7 @@ namespace InventoryScannerCore.Controllers
             return response;
         }
 
-        [HttpGet("{barcode}", Name = "Get")]
+        [HttpGet("{barcode}", Name = "GetInventory")]
         public InventoryControllerResponse Get(long barcode)
         {
             var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
@@ -55,7 +55,7 @@ namespace InventoryScannerCore.Controllers
             return response;
         }
 
-        [HttpPost(Name = "Add")]
+        [HttpPost(Name = "AddInventory")]
         public InventoryControllerResponse Add(Inventory inventory)
         {
             var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
