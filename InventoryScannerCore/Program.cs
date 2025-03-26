@@ -13,7 +13,7 @@ builder.Services.Configure<Settings>(options => builder.Configuration.GetSection
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<SettingsService, SettingsService>();
+builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 
 var app = builder.Build();

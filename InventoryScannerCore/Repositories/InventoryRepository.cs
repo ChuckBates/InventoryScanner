@@ -11,7 +11,7 @@ namespace InventoryScannerCore.Repositories
     {
         NpgsqlConnection connection;
 
-        public InventoryRepository(SettingsService settings)
+        public InventoryRepository(ISettingsService settings)
         {
             connection = new NpgsqlConnection((string?)settings.GetConnectionString());
         }

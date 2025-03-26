@@ -2,7 +2,7 @@
 
 namespace InventoryScannerCore
 {
-    public class SettingsService
+    public class SettingsService : ISettingsService
     {
         private Settings _settings;
 
