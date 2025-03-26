@@ -4,12 +4,12 @@ namespace InventoryScannerCore.Repositories
 {
     public class ImageRepository : IImageRepository
     {
-        public Image? Get(string imageUrl)
+        public async Task<byte[]?> Get(string imagePath)
         {
-            Image? image = null;
+            byte[]? image = null;
             try
             {
-                image = Image.FromFile(imageUrl);
+                image = await File.ReadAllBytesAsync(imagePath);
             }
             catch (Exception)
             {
@@ -19,25 +19,30 @@ namespace InventoryScannerCore.Repositories
             return image;
         }
 
-        public bool Insert(Image testImage, string imageUrl)
+        public async Task<string> Insert(Stream imageStream, string imageSavePath)
         {
             try
             {
-                testImage.Save(imageUrl);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+                using (var fileStream = new FileStream(imageSavePath, FileMode.Create))
+                {
+                    await imageStream.CopyToAsync(fileStream);
 
-            return true;
+                    fileStream.Dispose();
+                }
+
+                return "success";
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
         }
 
-        public bool Delete(string imageUrl)
+        public bool Delete(string imagePath)
         {
             try
             {
-                File.Delete(imageUrl);
+                File.Delete(imagePath);
             }
             catch (Exception)
             {

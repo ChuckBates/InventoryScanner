@@ -1,5 +1,4 @@
 ﻿using InventoryScannerCore.Repositories;
-using System.Drawing;
 
 namespace InventoryScannerCore.IntegrationTests
 {
@@ -9,35 +8,36 @@ namespace InventoryScannerCore.IntegrationTests
         private ImageRepository repository;
         private string testImagePath;
         private string savedImagePath;
+        private byte[] testImageByteArray;
+        private Stream testImageStream;
 
         [SetUp]
-        public void Setup()
+        public async Task Setup()
         {
             repository = new ImageRepository();
             testImagePath = Directory.GetCurrentDirectory() + "/TestImages/spam.png";
             savedImagePath = Directory.GetCurrentDirectory() + "/TestImages/spam-test.png";
+            testImageByteArray = await File.ReadAllBytesAsync(testImagePath);
+            testImageStream = new MemoryStream(testImageByteArray);
         }
 
         [Test]
-        public void When_round_tripping_an_image()
+        public async Task When_round_tripping_an_image_byte_array()
         {
-            using (Image testImage = Image.FromStream(new MemoryStream(File.ReadAllBytes(testImagePath))))
-            {
-                repository.Insert(testImage, savedImagePath);
+            await repository.Insert(testImageStream, savedImagePath);
 
-                var savedImage = repository.Get(testImagePath);
+            var savedImageByteArray = await repository.Get(testImagePath);
                 
-                Assert.That(savedImage, Is.Not.Null);
-                Assert.That(ImageToByteArray(savedImage), Is.EqualTo(ImageToByteArray(testImage)));
-            }
+            Assert.That(savedImageByteArray, Is.Not.Null);
+            Assert.That(savedImageByteArray, Is.EqualTo(testImageByteArray));
 
             repository.Delete(savedImagePath);
         }
 
         [Test]
-        public void When_getting_an_image_and_it_does_not_exist()
+        public async Task When_getting_an_image_and_it_does_not_exist()
         {
-            var image = repository.Get("nonexistent.png");
+            var image = await repository.Get("nonexistent.png");
 
             Assert.That(image, Is.Null);
         }
@@ -45,23 +45,17 @@ namespace InventoryScannerCore.IntegrationTests
         [Test]
         public void When_inserting_an_image_and_the_path_does_not_exist()
         {
-            using (Image testImage = Image.FromStream(new MemoryStream(File.ReadAllBytes(testImagePath))))
-            {
-                Assert.That(() => repository.Insert(testImage, ""), Throws.Nothing);
-                Assert.That(() => repository.Insert(testImage, ""), Is.False);
-            }
+            Assert.That(async () => await repository.Insert(testImageStream, ""), Throws.Nothing);
+            Assert.That(async () => await repository.Insert(testImageStream, ""), Does.Contain("The value cannot be an empty string"));
         }
 
         [Test]
-        public void When_inserting_an_image_and_the_image_already_exists()
+        public async Task When_inserting_an_image_and_the_image_already_exists()
         {
-            using (Image testImage = Image.FromStream(new MemoryStream(File.ReadAllBytes(testImagePath))))
-            {
-                repository.Insert(testImage, savedImagePath);
+            await repository.Insert(testImageStream, savedImagePath);
 
-                Assert.That(() => repository.Insert(testImage, savedImagePath), Throws.Nothing);
-                Assert.That(() => repository.Insert(testImage, savedImagePath), Is.True);
-            }
+            Assert.That(async () => await repository.Insert(testImageStream, savedImagePath), Throws.Nothing);
+            Assert.That(async () => await repository.Insert(testImageStream, savedImagePath), Does.Contain("success"));
 
             repository.Delete(savedImagePath);
         }
@@ -71,15 +65,6 @@ namespace InventoryScannerCore.IntegrationTests
         {
             Assert.That(() => repository.Delete("/bad-directory/nonexistent.png"), Throws.Nothing);
             Assert.That(() => repository.Delete("/bad-directory/nonexistent.png"), Is.False);
-        }
-
-        private byte[] ImageToByteArray(Image image)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                image.Save(ms, image.RawFormat);
-                return ms.ToArray();
-            }
         }
     }
 }
