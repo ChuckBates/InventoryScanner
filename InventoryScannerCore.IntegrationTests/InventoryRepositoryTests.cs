@@ -36,6 +36,7 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(actual.Description, Is.EqualTo(expected.Description));
             Assert.That(actual.Quantity, Is.EqualTo(expected.Quantity));
             Assert.That(actual.ImagePath, Is.EqualTo(expected.ImagePath));
+            Assert.That(actual.Categories, Is.EquivalentTo(expected.Categories));
 
             repository.Delete(actual.Barcode);
         }
@@ -68,12 +69,14 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(inventories.First().Description, Is.EqualTo(testInventories.First().Description));
             Assert.That(inventories.First().Quantity, Is.EqualTo(testInventories.First().Quantity));
             Assert.That(inventories.First().ImagePath, Is.EqualTo(testInventories.First().ImagePath));
+            Assert.That(inventories.First().Categories, Is.EquivalentTo(testInventories.First().Categories));
 
             Assert.That(inventories.Last().Barcode, Is.EqualTo(testInventories.Last().Barcode));
             Assert.That(inventories.Last().Title, Is.EqualTo(testInventories.Last().Title));
             Assert.That(inventories.Last().Description, Is.EqualTo(testInventories.Last().Description));
             Assert.That(inventories.Last().Quantity, Is.EqualTo(testInventories.Last().Quantity));
             Assert.That(inventories.Last().ImagePath, Is.EqualTo(testInventories.Last().ImagePath));
+            Assert.That(inventories.Last().Categories, Is.EquivalentTo(testInventories.Last().Categories));
 
             inventories.ToList().ForEach(i => repository.Delete(i.Barcode));
         }
@@ -97,6 +100,7 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(result.Description, Is.EqualTo(inventory.Description));
             Assert.That(result.Quantity, Is.EqualTo(inventory.Quantity));
             Assert.That(result.ImagePath, Is.EqualTo(inventory.ImagePath));
+            Assert.That(result.Categories, Is.EquivalentTo(inventory.Categories));
 
             repository.Delete(inventory.Barcode);
         }
@@ -105,8 +109,8 @@ namespace InventoryScannerCore.IntegrationTests
         {
             return new List<Inventory>
             {
-                new Inventory(GenerateBarcode(), "title1", "description1", 324, "images/category/photo.png"),
-                new Inventory(GenerateBarcode(), "title2", "description2", 102, "images/category/image.jpg")
+                new Inventory(GenerateBarcode(), "title1", "description1", 324, "images/category/photo.png", ["first", "second"]),
+                new Inventory(GenerateBarcode(), "title2", "description2", 102, "images/category/image.jpg", ["first", "second"])
             };
         }
 

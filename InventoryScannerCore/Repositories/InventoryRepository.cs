@@ -31,7 +31,8 @@ namespace InventoryScannerCore.Repositories
                         title: (string)reader.GetValue("title"),
                         description: (string)reader.GetValue("description"),
                         quantity: (int)reader.GetValue("quantity"),
-                        imagePath: (string)reader.GetValue("image_path")
+                        imagePath: (string)reader.GetValue("image_path"),
+                        categories: (string[])reader.GetValue("categories")
                     )
                 );
             }
@@ -58,7 +59,8 @@ namespace InventoryScannerCore.Repositories
                     title: (string)reader.GetValue("title"),
                     description: (string)reader.GetValue("description"),
                     quantity: (int)reader.GetValue("quantity"),
-                    imagePath: (string)reader.GetValue("image_path")
+                    imagePath: (string)reader.GetValue("image_path"),
+                    categories: (string[])reader.GetValue("categories")
             );
 
             connection.Close();
@@ -68,11 +70,12 @@ namespace InventoryScannerCore.Repositories
         public void Insert(Inventory inventory)
         {
             connection.Open();
+            var parsedCategories = "{" + string.Join(",", inventory.Categories) + "}";
             var statement = $"" +
-                $"INSERT INTO inventory (barcode, title, description, quantity, image_path) " +
-                $"values ('{inventory.Barcode}', '{inventory.Title}', '{inventory.Description}', {inventory.Quantity}, '{inventory.ImagePath}') " +
+                $"INSERT INTO inventory (barcode, title, description, quantity, image_path, categories) " +
+                $"values ('{inventory.Barcode}', '{inventory.Title}', '{inventory.Description}', {inventory.Quantity}, '{inventory.ImagePath}', '{parsedCategories}') " +
                 $"ON CONFLICT(barcode) " +
-                $"DO UPDATE SET title = '{inventory.Title}', description = '{inventory.Description}', quantity = {inventory.Quantity}, image_path = '{inventory.ImagePath}'";
+                $"DO UPDATE SET title = '{inventory.Title}', description = '{inventory.Description}', quantity = {inventory.Quantity}, image_path = '{inventory.ImagePath}', categories = '{parsedCategories}'";
             NpgsqlCommand command = new(statement, connection);
             command.ExecuteNonQuery();
             connection.Close();

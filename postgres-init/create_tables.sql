@@ -3,5 +3,6 @@ CREATE TABLE inventory (
 	title TEXT NOT NULL,
 	description TEXT,
 	quantity INT NOT NULL,
-	image_path TEXT
-);	
+	image_path TEXT,
+	categories TEXT[]
+);
