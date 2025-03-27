@@ -62,7 +62,7 @@ namespace InventoryScannerCore.UnitTests
         [Test]
         public void When_calling_get_all_inventory_and_a_single_inventory_is_returned()
         {
-            var expectedInventory = new Inventory(526485157884, "title", "description", 5, "image.url");
+            var expectedInventory = new Inventory("526485157884", "title", "description", 5, "image.url");
             var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, [expectedInventory]);
             mockInventoryRepository.Setup(x => x.GetAll()).Returns([expectedInventory]);
 
@@ -80,8 +80,8 @@ namespace InventoryScannerCore.UnitTests
         {
             var expectedInventories = new List<Inventory>
             {
-                new Inventory(526485157884, "title1", "description1", 5, "image.url/1"),
-                new Inventory(846357158269, "title2", "description2", 2, "image.url/2")
+                new Inventory("526485157884", "title1", "description1", 5, "image.url/1"),
+                new Inventory("846357158269", "title2", "description2", 2, "image.url/2")
             };
             var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, expectedInventories);
 
@@ -99,7 +99,7 @@ namespace InventoryScannerCore.UnitTests
         [Test]
         public void When_calling_get_inventory_and_there_is_an_error()
         {
-            var barcode = 526485157884;
+            var barcode = "526485157884";
             var error = "An error occurred.";
             mockInventoryRepository.Setup(x => x.Get(barcode)).Throws(new Exception(error));
 
@@ -114,7 +114,7 @@ namespace InventoryScannerCore.UnitTests
         [Test]
         public void When_calling_get_inventory_and_nothing_is_returned()
         {
-            var barcode = 526485157884;
+            var barcode = "526485157884";
             var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.NotFound, new List<Inventory>());
             mockInventoryRepository.Setup(x => x.Get(barcode)).Returns((Inventory)null);
 
@@ -129,7 +129,7 @@ namespace InventoryScannerCore.UnitTests
         [Test]
         public void When_calling_get_inventory_and_something_is_returned()
         {
-            var expectedInventory = new Inventory(526485157884, "title", "description", 5, "image.url");
+            var expectedInventory = new Inventory("526485157884", "title", "description", 5, "image.url");
             var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, [expectedInventory]);
             mockInventoryRepository.Setup(x => x.Get(expectedInventory.Barcode)).Returns(expectedInventory);
 
@@ -145,7 +145,7 @@ namespace InventoryScannerCore.UnitTests
         [Test]
         public void When_calling_add_inventory_and_there_is_an_error()
         {
-            var inventory = new Inventory(526485157884, "title", "description", 5, "image.url");
+            var inventory = new Inventory("526485157884", "title", "description", 5, "image.url");
             var error = "An error occurred.";
             mockInventoryRepository.Setup(x => x.Insert(inventory)).Throws(new Exception(error));
 
@@ -160,7 +160,7 @@ namespace InventoryScannerCore.UnitTests
         [Test]
         public void When_calling_add_inventory_successfully()
         {
-            var inventory = new Inventory(526485157884, "title", "description", 5, "image.url");
+            var inventory = new Inventory("526485157884", "title", "description", 5, "image.url");
             mockInventoryRepository.Setup(x => x.Insert(inventory));
 
             var result = inventoryController.Add(inventory);

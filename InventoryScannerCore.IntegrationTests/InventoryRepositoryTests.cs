@@ -110,9 +110,9 @@ namespace InventoryScannerCore.IntegrationTests
             };
         }
 
-        public static long GenerateBarcode()
+        public static string GenerateBarcode()
         {
-            return new Random().NextInt64(100000000000, 999999999999);
+            return new Random().NextInt64(100000000000, 999999999999).ToString();
         }
     }
 }

@@ -1,19 +1,17 @@
-﻿using System.Collections;
-
-namespace InventoryScannerCore.Models
+﻿namespace InventoryScannerCore.Models
 {
     public class Inventory
     {
         public Inventory()
         {
-            Barcode = 0;
+            Barcode = "";
             Title = "";
             Description = "";
             Quantity = 0;
             ImageUrl = "";
         }
 
-        public Inventory(long barcode, string title, string description, int quantity, string imageurl)
+        public Inventory(string barcode, string title, string description, int quantity, string imageurl)
         {
             Barcode = barcode;
             Title = title;
@@ -23,7 +21,7 @@ namespace InventoryScannerCore.Models
 
         }
 
-        public long Barcode { get; set; }
+        public string Barcode { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public int Quantity { get; set; }

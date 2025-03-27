@@ -1,5 +1,5 @@
 CREATE TABLE inventory (
-	barcode BIGINT PRIMARY KEY,
+	barcode TEXT PRIMARY KEY,
 	title TEXT NOT NULL,
 	description TEXT,
 	quantity INT NOT NULL,

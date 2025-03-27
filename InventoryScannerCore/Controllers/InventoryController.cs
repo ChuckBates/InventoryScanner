@@ -30,7 +30,7 @@ namespace InventoryScannerCore.Controllers
         }
 
         [HttpGet("{barcode}", Name = "GetInventory")]
-        public InventoryControllerResponse Get(long barcode)
+        public InventoryControllerResponse Get(string barcode)
         {
             var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
 

@@ -27,7 +27,7 @@ namespace InventoryScannerCore.Repositories
             {
                 result.Add(
                     new Inventory(
-                        (long)reader.GetValue("barcode"),
+                        (string)reader.GetValue("barcode"),
                         (string)reader.GetValue("title"),
                         (string)reader.GetValue("description"),
                         (int)reader.GetValue("quantity"),
@@ -40,10 +40,10 @@ namespace InventoryScannerCore.Repositories
             return result;
         }
 
-        public Inventory? Get(long barcode)
+        public Inventory? Get(string barcode)
         {
             connection.Open();
-            var query = $"SELECT * FROM INVENTORY WHERE barcode = {barcode}";
+            var query = $"SELECT * FROM INVENTORY WHERE barcode = '{barcode}'";
             NpgsqlCommand command = new NpgsqlCommand(query, connection);
             NpgsqlDataReader reader = command.ExecuteReader();
             if (!reader.HasRows)
@@ -54,7 +54,7 @@ namespace InventoryScannerCore.Repositories
 
             reader.Read();
             var result = new Inventory(
-                    (long)reader.GetValue("barcode"),
+                    (string)reader.GetValue("barcode"),
                     (string)reader.GetValue("title"),
                     (string)reader.GetValue("description"),
                     (int)reader.GetValue("quantity"),
@@ -70,7 +70,7 @@ namespace InventoryScannerCore.Repositories
             connection.Open();
             var statement = $"" +
                 $"INSERT INTO inventory (barcode, title, description, quantity, imageurl) " +
-                $"values ({inventory.Barcode}, '{inventory.Title}', '{inventory.Description}', {inventory.Quantity}, '{inventory.ImageUrl}') " +
+                $"values ('{inventory.Barcode}', '{inventory.Title}', '{inventory.Description}', {inventory.Quantity}, '{inventory.ImageUrl}') " +
                 $"ON CONFLICT(barcode) " +
                 $"DO UPDATE SET title = '{inventory.Title}', description = '{inventory.Description}', quantity = {inventory.Quantity}, imageurl = '{inventory.ImageUrl}'";
             NpgsqlCommand command = new NpgsqlCommand(statement, connection);
@@ -78,10 +78,10 @@ namespace InventoryScannerCore.Repositories
             connection.Close();
         }
 
-        public void Delete(long barcode)
+        public void Delete(string barcode)
         {
             connection.Open();
-            var statement = $"DELETE FROM inventory WHERE barcode = {barcode}";
+            var statement = $"DELETE FROM inventory WHERE barcode = '{barcode}'";
             NpgsqlCommand command = new NpgsqlCommand(statement, connection);
             command.ExecuteNonQuery();
             connection.Close();
