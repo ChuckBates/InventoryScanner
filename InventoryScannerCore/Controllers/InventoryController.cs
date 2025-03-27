@@ -63,6 +63,11 @@ namespace InventoryScannerCore.Controllers
             try
             {
                 inventoryRepository.Insert(inventory);
+                var saved = inventoryRepository.Get(inventory.Barcode);
+                if (saved != null)
+                {
+                    response.Data.Add(saved);
+                }
             }
             catch (Exception e)
             {

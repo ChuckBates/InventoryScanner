@@ -162,12 +162,13 @@ namespace InventoryScannerCore.UnitTests
         {
             var inventory = new Inventory("526485157884", "title", "description", 5, "image.url", ["first", "second"]);
             mockInventoryRepository.Setup(x => x.Insert(inventory));
+            mockInventoryRepository.Setup(x => x.Get(inventory.Barcode)).Returns(inventory);
 
             var result = inventoryController.Add(inventory);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
-            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Data, Is.EqualTo(new List<Inventory>() { inventory }));
             Assert.That(result.Error, Is.Empty);
         }
 
