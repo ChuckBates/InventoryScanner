@@ -3,5 +3,5 @@ CREATE TABLE inventory (
 	title TEXT NOT NULL,
 	description TEXT,
 	quantity INT NOT NULL,
-	imageUrl TEXT
+	image_path TEXT
 );	

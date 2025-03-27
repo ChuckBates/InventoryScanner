@@ -35,7 +35,7 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(actual.Title, Is.EqualTo(expected.Title));
             Assert.That(actual.Description, Is.EqualTo(expected.Description));
             Assert.That(actual.Quantity, Is.EqualTo(expected.Quantity));
-            Assert.That(actual.ImageUrl, Is.EqualTo(expected.ImageUrl));
+            Assert.That(actual.ImagePath, Is.EqualTo(expected.ImagePath));
 
             repository.Delete(actual.Barcode);
         }
@@ -67,13 +67,13 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(inventories.First().Title, Is.EqualTo(testInventories.First().Title));
             Assert.That(inventories.First().Description, Is.EqualTo(testInventories.First().Description));
             Assert.That(inventories.First().Quantity, Is.EqualTo(testInventories.First().Quantity));
-            Assert.That(inventories.First().ImageUrl, Is.EqualTo(testInventories.First().ImageUrl));
+            Assert.That(inventories.First().ImagePath, Is.EqualTo(testInventories.First().ImagePath));
 
             Assert.That(inventories.Last().Barcode, Is.EqualTo(testInventories.Last().Barcode));
             Assert.That(inventories.Last().Title, Is.EqualTo(testInventories.Last().Title));
             Assert.That(inventories.Last().Description, Is.EqualTo(testInventories.Last().Description));
             Assert.That(inventories.Last().Quantity, Is.EqualTo(testInventories.Last().Quantity));
-            Assert.That(inventories.Last().ImageUrl, Is.EqualTo(testInventories.Last().ImageUrl));
+            Assert.That(inventories.Last().ImagePath, Is.EqualTo(testInventories.Last().ImagePath));
 
             inventories.ToList().ForEach(i => repository.Delete(i.Barcode));
         }
@@ -87,7 +87,7 @@ namespace InventoryScannerCore.IntegrationTests
             inventory.Title += "-updated";
             inventory.Description += "-updated";
             inventory.Quantity += 10;
-            inventory.ImageUrl += "-updated";
+            inventory.ImagePath += "-updated";
 
             repository.Insert(inventory);
 
@@ -96,7 +96,7 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(result.Title, Is.EqualTo(inventory.Title));
             Assert.That(result.Description, Is.EqualTo(inventory.Description));
             Assert.That(result.Quantity, Is.EqualTo(inventory.Quantity));
-            Assert.That(result.ImageUrl, Is.EqualTo(inventory.ImageUrl));
+            Assert.That(result.ImagePath, Is.EqualTo(inventory.ImagePath));
 
             repository.Delete(inventory.Barcode);
         }
@@ -105,8 +105,8 @@ namespace InventoryScannerCore.IntegrationTests
         {
             return new List<Inventory>
             {
-                new Inventory(GenerateBarcode(), "title1", "description1", 324, "image.url.com/img/23"),
-                new Inventory(GenerateBarcode(), "title2", "description2", 102, "image.url.com/img/3")
+                new Inventory(GenerateBarcode(), "title1", "description1", 324, "images/category/photo.png"),
+                new Inventory(GenerateBarcode(), "title2", "description2", 102, "images/category/image.jpg")
             };
         }
 
