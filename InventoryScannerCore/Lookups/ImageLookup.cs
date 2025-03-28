@@ -1,6 +1,6 @@
-﻿namespace InventoryScannerCore
+﻿namespace InventoryScannerCore.Lookups
 {
-    public class ImageLookup
+    public class ImageLookup : IImageLookup
     {
         HttpClient client;
         ISettingsService settings;

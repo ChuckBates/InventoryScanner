@@ -1,4 +1,6 @@
-﻿namespace InventoryScannerCore.IntegrationTests
+﻿using InventoryScannerCore.Lookups;
+
+namespace InventoryScannerCore.IntegrationTests
 {
     [TestFixture]
     public class ImageLookupTests

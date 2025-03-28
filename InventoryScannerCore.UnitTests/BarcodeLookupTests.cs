@@ -1,4 +1,5 @@
-﻿using InventoryScannerCore.Models;
+﻿using InventoryScannerCore.Lookups;
+using InventoryScannerCore.Models;
 using Moq;
 using Moq.Protected;
 using System.Text.Json;

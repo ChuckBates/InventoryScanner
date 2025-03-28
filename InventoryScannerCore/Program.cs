@@ -1,4 +1,5 @@
 using InventoryScannerCore;
+using InventoryScannerCore.Lookups;
 using InventoryScannerCore.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);

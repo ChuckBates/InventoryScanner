@@ -1,9 +1,9 @@
 ﻿using InventoryScannerCore.Models;
 using System.Text.Json;
 
-namespace InventoryScannerCore
+namespace InventoryScannerCore.Lookups
 {
-    public class BarcodeLookup
+    public class BarcodeLookup : IBarcodeLookup
     {
         HttpClient client;
         ISettingsService settings;
