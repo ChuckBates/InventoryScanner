@@ -39,12 +39,24 @@ namespace InventoryScannerCore.Lookups
                         ReadCommentHandling = JsonCommentHandling.Skip,
                         AllowTrailingCommas = true
                     };
-                    var retrivedBarcode = JsonSerializer.Deserialize<Barcode>(body, options);
+                    var retrievedResult = JsonSerializer.Deserialize<Barcode>(body, options);
 
-                    if (retrivedBarcode != null && retrivedBarcode.product != null)
+                    if (retrievedResult != null && retrievedResult.product != null)
                     {
-                        retrivedBarcode.product.barcode = barcode.ToString();
-                        return retrivedBarcode;
+                        retrievedResult.product.barcode = barcode.ToString();
+                        return retrievedResult;
+                    }
+                    else if (retrievedResult != null && retrievedResult.results.Length > 0)
+                    {
+                        retrievedResult.product = new BarcodeProduct
+                        {
+                            barcode = barcode.ToString(),
+                            title = retrievedResult.results[0].title,
+                            description = string.Empty,
+                            images = [retrievedResult.results[0].image]
+                        };
+                        retrievedResult.results = [];
+                        return retrievedResult;
                     }
 
                     return new Barcode();
