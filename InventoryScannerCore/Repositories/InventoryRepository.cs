@@ -16,60 +16,60 @@ namespace InventoryScannerCore.Repositories
             connection = new NpgsqlConnection((string?)settings.GetPostgresConnectionString());
         }
 
-        public IEnumerable<Inventory> GetAll()
+        public async Task<IEnumerable<Inventory>> GetAll()
         {
-            connection.Open();
+            await connection.OpenAsync();
             var result = new List<Inventory>();
             var query = "SELECT * FROM INVENTORY;";
             NpgsqlCommand command = new(query, connection);
-            NpgsqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
+            NpgsqlDataReader reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
             {
                 result.Add(
                     new Inventory(
-                        barcode: (string)reader.GetValue("barcode"),
-                        title: (string)reader.GetValue("title"),
-                        description: (string)reader.GetValue("description"),
-                        quantity: (int)reader.GetValue("quantity"),
-                        imagePath: (string)reader.GetValue("image_path"),
-                        categories: ((string[])reader.GetValue("categories")).ToList()
+                        barcode: await reader.GetFieldValueAsync<string>("barcode"),
+                        title: await reader.GetFieldValueAsync<string>("title"),
+                        description: await reader.GetFieldValueAsync<string>("description"),
+                        quantity: await reader.GetFieldValueAsync<int>("quantity"),
+                        imagePath: await reader.GetFieldValueAsync<string>("image_path"),
+                        categories: (await reader.GetFieldValueAsync<string[]>("categories")).ToList()
                     )
                 );
             }
 
-            connection.Close();
+            await connection.CloseAsync();
             return result;
         }
 
-        public Inventory? Get(string barcode)
+        public async Task<Inventory?> Get(string barcode)
         {
-            connection.Open();
+            await connection.OpenAsync();
             var query = $"SELECT * FROM INVENTORY WHERE barcode = '{barcode}'";
             NpgsqlCommand command = new(query, connection);
-            NpgsqlDataReader reader = command.ExecuteReader();
+            NpgsqlDataReader reader = await command.ExecuteReaderAsync();
             if (!reader.HasRows)
             {
-                connection.Close();
+                await connection.CloseAsync();
                 return null;
             }
 
-            reader.Read();
+            await reader.ReadAsync();
             var result = new Inventory(
-                    barcode: (string)reader.GetValue("barcode"),
-                    title: (string)reader.GetValue("title"),
-                    description: (string)reader.GetValue("description"),
-                    quantity: (int)reader.GetValue("quantity"),
-                    imagePath: (string)reader.GetValue("image_path"),
-                    categories: ((string[])reader.GetValue("categories")).ToList()
+                barcode: await reader.GetFieldValueAsync<string>("barcode"),
+                title: await reader.GetFieldValueAsync<string>("title"),
+                description: await reader.GetFieldValueAsync<string>("description"),
+                quantity: await reader.GetFieldValueAsync<int>("quantity"),
+                imagePath: await reader.GetFieldValueAsync<string>("image_path"),
+                categories: (await reader.GetFieldValueAsync<string[]>("categories")).ToList()
             );
 
-            connection.Close();
+            await connection.CloseAsync();
             return result;
         }
 
-        public int Insert(Inventory inventory)
+        public async Task<int> Insert(Inventory inventory)
         {
-            connection.Open();
+            await connection.OpenAsync();
             var parsedCategories = "{" + string.Join(",", inventory.Categories) + "}";
             var statement = $"" +
                 $"INSERT INTO inventory (barcode, title, description, quantity, image_path, categories) " +
@@ -77,28 +77,28 @@ namespace InventoryScannerCore.Repositories
                 $"ON CONFLICT(barcode) " +
                 $"DO UPDATE SET title = '{inventory.Title}', description = '{inventory.Description}', quantity = {inventory.Quantity}, image_path = '{inventory.ImagePath}', categories = '{parsedCategories}'";
             NpgsqlCommand command = new(statement, connection);
-            var rowsAffected = command.ExecuteNonQuery();
-            connection.Close();
+            var rowsAffected = await command.ExecuteNonQueryAsync();
+            await connection.CloseAsync();
 
             return rowsAffected;
         }
 
-        public void Delete(string barcode)
+        public async Task Delete(string barcode)
         {
-            connection.Open();
+            await connection.OpenAsync();
             var statement = $"DELETE FROM inventory WHERE barcode = '{barcode}'";
             NpgsqlCommand command = new(statement, connection);
-            command.ExecuteNonQuery();
-            connection.Close();
+            await command.ExecuteNonQueryAsync();
+            await connection.CloseAsync();
         }
 
-        internal void DeleteAll()
+        internal async Task DeleteAll()
         {
-            connection.Open();
+            await connection.OpenAsync();
             var statement = $"DELETE FROM inventory";
             NpgsqlCommand command = new(statement, connection);
-            command.ExecuteNonQuery();
-            connection.Close();
+            await command.ExecuteNonQueryAsync();
+            await connection.CloseAsync();
         }
     }
 }

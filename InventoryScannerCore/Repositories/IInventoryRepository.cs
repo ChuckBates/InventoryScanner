@@ -4,8 +4,9 @@ namespace InventoryScannerCore.Repositories
 {
     public interface IInventoryRepository
     {
-        IEnumerable<Inventory> GetAll();
-        Inventory? Get(string barcode);
-        int Insert(Inventory inventory);
+        Task Delete(string barcode);
+        Task<IEnumerable<Inventory>> GetAll();
+        Task<Inventory?> Get(string barcode);
+        Task<int> Insert(Inventory inventory);
     }
 }

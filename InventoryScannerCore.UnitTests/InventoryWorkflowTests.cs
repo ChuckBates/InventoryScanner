@@ -65,7 +65,7 @@ namespace InventoryScannerCore.UnitTests
             });
             mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).Returns(1);
+            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
@@ -144,7 +144,7 @@ namespace InventoryScannerCore.UnitTests
                 }
             });
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).Returns(1);
+            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
@@ -204,7 +204,7 @@ namespace InventoryScannerCore.UnitTests
             });
             mockImageLookup.Setup(x => x.Get(imageUrl1)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).Returns(1);
+            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
@@ -262,7 +262,7 @@ namespace InventoryScannerCore.UnitTests
                 }
             });
             mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).Returns(1);
+            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
@@ -322,7 +322,7 @@ namespace InventoryScannerCore.UnitTests
             });
             mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync(imageRepoErrorMessage);
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).Returns(1);
+            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
@@ -381,7 +381,7 @@ namespace InventoryScannerCore.UnitTests
             });
             mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).Returns(0);
+            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(0);
 
             var result = await workflow.Add(inventory);
 

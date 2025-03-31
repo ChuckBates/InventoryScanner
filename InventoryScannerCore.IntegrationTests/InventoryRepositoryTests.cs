@@ -9,7 +9,7 @@ namespace InventoryScannerCore.IntegrationTests
         private InventoryRepository repository;
 
         [SetUp]
-        public void Setup()
+        public async Task Setup()
         {
             var settingsService = IntegrationTestHelper.GetSettingsService();
             if (settingsService == null)
@@ -18,17 +18,17 @@ namespace InventoryScannerCore.IntegrationTests
             }
 
             repository = new InventoryRepository(settingsService);
-            repository.DeleteAll();
+            await repository.DeleteAll();
         }
 
         [Test]
-        public void When_roud_tripping_an_inventory()
+        public async Task When_roud_tripping_an_inventory()
         {
             var expected = TestInventories().First();
 
-            repository.Insert(expected);
+            await repository.Insert(expected);
 
-            var actual = repository.Get(expected.Barcode);
+            var actual = await repository.Get(expected.Barcode);
 
             Assert.IsNotNull(actual);
             Assert.That(actual.Barcode, Is.EqualTo(expected.Barcode));
@@ -38,31 +38,37 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(actual.ImagePath, Is.EqualTo(expected.ImagePath));
             Assert.That(actual.Categories, Is.EquivalentTo(expected.Categories));
 
-            repository.Delete(actual.Barcode);
+            await repository.Delete(actual.Barcode);
         }
 
         [Test]
-        public void When_getting_an_inventory_and_it_does_not_exist()
+        public async Task When_getting_an_inventory_and_it_does_not_exist()
         {
             var barcode = GenerateBarcode();
 
-            var actual = repository.Get(barcode);
+            var actual = await repository.Get(barcode);
 
             Assert.IsNull(actual);
         }
 
         [Test]
-        public void When_getting_all_inventory()
+        public async Task When_getting_all_inventory()
         {
-            repository.DeleteAll();
+            await repository.DeleteAll();
             
             var testInventories = TestInventories();
-            testInventories.ForEach(i => repository.Insert(i));
+            var totalRowsAffected = 0;
+            foreach (var inventory in testInventories)
+            {
+                var rowsaffected = await repository.Insert(inventory);
+                totalRowsAffected += rowsaffected;
+            }
 
-            var inventories = repository.GetAll();
+            var inventories = await repository.GetAll();
 
             Assert.IsNotNull(inventories);
             Assert.That(inventories.Count(), Is.EqualTo(2));
+            Assert.That(totalRowsAffected, Is.EqualTo(testInventories.Count()));
 
             Assert.That(inventories.First().Barcode, Is.EqualTo(testInventories.First().Barcode));
             Assert.That(inventories.First().Title, Is.EqualTo(testInventories.First().Title));
@@ -78,23 +84,23 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(inventories.Last().ImagePath, Is.EqualTo(testInventories.Last().ImagePath));
             Assert.That(inventories.Last().Categories, Is.EquivalentTo(testInventories.Last().Categories));
 
-            inventories.ToList().ForEach(i => repository.Delete(i.Barcode));
+            inventories.ToList().ForEach(async i => await repository.Delete(i.Barcode));
         }
 
         [Test]
-        public void When_inserting_an_inventory_and_it_already_exists()
+        public async Task When_inserting_an_inventory_and_it_already_exists()
         {
             var inventory = TestInventories().First();
-            repository.Insert(inventory);
+            await repository.Insert(inventory);
 
             inventory.Title += "-updated";
             inventory.Description += "-updated";
             inventory.Quantity += 10;
             inventory.ImagePath += "-updated";
 
-            repository.Insert(inventory);
+            await repository.Insert(inventory);
 
-            var result = repository.Get(inventory.Barcode);
+            var result = await repository.Get(inventory.Barcode);
 
             Assert.That(result.Title, Is.EqualTo(inventory.Title));
             Assert.That(result.Description, Is.EqualTo(inventory.Description));
@@ -102,7 +108,7 @@ namespace InventoryScannerCore.IntegrationTests
             Assert.That(result.ImagePath, Is.EqualTo(inventory.ImagePath));
             Assert.That(result.Categories, Is.EquivalentTo(inventory.Categories));
 
-            repository.Delete(inventory.Barcode);
+            await repository.Delete(inventory.Barcode);
         }
 
         public static List<Inventory> TestInventories()

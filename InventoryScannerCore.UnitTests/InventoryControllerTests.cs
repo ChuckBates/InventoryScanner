@@ -20,12 +20,12 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_get_all_inventory_and_there_is_an_error()
+        public async Task When_calling_get_all_inventory_and_there_is_an_errorAsync()
         {
             var error = "An error occurred.";
-            mockInventoryRepository.Setup(x => x.GetAll()).Throws(new Exception(error));
+            mockInventoryRepository.Setup(x => x.GetAll()).ThrowsAsync(new Exception(error));
 
-            var result = inventoryController.GetAll();
+            var result = await inventoryController.GetAll();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Error));
@@ -34,11 +34,11 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_get_all_inventory_and_nothing_is_returned()
+        public async Task When_calling_get_all_inventory_and_nothing_is_returnedAsync()
         {
-            mockInventoryRepository.Setup(x => x.GetAll()).Returns(new List<Inventory>());
+            mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync(new List<Inventory>());
 
-            var result = inventoryController.GetAll();
+            var result = await inventoryController.GetAll();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
@@ -47,11 +47,11 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_get_all_inventory_and_something_is_returned()
+        public async Task When_calling_get_all_inventory_and_something_is_returnedAsync()
         {
-            mockInventoryRepository.Setup(x => x.GetAll()).Returns(new List<Inventory> { new() });
+            mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync(new List<Inventory> { new() });
 
-            var result = inventoryController.GetAll();
+            var result = await inventoryController.GetAll();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
@@ -60,13 +60,13 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_get_all_inventory_and_a_single_inventory_is_returned()
+        public async Task When_calling_get_all_inventory_and_a_single_inventory_is_returnedAsync()
         {
             var expectedInventory = new Inventory("526485157884", "title", "description", 5, "image.url", ["first", "second"]);
             var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, [expectedInventory]);
-            mockInventoryRepository.Setup(x => x.GetAll()).Returns([expectedInventory]);
+            mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync([expectedInventory]);
 
-            var result = inventoryController.GetAll();
+            var result = await inventoryController.GetAll();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(expectedResponse.Status));
@@ -76,7 +76,7 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_get_all_inventory_and_multiple_inventories_are_returned()
+        public async Task When_calling_get_all_inventory_and_multiple_inventories_are_returnedAsync()
         {
             var expectedInventories = new List<Inventory>
             {
@@ -85,9 +85,9 @@ namespace InventoryScannerCore.UnitTests
             };
             var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, expectedInventories);
 
-            mockInventoryRepository.Setup(x => x.GetAll()).Returns(expectedInventories);
+            mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync(expectedInventories);
 
-            var result = inventoryController.GetAll();
+            var result = await inventoryController.GetAll();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(expectedResponse.Status));
@@ -97,13 +97,13 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_get_inventory_and_there_is_an_error()
+        public async Task When_calling_get_inventory_and_there_is_an_errorAsync()
         {
             var barcode = "526485157884";
             var error = "An error occurred.";
-            mockInventoryRepository.Setup(x => x.Get(barcode)).Throws(new Exception(error));
+            mockInventoryRepository.Setup(x => x.Get(barcode)).ThrowsAsync(new Exception(error));
 
-            var result = inventoryController.Get(barcode);
+            var result = await inventoryController.Get(barcode);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Error));
@@ -112,13 +112,13 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_get_inventory_and_nothing_is_returned()
+        public async Task When_calling_get_inventory_and_nothing_is_returnedAsync()
         {
             var barcode = "526485157884";
             var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.NotFound, new List<Inventory>());
-            mockInventoryRepository.Setup(x => x.Get(barcode)).Returns((Inventory)null);
+            mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync((Inventory)null);
 
-            var result = inventoryController.Get(barcode);
+            var result = await inventoryController.Get(barcode);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(expectedResponse.Status));
@@ -127,13 +127,13 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_get_inventory_and_something_is_returned()
+        public async Task When_calling_get_inventory_and_something_is_returnedAsync()
         {
             var expectedInventory = new Inventory("526485157884", "title", "description", 5, "image.url", ["first", "second"]);
             var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, [expectedInventory]);
-            mockInventoryRepository.Setup(x => x.Get(expectedInventory.Barcode)).Returns(expectedInventory);
+            mockInventoryRepository.Setup(x => x.Get(expectedInventory.Barcode)).ReturnsAsync(expectedInventory);
 
-            var result = inventoryController.Get(expectedInventory.Barcode);
+            var result = await inventoryController.Get(expectedInventory.Barcode);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
@@ -143,13 +143,13 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_add_inventory_and_there_is_an_error()
+        public async Task When_calling_add_inventory_and_there_is_an_errorAsync()
         {
             var inventory = new Inventory("526485157884", "title", "description", 5, "image.url", ["first", "second"]);
             var error = "An error occurred.";
-            mockInventoryRepository.Setup(x => x.Insert(inventory)).Throws(new Exception(error));
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).ThrowsAsync(new Exception(error));
 
-            var result = inventoryController.Add(inventory);
+            var result = await inventoryController.Add(inventory);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Error));
@@ -158,13 +158,13 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
-        public void When_calling_add_inventory_successfully()
+        public async Task When_calling_add_inventory_successfullyAsync()
         {
             var inventory = new Inventory("526485157884", "title", "description", 5, "image.url", ["first", "second"]);
             mockInventoryRepository.Setup(x => x.Insert(inventory));
-            mockInventoryRepository.Setup(x => x.Get(inventory.Barcode)).Returns(inventory);
+            mockInventoryRepository.Setup(x => x.Get(inventory.Barcode)).ReturnsAsync(inventory);
 
-            var result = inventoryController.Add(inventory);
+            var result = await inventoryController.Add(inventory);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));

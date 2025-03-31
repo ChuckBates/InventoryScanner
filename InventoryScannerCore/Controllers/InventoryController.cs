@@ -10,13 +10,13 @@ namespace InventoryScannerCore.Controllers
     public class InventoryController(IInventoryRepository inventoryRepository) : Controller
     {
         [HttpGet(Name = "GetAllInventory")]
-        public InventoryControllerResponse GetAll()
+        public async Task<InventoryControllerResponse> GetAll()
         {
             var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
 
             try
             {
-                var data = inventoryRepository.GetAll().ToList();
+                var data = (await inventoryRepository.GetAll()).ToList();
                 response.Data = data;
             }
             catch (Exception e)
@@ -30,13 +30,13 @@ namespace InventoryScannerCore.Controllers
         }
 
         [HttpGet("{barcode}", Name = "GetInventory")]
-        public InventoryControllerResponse Get(string barcode)
+        public async Task<InventoryControllerResponse> Get(string barcode)
         {
             var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
 
             try
             {
-                var data = inventoryRepository.Get(barcode);
+                var data = await inventoryRepository.Get(barcode);
                 if (data == null)
                 {
                     response.Status = ControllerResponseStatus.NotFound;
@@ -56,14 +56,14 @@ namespace InventoryScannerCore.Controllers
         }
 
         [HttpPost(Name = "AddInventory")]
-        public InventoryControllerResponse Add(Inventory inventory)
+        public async Task<InventoryControllerResponse> Add(Inventory inventory)
         {
             var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
 
             try
             {
-                inventoryRepository.Insert(inventory);
-                var saved = inventoryRepository.Get(inventory.Barcode);
+                await inventoryRepository.Insert(inventory);
+                var saved = await inventoryRepository.Get(inventory.Barcode);
                 if (saved != null)
                 {
                     response.Data.Add(saved);

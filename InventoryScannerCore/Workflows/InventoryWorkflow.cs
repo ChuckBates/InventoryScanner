@@ -46,7 +46,7 @@ namespace InventoryScannerCore.UnitTests
             }
 
             var updatedInventory = UpdateInventoryFromBarcode(inventory, barcode);
-            var rowsAffected = inventoryRepository.Insert(updatedInventory);
+            var rowsAffected = await inventoryRepository.Insert(updatedInventory);
             if (rowsAffected == 0)
             {
                 errorMessages.Add("Error looking up barcode: Failed to save inventory.");
