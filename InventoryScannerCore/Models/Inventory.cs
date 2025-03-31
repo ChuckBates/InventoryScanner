@@ -28,5 +28,21 @@
         public int Quantity { get; set; }
         public string ImagePath { get; set; }
         public List<string> Categories { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Inventory inventory &&
+                   Barcode == inventory.Barcode &&
+                   Title == inventory.Title &&
+                   Description == inventory.Description &&
+                   Quantity == inventory.Quantity &&
+                   ImagePath == inventory.ImagePath &&
+                   Categories.SequenceEqual(inventory.Categories);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Barcode, Title, Description, Quantity, ImagePath, Categories);
+        }
     }
 }

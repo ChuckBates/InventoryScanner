@@ -109,8 +109,8 @@ namespace InventoryScannerCore.IntegrationTests
         {
             return new List<Inventory>
             {
-                new Inventory(GenerateBarcode(), "title1", "description1", 324, "images/category/photo.png", ["first", "second"]),
-                new Inventory(GenerateBarcode(), "title2", "description2", 102, "images/category/image.jpg", ["first", "second"])
+                new Inventory(GenerateBarcode(), "title1", "description1", 324, "images/category/photo.png", new List<string>() {"first", "second" }),
+                new Inventory(GenerateBarcode(), "title2", "description2", 102, "images/category/image.jpg", new List<string>() { "first", "second" })
             };
         }
 

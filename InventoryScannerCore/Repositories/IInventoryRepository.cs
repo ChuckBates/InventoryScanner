@@ -6,6 +6,6 @@ namespace InventoryScannerCore.Repositories
     {
         IEnumerable<Inventory> GetAll();
         Inventory? Get(string barcode);
-        void Insert(Inventory inventory);
+        int Insert(Inventory inventory);
     }
 }

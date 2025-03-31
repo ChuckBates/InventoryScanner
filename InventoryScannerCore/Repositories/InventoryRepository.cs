@@ -67,7 +67,7 @@ namespace InventoryScannerCore.Repositories
             return result;
         }
 
-        public void Insert(Inventory inventory)
+        public int Insert(Inventory inventory)
         {
             connection.Open();
             var parsedCategories = "{" + string.Join(",", inventory.Categories) + "}";
@@ -77,8 +77,10 @@ namespace InventoryScannerCore.Repositories
                 $"ON CONFLICT(barcode) " +
                 $"DO UPDATE SET title = '{inventory.Title}', description = '{inventory.Description}', quantity = {inventory.Quantity}, image_path = '{inventory.ImagePath}', categories = '{parsedCategories}'";
             NpgsqlCommand command = new(statement, connection);
-            command.ExecuteNonQuery();
+            var rowsAffected = command.ExecuteNonQuery();
             connection.Close();
+
+            return rowsAffected;
         }
 
         public void Delete(string barcode)
