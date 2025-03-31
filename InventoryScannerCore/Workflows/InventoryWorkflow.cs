@@ -6,7 +6,7 @@ using InventoryScannerCore.Workflows;
 
 namespace InventoryScannerCore.UnitTests
 {
-    public class InventoryWorkflow
+    public class InventoryWorkflow : IInventoryWorkflow
     {
         private IInventoryRepository inventoryRepository;
         private IBarcodeLookup barcodeLookup;
@@ -21,6 +21,16 @@ namespace InventoryScannerCore.UnitTests
             this.imageRepository = imageRepository;
         }
 
+        public async Task<InventoryWorkflowResponse> Get(string barcode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<InventoryWorkflowResponse> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<InventoryWorkflowResponse> Add(Inventory inventory)
         {
             var errorMessages = new List<string>();
@@ -28,7 +38,7 @@ namespace InventoryScannerCore.UnitTests
             if (barcode == null)
             {
                 errorMessages.Add("Error looking up barcode: Barcode not found.");
-                return new InventoryWorkflowResponse(WorkflowResponseStatus.Error, null, errorMessages);
+                return new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], errorMessages);
             }
 
             if (barcode.product.images.Length > 0)
@@ -50,10 +60,10 @@ namespace InventoryScannerCore.UnitTests
             if (rowsAffected == 0)
             {
                 errorMessages.Add("Error looking up barcode: Failed to save inventory.");
-                return new InventoryWorkflowResponse(WorkflowResponseStatus.Error, null, errorMessages);
+                return new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], errorMessages);
             }
 
-            return new InventoryWorkflowResponse(WorkflowResponseStatus.Success, updatedInventory, errorMessages);
+            return new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], errorMessages);
         }
 
         private static Inventory UpdateInventoryFromBarcode(Inventory inventory, Barcode barcode) => new()
@@ -73,6 +83,7 @@ namespace InventoryScannerCore.UnitTests
             var imageStream = await imageLookup.Get(barcode.product.images[0]);
             if (imageStream != null)
             {
+                //TODO: Need to not hard code the file extension
                 var imagePath = Directory.GetCurrentDirectory() + $"/Images/{barcode.product.title}-{barcode.product.barcode}.jpeg"; 
                 var despacedImagePath = imagePath.Replace(" ", "");
                 var saveResult = await imageRepository.Insert(imageStream, despacedImagePath);

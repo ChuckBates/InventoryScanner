@@ -1,23 +1,30 @@
 ﻿using InventoryScannerCore.Enums;
 using InventoryScannerCore.Models;
-using InventoryScannerCore.Repositories;
+using InventoryScannerCore.Workflows;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryScannerCore.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class InventoryController(IInventoryRepository inventoryRepository) : Controller
+    public class InventoryController(IInventoryWorkflow inventoryWorkflow) : Controller
     {
         [HttpGet(Name = "GetAllInventory")]
         public async Task<InventoryControllerResponse> GetAll()
         {
-            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
+            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, []);
 
             try
             {
-                var data = (await inventoryRepository.GetAll()).ToList();
-                response.Data = data;
+                var workflowResponse = await inventoryWorkflow.GetAll();
+                if (workflowResponse.Status == WorkflowResponseStatus.Error)
+                {
+                    response.Status = ControllerResponseStatus.Error;
+                    response.Error = "Error retrieving inventory data: " + string.Join(", ", workflowResponse.Errors);
+                    return response;
+                }
+
+                response.Data = workflowResponse.Data;
             }
             catch (Exception e)
             {
@@ -32,18 +39,25 @@ namespace InventoryScannerCore.Controllers
         [HttpGet("{barcode}", Name = "GetInventory")]
         public async Task<InventoryControllerResponse> Get(string barcode)
         {
-            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
+            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, []);
 
             try
             {
-                var data = await inventoryRepository.Get(barcode);
-                if (data == null)
+                var workflowResponse = await inventoryWorkflow.Get(barcode);
+                if (workflowResponse.Status == WorkflowResponseStatus.Error)
+                {
+                    response.Status = ControllerResponseStatus.Error;
+                    response.Error = "Error retrieving inventory data: " + string.Join(", ", workflowResponse.Errors);
+                    return response;
+                }
+
+                if (workflowResponse.Data.Count == 0)
                 {
                     response.Status = ControllerResponseStatus.NotFound;
                     return response;
                 }
 
-                response.Data.Add(data);
+                response.Data.AddRange(workflowResponse.Data);
             }
             catch (Exception e)
             {
@@ -58,15 +72,19 @@ namespace InventoryScannerCore.Controllers
         [HttpPost(Name = "AddInventory")]
         public async Task<InventoryControllerResponse> Add(Inventory inventory)
         {
-            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, new List<Inventory>());
+            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, []);
 
             try
             {
-                await inventoryRepository.Insert(inventory);
-                var saved = await inventoryRepository.Get(inventory.Barcode);
-                if (saved != null)
+                var workflowResponse = await inventoryWorkflow.Add(inventory);
+                if (workflowResponse.Status == WorkflowResponseStatus.Success)
                 {
-                    response.Data.Add(saved);
+                    response.Data.AddRange(workflowResponse.Data);
+                }
+                else
+                {
+                    response.Status = ControllerResponseStatus.Error;
+                    response.Error = "Error adding inventory data: " + string.Join(", ", workflowResponse.Errors);
                 }
             }
             catch (Exception e)

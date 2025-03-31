@@ -1,6 +1,8 @@
 using InventoryScannerCore;
 using InventoryScannerCore.Lookups;
 using InventoryScannerCore.Repositories;
+using InventoryScannerCore.UnitTests;
+using InventoryScannerCore.Workflows;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
-builder.Services.AddScoped<BarcodeLookup, BarcodeLookup>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();
+builder.Services.AddScoped<IBarcodeLookup, BarcodeLookup>();
+builder.Services.AddScoped<IImageLookup, ImageLookup>();
 builder.Services.AddScoped<HttpClient, HttpClient>();
 
 var app = builder.Build();
