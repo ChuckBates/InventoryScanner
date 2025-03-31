@@ -45,7 +45,7 @@ namespace InventoryScannerCore.UnitTests
                 errorMessages.Add("Error looking up barcode: Image not found.");
             }
 
-            var updatedInventory = UpdateInventory(inventory, barcode);
+            var updatedInventory = UpdateInventoryFromBarcode(inventory, barcode);
             var rowsAffected = inventoryRepository.Insert(updatedInventory);
             if (rowsAffected == 0)
             {
@@ -56,18 +56,15 @@ namespace InventoryScannerCore.UnitTests
             return new InventoryWorkflowResponse(WorkflowResponseStatus.Success, updatedInventory, errorMessages);
         }
 
-        private Inventory UpdateInventory(Inventory inventory, Barcode barcode)
+        private static Inventory UpdateInventoryFromBarcode(Inventory inventory, Barcode barcode) => new()
         {
-            return new Inventory
-            {
-                Barcode = inventory.Barcode,
-                Quantity = inventory.Quantity,
-                Title = barcode.product.title,
-                Description = barcode.product.description,
-                ImagePath = inventory.ImagePath,
-                Categories = inventory.Categories
-            };
-        }
+            Barcode = inventory.Barcode,
+            Quantity = inventory.Quantity,
+            Title = barcode.product.title,
+            Description = barcode.product.description,
+            ImagePath = inventory.ImagePath,
+            Categories = inventory.Categories
+        };
 
         private async Task<(string imagePath, List<string> errors)> SaveImage(Barcode barcode)
         {
