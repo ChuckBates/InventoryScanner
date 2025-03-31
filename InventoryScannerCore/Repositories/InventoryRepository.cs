@@ -32,7 +32,7 @@ namespace InventoryScannerCore.Repositories
                         description: (string)reader.GetValue("description"),
                         quantity: (int)reader.GetValue("quantity"),
                         imagePath: (string)reader.GetValue("image_path"),
-                        categories: (string[])reader.GetValue("categories")
+                        categories: ((string[])reader.GetValue("categories")).ToList()
                     )
                 );
             }
@@ -60,7 +60,7 @@ namespace InventoryScannerCore.Repositories
                     description: (string)reader.GetValue("description"),
                     quantity: (int)reader.GetValue("quantity"),
                     imagePath: (string)reader.GetValue("image_path"),
-                    categories: (string[])reader.GetValue("categories")
+                    categories: ((string[])reader.GetValue("categories")).ToList()
             );
 
             connection.Close();

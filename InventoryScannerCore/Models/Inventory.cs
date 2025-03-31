@@ -12,7 +12,7 @@
             Categories = [];
         }
 
-        public Inventory(string barcode, string title, string description, int quantity, string imagePath, string[] categories)
+        public Inventory(string barcode, string title, string description, int quantity, string imagePath, List<string> categories)
         {
             Barcode = barcode;
             Title = title;
@@ -27,6 +27,6 @@
         public string Description { get; set; }
         public int Quantity { get; set; }
         public string ImagePath { get; set; }
-        public string[] Categories { get; set; }
+        public List<string> Categories { get; set; }
     }
 }
