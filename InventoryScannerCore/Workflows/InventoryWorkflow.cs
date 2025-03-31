@@ -73,15 +73,16 @@ namespace InventoryScannerCore.UnitTests
             var imageStream = await imageLookup.Get(barcode.product.images[0]);
             if (imageStream != null)
             {
-                var imagePath = $"/Images/{barcode.product.title}-{barcode.product.barcode}.jpeg";
-                var saveResult = await imageRepository.Insert(imageStream, imagePath);
+                var imagePath = Directory.GetCurrentDirectory() + $"/Images/{barcode.product.title}-{barcode.product.barcode}.jpeg"; 
+                var despacedImagePath = imagePath.Replace(" ", "");
+                var saveResult = await imageRepository.Insert(imageStream, despacedImagePath);
                 if (saveResult != "success")
                 {
                     result.errors.Add("Error looking up barcode: Failed to save image.");
                 }
                 else
                 {
-                    result.imagePath = imagePath;
+                    result.imagePath = despacedImagePath;
                 }
             }
             else

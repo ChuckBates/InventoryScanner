@@ -61,6 +61,18 @@ namespace InventoryScannerCore.IntegrationTests
         }
 
         [Test]
+        public void  When_inserting_an_image_and_the_image_name_has_spaces()
+        {
+            var imagePath = Directory.GetCurrentDirectory() + "/TestImages/test image.png";
+            var despacedImagePath = Directory.GetCurrentDirectory() + "/TestImages/testimage.png";
+
+            Assert.That(async () => await repository.Insert(testImageStream, imagePath), Throws.Nothing);
+            Assert.That(async () => await repository.Insert(testImageStream, imagePath), Does.Contain("success"));
+
+            repository.Delete(despacedImagePath);
+        }
+
+        [Test]
         public void When_deleting_an_image_and_it_does_not_exist()
         {
             Assert.That(() => repository.Delete("/bad-directory/nonexistent.png"), Throws.Nothing);

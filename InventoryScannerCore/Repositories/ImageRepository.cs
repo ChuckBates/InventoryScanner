@@ -23,7 +23,9 @@ namespace InventoryScannerCore.Repositories
         {
             try
             {
-                using (var fileStream = new FileStream(imageSavePath, FileMode.Create))
+                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/Images/");
+                var despacedImageSavePath = imageSavePath.Replace(" ", "");
+                using (var fileStream = new FileStream(despacedImageSavePath, FileMode.Create))
                 {
                     await imageStream.CopyToAsync(fileStream);
                 }
