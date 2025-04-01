@@ -3,6 +3,7 @@ using InventoryScannerCore.Lookups;
 using InventoryScannerCore.Models;
 using InventoryScannerCore.Repositories;
 using InventoryScannerCore.Workflows;
+using System.Text.RegularExpressions;
 
 namespace InventoryScannerCore.UnitTests
 {
@@ -79,12 +80,13 @@ namespace InventoryScannerCore.UnitTests
         private async Task<(string imagePath, List<string> errors)> SaveImage(Barcode barcode)
         {
             var result = (imagePath: string.Empty, errors: new List<string>());
+            var imageUrl = barcode.product.images[0];
+            var extension = Regex.Match(imageUrl, "[^.]+$");
 
             var imageStream = await imageLookup.Get(barcode.product.images[0]);
             if (imageStream != null)
             {
-                //TODO: Need to not hard code the file extension
-                var imagePath = Directory.GetCurrentDirectory() + $"/Images/{barcode.product.title}-{barcode.product.barcode}.jpeg"; 
+                var imagePath = Directory.GetCurrentDirectory() + $"/Images/{barcode.product.title}-{barcode.product.barcode}.{extension.Value ?? "jpg"}"; 
                 var despacedImagePath = imagePath.Replace(" ", "");
                 var saveResult = await imageRepository.Insert(imageStream, despacedImagePath);
                 if (saveResult != "success")

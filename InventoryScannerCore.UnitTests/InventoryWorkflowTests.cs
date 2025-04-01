@@ -34,8 +34,8 @@ namespace InventoryScannerCore.UnitTests
             var description = "Test-Description";
             var quantity = 1;
             var categories = new List<string>();
-            var imageUrl = "https://test.com/image.jpg";
-            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpeg";
+            var imageUrl = "https://test.com/image.png";
+            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
             var inventory = new Inventory
             {
                 Barcode = barcode,
@@ -174,7 +174,7 @@ namespace InventoryScannerCore.UnitTests
             var categories = new List<string>();
             var imageUrl1 = "https://test.com/image1.jpg";
             var imageUrl2 = "https://test.com/image2.jpg";
-            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpeg";
+            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpg";
             var inventory = new Inventory
             {
                 Barcode = barcode,
@@ -291,7 +291,7 @@ namespace InventoryScannerCore.UnitTests
             var quantity = 1;
             var categories = new List<string>();
             var imageUrl = "https://test.com/image.jpg";
-            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpeg";
+            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpg";
             var imageRepoErrorMessage = "Error Message";
             var inventory = new Inventory
             {
@@ -351,7 +351,7 @@ namespace InventoryScannerCore.UnitTests
             var quantity = 1;
             var categories = new List<string>();
             var imageUrl = "https://test.com/image.jpg";
-            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpeg";
+            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpg";
             var inventory = new Inventory
             {
                 Barcode = barcode,
