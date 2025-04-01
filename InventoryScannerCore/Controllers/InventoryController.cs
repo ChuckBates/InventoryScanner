@@ -96,5 +96,38 @@ namespace InventoryScannerCore.Controllers
 
             return response;
         }
+
+        [HttpPut(Name = "UpdateInventory")]
+        public async Task<InventoryControllerResponse> Update(Inventory inventory, bool refetch)
+        {
+            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, []);
+
+            try
+            {
+                var workflowResponse = await inventoryWorkflow.Update(inventory, refetch);
+                if (workflowResponse.Status == WorkflowResponseStatus.Success)
+                {
+                    if (workflowResponse.Data.Count == 0)
+                    {
+                        response.Status = ControllerResponseStatus.NotFound;
+                        return response;
+                    }
+                    response.Data.AddRange(workflowResponse.Data);
+                }
+                else
+                {
+                    response.Status = ControllerResponseStatus.Error;
+                    response.Error = "Error updating inventory data: " + string.Join(", ", workflowResponse.Errors);
+                }
+            }
+            catch (Exception e)
+            {
+                response.Status = ControllerResponseStatus.Error;
+                response.Error = "Error updating inventory data: " + e.Message;
+                return response;
+            }
+
+            return response;
+        }
     }
 }

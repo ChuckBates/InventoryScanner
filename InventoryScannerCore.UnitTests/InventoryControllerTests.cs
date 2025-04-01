@@ -148,6 +148,58 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
+        public async Task When_calling_update_inventory_and_there_is_an_error()
+        {
+            var barcode = "526485157884";
+            var inventory = new Inventory(barcode, "", "", 5, "", []);
+            var error = "An error occurred.";
+            mockInventoryWorkflow.Setup(x => x.Update(It.IsAny<Inventory>(), It.IsAny<bool>())).ThrowsAsync(new Exception(error));
+
+            var result = await inventoryController.Update(inventory, false);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Error));
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Error.Contains(error));
+        }
+
+        [Test]
+        public async Task When_calling_update_inventory_and_nothing_is_returned()
+        {
+            var barcode = "526485157884";
+            var inventory = new Inventory(barcode, "", "", 5, "", []);
+            var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.NotFound, new List<Inventory>());
+            var expectedWorkflowResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [], []);
+            mockInventoryWorkflow.Setup(x => x.Update(inventory, false)).ReturnsAsync(expectedWorkflowResponse);
+
+            var result = await inventoryController.Update(inventory, false);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(expectedResponse.Status));
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Error, Is.Empty);
+        }
+
+        [Test]
+        public async Task When_calling_update_inventory_and_something_is_returned()
+        {
+            var barcode = "526485157884";
+            var inventory = new Inventory(barcode, "", "", 5, "", []);
+            var expectedInventory = new Inventory(barcode, "title", "description", 5, "image.url", ["first", "second"]);
+            var expectedWorkflowResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [expectedInventory], []);
+            var expectedResponse = new InventoryControllerResponse(ControllerResponseStatus.Success, [expectedInventory]);
+            mockInventoryWorkflow.Setup(x => x.Update(inventory, false)).ReturnsAsync(expectedWorkflowResponse);
+
+            var result = await inventoryController.Update(inventory, false);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Status, Is.EqualTo(ControllerResponseStatus.Success));
+            Assert.That(result.Data.Count, Is.EqualTo(1));
+            Assert.That(result.Data, Is.EquivalentTo(expectedResponse.Data));
+            Assert.That(result.Error, Is.EqualTo(expectedResponse.Error));
+        }
+
+        [Test]
         public async Task When_calling_add_inventory_and_there_is_an_error()
         {
             var inventory = new Inventory("526485157884", "", "", 5, "", []);

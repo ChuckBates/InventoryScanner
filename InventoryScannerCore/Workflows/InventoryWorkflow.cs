@@ -73,6 +73,60 @@ namespace InventoryScannerCore.UnitTests
 
         public async Task<InventoryWorkflowResponse> Add(Inventory inventory)
         {
+            var fetchResponse = await FetchDetails(inventory);
+            if (fetchResponse.Status == WorkflowResponseStatus.Error)
+            {
+                return fetchResponse;
+            }
+
+            var rowsAffected = await inventoryRepository.Insert(fetchResponse.Data.First());
+            if (rowsAffected == 0)
+            {
+                fetchResponse.Status = WorkflowResponseStatus.Error;
+                fetchResponse.Data.Clear();
+                fetchResponse.Errors.Add("Error looking up barcode: Failed to save inventory.");
+                return fetchResponse;
+            }
+
+            return fetchResponse;
+        }
+
+        public async Task<InventoryWorkflowResponse> Update(Inventory inventory, bool refetch = false)
+        {
+            var response = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [inventory], []);
+            if (refetch)
+            {
+                response = await FetchDetails(inventory);
+                if (response.Status == WorkflowResponseStatus.Error)
+                {
+                    return response;
+                }
+            }
+
+            var rowsAffected = await inventoryRepository.Insert(response.Data.First());
+            if (rowsAffected == 0)
+            {
+                response.Status = WorkflowResponseStatus.Error;
+                response.Errors.Add("Error looking up barcode: Failed to update inventory.");
+            }
+
+            response.Data.Clear();
+            var updatedInventoy = await inventoryRepository.Get(inventory.Barcode);
+            if (updatedInventoy == null)
+            {
+                response.Status = WorkflowResponseStatus.Error;
+                response.Errors.Add("Error looking up barcode: Failed to retrieve updated inventory.");
+            }
+            else
+            {
+                response.Data.Add(updatedInventoy);
+            }
+
+            return response;
+        }
+
+        private async Task<InventoryWorkflowResponse> FetchDetails(Inventory inventory)
+        {
             var errorMessages = new List<string>();
             var barcode = await barcodeLookup.Get(inventory.Barcode);
             if (barcode == null)
@@ -96,12 +150,6 @@ namespace InventoryScannerCore.UnitTests
             }
 
             var updatedInventory = UpdateInventoryFromBarcode(inventory, barcode);
-            var rowsAffected = await inventoryRepository.Insert(updatedInventory);
-            if (rowsAffected == 0)
-            {
-                errorMessages.Add("Error looking up barcode: Failed to save inventory.");
-                return new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], errorMessages);
-            }
 
             return new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], errorMessages);
         }

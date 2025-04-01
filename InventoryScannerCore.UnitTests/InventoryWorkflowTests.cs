@@ -41,7 +41,7 @@ namespace InventoryScannerCore.UnitTests
                 Title = title,
                 Description = description,
                 Quantity = quantity,
-                ImagePath = imagePath, 
+                ImagePath = imagePath,
                 Categories = categories
             };
             var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [expectedInventory], []);
@@ -195,11 +195,11 @@ namespace InventoryScannerCore.UnitTests
             mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
             mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
-                It.Is<Inventory>(x => 
+                It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
                     x.Title == title &&
                     x.Description == description &&
-                    x.Quantity ==  quantity &&
+                    x.Quantity == quantity &&
                     x.ImagePath == imagePath &&
                     x.Categories.SequenceEqual(categories)
                 )), Times.Once);
@@ -520,6 +520,113 @@ namespace InventoryScannerCore.UnitTests
                     x.Categories.SequenceEqual(categories)
                 )), Times.Once);
 
+        }
+
+        [Test]
+        public async Task When_calling_update_workflow_and_refetch_is_false()
+        {
+            var barcode = "123456";
+            var title = "Test-Product";
+            var description = "Test-Description";
+            var quantity = 1;
+            var categories = new List<string>();
+            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
+            var inventory = new Inventory { Barcode = barcode, Quantity = quantity + 1 };
+            var updatedInventory = new Inventory
+            {
+                Barcode = barcode,
+                Title = title,
+                Description = description,
+                Quantity = quantity + 1,
+                ImagePath = imagePath,
+                Categories = categories
+            };
+            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], []);
+
+            mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(updatedInventory);
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
+
+            var result = await workflow.Update(inventory);
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+            mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
+            mockInventoryRepository.Verify(x => x.Insert(inventory), Times.Once);
+        }
+
+        [Test]
+        public async Task When_calling_update_workflow_and_refetch_is_true()
+        {
+            var barcode = "123456";
+            var title = "Test-Product";
+            var quantity = 1;
+            var description = "Test-Description";
+            var categories = new List<string>();
+            var imageUrl = "https://test.com/image.png";
+            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
+            var updatedTitle = "Test-Product-Updated";
+            var updatedQuantity = 2;
+            var updatedDescription = "Test-Description-Updated";
+            var updatedImageUrl = "https://test.com/image-updated.png";
+            var updatedImagePath = Directory.GetCurrentDirectory() + $"/Images/{updatedTitle}-{barcode}.png";
+
+            var recievedInventoryFromController = new Inventory
+            {
+                Barcode = barcode,
+                Quantity = updatedQuantity
+            };
+            var originalInventoryFromRepository = new Inventory
+            {
+                Barcode = barcode,
+                Title = title,
+                Description = description,
+                Quantity = quantity,
+                ImagePath = imagePath,
+                Categories = categories
+            };
+            var updatedInventory = new Inventory
+            {
+                Barcode = barcode,
+                Title = updatedTitle,
+                Description = updatedDescription,
+                Quantity = updatedQuantity,
+                ImagePath = updatedImagePath,
+                Categories = categories
+            };
+            var imageStream = new MemoryStream();
+            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], []);
+
+            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
+            {
+                product = new BarcodeProduct
+                {
+                    barcode = barcode,
+                    title = updatedTitle,
+                    description = updatedDescription,
+                    images = [updatedImageUrl]
+                }
+            });
+            mockImageLookup.Setup(x => x.Get(updatedImageUrl)).ReturnsAsync(imageStream);
+            mockImageRepository.Setup(x => x.Insert(imageStream, updatedImagePath)).ReturnsAsync("success");
+            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
+            mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(updatedInventory);
+
+            var result = await workflow.Update(recievedInventoryFromController, true);
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+            mockBarcodeLookup.Verify(x => x.Get(barcode), Times.Once);
+            mockImageLookup.Verify(x => x.Get(updatedImageUrl), Times.Once);
+            mockImageRepository.Verify(x => x.Insert(imageStream, updatedImagePath), Times.Once);
+            mockInventoryRepository.Verify(x => x.Insert(
+                It.Is<Inventory>(x =>
+                    x.Barcode == barcode &&
+                    x.Title == updatedTitle &&
+                    x.Description == updatedDescription &&
+                    x.Quantity == updatedQuantity &&
+                    x.ImagePath == updatedImagePath &&
+                    x.Categories.SequenceEqual(categories)
+                )), Times.Once);
         }
     }
 }
