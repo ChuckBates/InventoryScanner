@@ -27,6 +27,126 @@ namespace InventoryScannerCore.UnitTests
         }
 
         [Test]
+        public async Task When_calling_get_workflow()
+        {
+            var barcode = "123456";
+            var title = "Test-Product";
+            var description = "Test-Description";
+            var quantity = 1;
+            var categories = new List<string>();
+            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
+            var expectedInventory = new Inventory
+            {
+                Barcode = barcode,
+                Title = title,
+                Description = description,
+                Quantity = quantity,
+                ImagePath = imagePath, 
+                Categories = categories
+            };
+            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [expectedInventory], []);
+
+            mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(expectedInventory);
+
+            var result = await workflow.Get(barcode);
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+            mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
+        }
+
+        [Test]
+        public async Task When_calling_get_workflow_and_retrieval_throws()
+        {
+            var barcode = "123456";
+            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up barcode: Failed to retrieve inventory."]);
+
+            mockInventoryRepository.Setup(x => x.Get(barcode)).ThrowsAsync(new Exception("Unknown error"));
+
+            var result = await workflow.Get(barcode);
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+            mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
+        }
+
+        [Test]
+        public async Task When_calling_get_workflow_and_retrieval_is_empty()
+        {
+            var barcode = "123456";
+            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up barcode: Inventory not found."]);
+
+            mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(null as Inventory);
+
+            var result = await workflow.Get(barcode);
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+            mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
+        }
+
+        [Test]
+        public async Task When_calling_get_all_workflow()
+        {
+            var inventoryList = new List<Inventory>
+            {
+                new Inventory
+                {
+                    Barcode = "123456",
+                    Title = "Test-Product",
+                    Description = "Test-Description",
+                    Quantity = 1,
+                    ImagePath = Directory.GetCurrentDirectory() + $"/Images/Test-Product-123456.png",
+                    Categories = new List<string>()
+                },
+                new Inventory
+                {
+                    Barcode = "654321",
+                    Title = "Test-Product-2",
+                    Description = "Test-Description-2",
+                    Quantity = 2,
+                    ImagePath = Directory.GetCurrentDirectory() + $"/Images/Test-Product-2-654321.png",
+                    Categories = new List<string>()
+                }
+            };
+            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, inventoryList, []);
+
+            mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync(inventoryList);
+
+            var result = await workflow.GetAll();
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+        }
+
+        [Test]
+        public async Task When_calling_get_all_workflow_and_retrieval_throws()
+        {
+            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up all inventory: Failed to retrieve inventory."]);
+
+            mockInventoryRepository.Setup(x => x.GetAll()).ThrowsAsync(new Exception("Unknown error"));
+
+            var result = await workflow.GetAll();
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+            mockInventoryRepository.Verify(x => x.GetAll(), Times.Once);
+        }
+
+        [Test]
+        public async Task When_calling_get_all_workflow_and_retrieval_is_empty()
+        {
+            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up all inventory: Inventory not found."]);
+
+            mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync([]);
+
+            var result = await workflow.GetAll();
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+            mockInventoryRepository.Verify(x => x.GetAll(), Times.Once);
+        }
+
+        [Test]
         public async Task When_calling_add_workflow()
         {
             var barcode = "123456";

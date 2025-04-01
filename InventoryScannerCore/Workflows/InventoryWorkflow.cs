@@ -24,12 +24,51 @@ namespace InventoryScannerCore.UnitTests
 
         public async Task<InventoryWorkflowResponse> Get(string barcode)
         {
-            throw new NotImplementedException();
+            var response = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [], []);
+            try
+            {
+                var inventory = await inventoryRepository.Get(barcode);
+                if (inventory == null) {
+                    response.Status = WorkflowResponseStatus.Error;
+                    response.Errors.Add("Error looking up barcode: Inventory not found.");
+                }
+                else
+                {
+                    response.Data.Add(inventory);
+                }
+            }
+            catch (Exception)
+            {
+                response.Status = WorkflowResponseStatus.Error;
+                response.Errors.Add("Error looking up barcode: Failed to retrieve inventory.");
+            }
+
+            return response;
         }
 
         public async Task<InventoryWorkflowResponse> GetAll()
         {
-            throw new NotImplementedException();
+            var response = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [], []);
+            try
+            {
+                var inventories = await inventoryRepository.GetAll();
+                if (inventories == null || inventories.ToList().Count == 0)
+                {
+                    response.Status = WorkflowResponseStatus.Error;
+                    response.Errors.Add("Error looking up all inventory: Inventory not found.");
+                }
+                else
+                {
+                    response.Data.AddRange(inventories);
+                }
+            }
+            catch (Exception)
+            {
+                response.Status = WorkflowResponseStatus.Error;
+                response.Errors.Add("Error looking up all inventory: Failed to retrieve inventory.");
+            }
+
+            return response;
         }
 
         public async Task<InventoryWorkflowResponse> Add(Inventory inventory)
