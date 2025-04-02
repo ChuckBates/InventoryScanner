@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace InventoryScannerCore
+namespace InventoryScannerCore.Settings
 {
     public class SettingsService : ISettingsService
     {
@@ -24,6 +24,7 @@ namespace InventoryScannerCore
         {
             return _settings.RapidApiHost;
         }
+
     }
 
     public class Settings
