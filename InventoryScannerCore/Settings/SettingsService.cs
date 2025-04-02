@@ -25,6 +25,10 @@ namespace InventoryScannerCore.Settings
             return _settings.RapidApiHost;
         }
 
+        public RabbitMqSettings GetRabbitMqSettings()
+        {
+            return _settings.RabbitMQ;
+        }
     }
 
     public class Settings
@@ -36,5 +40,6 @@ namespace InventoryScannerCore.Settings
         public required string DatabasePassword { get; set; }
         public required string RapidApiKey { get; set; }
         public required string RapidApiHost { get; set; }
+        public RabbitMqSettings RabbitMQ { get; set; }
     }
 }
