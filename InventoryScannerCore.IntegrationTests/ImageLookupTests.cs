@@ -1,4 +1,5 @@
 ﻿using InventoryScannerCore.Lookups;
+using InventoryScannerCore.Settings;
 
 namespace InventoryScannerCore.IntegrationTests
 {

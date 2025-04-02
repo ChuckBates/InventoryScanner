@@ -1,4 +1,5 @@
 ﻿using InventoryScannerCore.Models;
+using InventoryScannerCore.Settings;
 using Npgsql;
 using System.Data;
 using System.Runtime.CompilerServices;

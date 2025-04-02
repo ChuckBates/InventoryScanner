@@ -1,5 +1,6 @@
 using InventoryScannerCore.Models;
 using InventoryScannerCore.Repositories;
+using InventoryScannerCore.Settings;
 
 namespace InventoryScannerCore.IntegrationTests
 {

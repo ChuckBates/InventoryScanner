@@ -1,4 +1,5 @@
 ﻿using InventoryScannerCore.Models;
+using InventoryScannerCore.Settings;
 using System.Text.Json;
 
 namespace InventoryScannerCore.Lookups
