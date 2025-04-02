@@ -21,7 +21,7 @@ namespace InventoryScannerCore
             var rabbitSettings = settings.GetRabbitMqSettings();
             builder
                 .AddOutbound<FetchInventoryMetadataEvent>(
-                    new RabbitExchangeProducerEndpoint("fetch-inventory-metadata")
+                    new RabbitExchangeProducerEndpoint(rabbitSettings.FetchInventoryMetadataExchangeName)
                     {
                         Connection = new RabbitConnectionConfig
                         {
@@ -38,7 +38,7 @@ namespace InventoryScannerCore
                     }
                 )
                 .AddInbound(
-                    new RabbitExchangeConsumerEndpoint("fetch-inventory-metadata")
+                    new RabbitExchangeConsumerEndpoint(rabbitSettings.FetchInventoryMetadataExchangeName)
                     {
                         Connection = new RabbitConnectionConfig
                         {
@@ -52,7 +52,7 @@ namespace InventoryScannerCore
                             IsAutoDeleteEnabled = false,
                             ExchangeType = ExchangeType.Fanout
                         },
-                        QueueName = "fetch-inventory-metadata-queue",
+                        QueueName = rabbitSettings.FetchInventoryMetadataQueueName,
                         Queue = new RabbitQueueConfig
                         {
                             IsDurable = true,
