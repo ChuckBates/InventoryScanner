@@ -1,6 +1,7 @@
 using InventoryScannerCore.Models;
 using InventoryScannerCore.Repositories;
 using InventoryScannerCore.Settings;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InventoryScannerCore.IntegrationTests
 {
@@ -12,7 +13,7 @@ namespace InventoryScannerCore.IntegrationTests
         [SetUp]
         public async Task Setup()
         {
-            var settingsService = IntegrationTestHelper.GetSettingsService();
+            var settingsService = new IntegrationTestHelper().provider.GetRequiredService<ISettingsService>();
             if (settingsService == null)
             {
                 throw new Exception("Settings service is null.");
