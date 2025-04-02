@@ -10,6 +10,9 @@ services:
       dockerfile: Dockerfile
     networks:
       - default
+    depends_on:
+      - postgres
+      - rabbitmq
 
   postgres:
     image: "postgres:latest"
@@ -33,12 +36,17 @@ services:
       - "5672:5672"      # AMQP
       - "15672:15672"    # Management UI
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=strongpassword
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - default
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres-data:

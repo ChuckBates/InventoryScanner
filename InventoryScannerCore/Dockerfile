@@ -27,4 +27,16 @@ RUN dotnet publish "./InventoryScannerCore.csproj" -c $BUILD_CONFIGURATION -o /a
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "InventoryScannerCore.dll"]
+
+USER root
+RUN apt-get update && apt-get install -y wget ca-certificates && \
+    wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz && \
+    tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz && \
+    rm dockerize-linux-amd64-v0.6.1.tar.gz && \
+    apt-get remove -y wget && \
+    rm -rf /var/lib/apt/lists/*
+USER app
+
+# Wait for RabbitMQ and Postgres to be ready before starting the app
+ENTRYPOINT ["dockerize", "-wait", "tcp://rabbitmq:5672", "-wait", "tcp://postgres:5432", "-timeout", "30s", "dotnet", "InventoryScannerCore.dll"]
+
