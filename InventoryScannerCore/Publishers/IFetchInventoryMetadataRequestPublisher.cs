@@ -2,6 +2,6 @@
 {
     public interface IFetchInventoryMetadataRequestPublisher
     {
-        Task RequestFetchInventoryMetadata(string barcode);
+        Task<PublisherResponse> RequestFetchInventoryMetadata(string barcode);
     }
 }

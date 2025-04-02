@@ -59,7 +59,9 @@ namespace InventoryScannerCore.IntegrationTests
         public async Task<IServiceProvider> SpinUpRabbit()
         {
             string fetchInventoryMetadataQueueName = "fetch-inventory-metadata-queue";
-            
+
+            await SpinUpWithSettings();
+
             services
                 .AddSilverback()
                 .WithConnectionToMessageBroker(options => options.AddRabbit())
@@ -78,7 +80,7 @@ namespace InventoryScannerCore.IntegrationTests
                 HostName = rabbitMqSettings.HostName,
                 UserName = rabbitMqSettings.UserName,
                 Password = rabbitMqSettings.Password,
-                Port = rabbitMqSettings.Port
+                Port = rabbitMqSettings.AmqpPort
             };
 
             rabbitConnection = factory.CreateConnection();
@@ -106,6 +108,54 @@ namespace InventoryScannerCore.IntegrationTests
             foreach (var hostedService in hostedServices)
             {
                 await hostedService.StartAsync(CancellationToken.None);
+            }
+
+            return provider;
+        }
+
+        public async Task<IServiceProvider> SpinUpBlackHoleRabbit(bool startHost = false)
+        {
+            await SpinUpWithSettings();
+
+            services
+                .AddSilverback()
+                .WithConnectionToMessageBroker(options => options.AddRabbit())
+                .AddEndpointsConfigurator<RabbitEndpointsConfigurator>();
+
+            services.AddScoped<ISettingsService, SettingsService>();
+            services.AddScoped<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
+            services.AddSingleton<IHostApplicationLifetime, FakeHostApplicationLifetime>();
+
+            services.Configure<Settings.Settings>(opts =>
+            {
+                opts.RabbitMQ = new RabbitMqSettings
+                {
+                    HostName = "unreachable-host",
+                    UserName = "guest",
+                    Password = "guest",
+                    AmqpPort = 5672,
+                    FetchInventoryMetadataExchangeName = "fetch-inventory-metadata-exchange-test" + Guid.NewGuid(),
+                };
+
+                // Provide dummy values for required fields
+                opts.DatabaseServer = "localhost";
+                opts.DatabasePort = 5432;
+                opts.DatabaseName = "test";
+                opts.DatabaseUser = "user";
+                opts.DatabasePassword = "pass";
+                opts.RapidApiKey = "test-key";
+                opts.RapidApiHost = "test-host";
+            });
+
+            var provider = services.BuildServiceProvider();
+
+            if (startHost)
+            {
+                var hostedServices = provider.GetServices<IHostedService>();
+                foreach (var hostedService in hostedServices)
+                {
+                    await hostedService.StartAsync(CancellationToken.None);
+                }
             }
 
             return provider;
