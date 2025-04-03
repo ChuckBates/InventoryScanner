@@ -13,7 +13,10 @@ namespace InventoryScannerCore.IntegrationTests
         [SetUp]
         public async Task Setup()
         {
-            var settingsService = new IntegrationTestHelper().provider.GetRequiredService<ISettingsService>();
+            var testHelper = new IntegrationTestDependencyHelper();
+            await testHelper.SpinUp(false);
+
+            var settingsService = testHelper.provider.GetRequiredService<ISettingsService>();
             if (settingsService == null)
             {
                 throw new Exception("Settings service is null.");

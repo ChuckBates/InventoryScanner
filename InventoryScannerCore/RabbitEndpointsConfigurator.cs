@@ -2,8 +2,11 @@
 using InventoryScannerCore.Settings;
 using RabbitMQ.Client;
 using Silverback.Messaging;
+using Silverback.Messaging.Broker;
 using Silverback.Messaging.Configuration;
 using Silverback.Messaging.Configuration.Rabbit;
+using Silverback.Messaging.Messages;
+using Silverback.Messaging.Outbound;
 
 namespace InventoryScannerCore
 {
@@ -34,7 +37,12 @@ namespace InventoryScannerCore
                             IsDurable = true,
                             IsAutoDeleteEnabled = false,
                             ExchangeType = ExchangeType.Fanout,
-                        }
+                            Arguments = new Dictionary<string, object>
+                            {
+                               
+                            }
+                        },
+                        ConfirmationTimeout = TimeSpan.FromSeconds(10)
                     }
                 )
                 .AddInbound(

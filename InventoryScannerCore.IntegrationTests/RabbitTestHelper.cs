@@ -13,7 +13,7 @@ namespace InventoryScannerCore.IntegrationTests
            IModel channel,
            string queueName,
            int expectedCount,
-           int maxAttempts = 10,
+           int maxAttempts = 30,
            int delayMs = 100)
         {
             var messages = new List<T>();

@@ -10,9 +10,12 @@ namespace InventoryScannerCore.IntegrationTests
         ImageLookup imageLookup;
 
         [SetUp]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            var settingsService = new IntegrationTestHelper().provider.GetRequiredService<ISettingsService>();
+            var testHelper = new IntegrationTestDependencyHelper();
+            await testHelper.SpinUp(false);
+
+            var settingsService = testHelper.provider.GetRequiredService<ISettingsService>();
             if (settingsService == null)
             {
                 throw new Exception("Settings service is null.");

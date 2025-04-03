@@ -29,6 +29,7 @@
     <PackageReference Include="NUnit" Version="3.14.0" />
 	<PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
 	<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+	<PackageReference Include="Polly" Version="8.5.2" />
 	<PackageReference Include="Silverback.Integration" Version="4.6.2" />
 	<PackageReference Include="Silverback.Integration.RabbitMQ" Version="4.6.2" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
