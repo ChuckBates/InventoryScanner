@@ -10,6 +10,7 @@
         public int PublishRetryCount { get; }
         public string FetchInventoryMetadataQueueName { get; }
         public string FetchInventoryMetadataExchangeName { get; }
+        public int ConnectionTimeout { get; }
 
     }
 }

@@ -1,21 +1,20 @@
 ﻿using Docker.DotNet.Models;
 using Docker.DotNet;
-using InventoryScannerCore.Settings;
 using RabbitMQ.Client;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System;
+using InventoryScanner.Messaging.Interfaces;
 
-namespace InventoryScannerCore.IntegrationTests
+namespace InventoryScanner.Messaging.IntegrationTests
 {
-    public class RabbitTestContext : IDisposable
+    public class RabbitTestHelper : IDisposable
     {
         private IConnection? connection;
         private IModel? channel;
-        private readonly RabbitMqSettings rabbitSettings;
+        private readonly IRabbitMqSettings rabbitSettings;
 
-        public RabbitTestContext(RabbitMqSettings rabbitSettings)
+        public RabbitTestHelper(IRabbitMqSettings rabbitSettings)
         {
             this.rabbitSettings = rabbitSettings;
             BuildConnection();
@@ -112,12 +111,12 @@ namespace InventoryScannerCore.IntegrationTests
 
         public async Task StartRabbitMqAsync(
             string containerName = "rabbitmq",
-            string host = "localhost", 
-            int amqpPort = 5672, 
-            int managementPort = 15672, 
-            string username = "guest", 
-            string password = "guest", 
-            int retryDelayMs = 500, 
+            string host = "localhost",
+            int amqpPort = 5672,
+            int managementPort = 15672,
+            string username = "guest",
+            string password = "guest",
+            int retryDelayMs = 500,
             int timeoutSeconds = 20)
         {
 

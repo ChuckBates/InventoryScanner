@@ -14,7 +14,7 @@ namespace InventoryScannerCore.IntegrationTests
         public async Task SetupAsync()
         {
             var testHelper = new IntegrationTestDependencyHelper();
-            await testHelper.SpinUp(false);
+            await testHelper.SpinUp();
 
             var settingsService = testHelper.Provider.GetRequiredService<ISettingsService>();
             if (settingsService == null)
