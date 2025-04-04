@@ -1,4 +1,6 @@
-﻿namespace InventoryScannerCore.Publishers
+﻿using InventoryScanner.Messaging.Implementation;
+
+namespace InventoryScannerCore.Publishers
 {
     public interface IFetchInventoryMetadataRequestPublisher
     {

@@ -16,7 +16,7 @@ namespace InventoryScannerCore.IntegrationTests
             var testHelper = new IntegrationTestDependencyHelper();
             await testHelper.SpinUp(false);
 
-            var settingsService = testHelper.provider.GetRequiredService<ISettingsService>();
+            var settingsService = testHelper.Provider.GetRequiredService<ISettingsService>();
             if (settingsService == null)
             {
                 throw new Exception("Settings service is null.");

@@ -9,14 +9,17 @@ using EasyNetQ;
 using System.Diagnostics;
 using System.Net.Sockets;
 using RabbitMQ.Client;
+using InventoryScanner.Messaging.Implementation;
+using InventoryScanner.Messaging.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace InventoryScannerCore.IntegrationTests
 {
     public class IntegrationTestDependencyHelper
     {
-        public IServiceProvider provider { get; private set; }
-        public IConnection rabbitConnection { get; set; }
-        public IModel rabbitChannel { get; set; }
+        public IServiceProvider? Provider { get; private set; }
+        public IConnection? RabbitConnection { get; set; }
+        public IModel? RabbitChannel { get; set; }
 
         private ServiceCollection services = new();
 
@@ -29,7 +32,7 @@ namespace InventoryScannerCore.IntegrationTests
                 AddRabbitServices();
             }
 
-            provider = services.BuildServiceProvider();
+            Provider = services.BuildServiceProvider();
 
             if (withRabbit)
             {
@@ -41,7 +44,12 @@ namespace InventoryScannerCore.IntegrationTests
 
         private async Task StartServicesAsync()
         {
-            var hostedServices = provider.GetServices<IHostedService>();
+            if (Provider == null)
+            {
+                throw new InvalidOperationException("Provider is not initialized.");
+            }
+
+            var hostedServices = Provider.GetServices<IHostedService>();
             foreach (var hostedService in hostedServices)
             {
                 await hostedService.StartAsync(CancellationToken.None);
@@ -62,25 +70,38 @@ namespace InventoryScannerCore.IntegrationTests
 
             var configBuilder = config.Build();
             services.Configure<Settings.Settings>(configBuilder.GetSection("Settings"));
-            services.Configure<RabbitMqSettings>(configBuilder.GetSection("RabbitMQ"));
+            services.Configure<RabbitMqSettings>(configBuilder.GetSection("Settings:RabbitMQ"));
+            services.AddSingleton<IRabbitMqSettings>(sp => sp.GetRequiredService<IOptions<RabbitMqSettings>>().Value);
 
             services.AddScoped<ISettingsService, SettingsService>();
         }
 
         private void AddRabbitServices()
         {
-            var settingsService = services.BuildServiceProvider().GetRequiredService<ISettingsService>();
+            using var tempProvider = services.BuildServiceProvider();
+            var settingsService = tempProvider.GetRequiredService<ISettingsService>();
             var rabbitSettings = settingsService.GetRabbitMqSettings();
             var connectionString = $"host={rabbitSettings.HostName}:{rabbitSettings.AmqpPort};username={rabbitSettings.UserName};password={rabbitSettings.Password}";
             services.AddSingleton(RabbitHutch.CreateBus(connectionString));
 
+            services.AddSingleton<IRabbitMqPublisher>(provider =>
+            {
+                var settings = provider.GetRequiredService<IRabbitMqSettings>();
+                var bus = provider.GetRequiredService<IBus>();
+                return new RabbitMqPublisher(settings, bus);
+            });
             services.AddScoped<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
             services.AddSingleton<IHostApplicationLifetime, FakeHostApplicationLifetime>();
         }
 
         private async Task StartRabbitAsync()
         {
-            var settingsService = provider.GetRequiredService<ISettingsService>();
+            if (Provider == null)
+            {
+                throw new InvalidOperationException("Provider is not initialized. Call SpinUp() first.");
+            }
+
+            var settingsService = Provider.GetRequiredService<ISettingsService>();
             var rabbitMqSettings = settingsService.GetRabbitMqSettings();
 
             var factory = new ConnectionFactory
@@ -92,25 +113,24 @@ namespace InventoryScannerCore.IntegrationTests
             };
 
             await WaitForPortOpen(rabbitMqSettings.HostName, rabbitMqSettings.ManagementPort, timeoutSeconds: 10);
-            //await WaitForRabbitMqManagementApiAsync(rabbitMqSettings.HostName);
 
-            rabbitConnection = factory.CreateConnection();
-            rabbitChannel = rabbitConnection.CreateModel();
-            rabbitChannel.ExchangeDeclare(
+            RabbitConnection = factory.CreateConnection();
+            RabbitChannel = RabbitConnection.CreateModel();
+            RabbitChannel.ExchangeDeclare(
                 exchange: rabbitMqSettings.FetchInventoryMetadataExchangeName,
                 type: ExchangeType.Fanout,
                 durable: true,
                 autoDelete: false,
                 arguments: null);
 
-            rabbitChannel.QueueDeclare(
+            RabbitChannel.QueueDeclare(
                 queue: rabbitMqSettings.FetchInventoryMetadataQueueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
 
-            rabbitChannel.QueueBind(
+            RabbitChannel.QueueBind(
                 queue: rabbitMqSettings.FetchInventoryMetadataQueueName,
                 exchange: rabbitMqSettings.FetchInventoryMetadataExchangeName,
                 routingKey: "");

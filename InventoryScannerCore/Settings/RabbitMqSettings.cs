@@ -1,6 +1,8 @@
-﻿namespace InventoryScannerCore.Settings
+﻿using InventoryScanner.Messaging.Interfaces;
+
+namespace InventoryScannerCore.Settings
 {
-    public class RabbitMqSettings
+    public class RabbitMqSettings : IRabbitMqSettings
     {
         public string HostName { get; set; }
         public int AmqpPort { get; set; }

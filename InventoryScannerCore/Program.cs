@@ -1,14 +1,14 @@
-using InventoryScannerCore;
 using InventoryScannerCore.Lookups;
 using InventoryScannerCore.Repositories;
 using InventoryScannerCore.UnitTests;
 using InventoryScannerCore.Workflows;
 using InventoryScannerCore.Settings;
 using EasyNetQ;
+using InventoryScanner.Messaging.Interfaces;
+using InventoryScanner.Messaging.Implementation;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 
@@ -23,10 +23,16 @@ if (builder.Environment.IsDevelopment())
 var rabbitSettings = builder.Configuration.GetSection("Settings:RabbitMQ").Get<RabbitMqSettings>();
 var connectionString = $"host={rabbitSettings.HostName}:{rabbitSettings.AmqpPort};username={rabbitSettings.UserName};password={rabbitSettings.Password}";
 
-builder.Services.AddSingleton(RabbitHutch.CreateBus(connectionString));
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
+builder.Services.AddSingleton<IRabbitMqSettings>(sp => sp.GetRequiredService<IOptions<RabbitMqSettings>>().Value);
+builder.Services.AddSingleton<IRabbitMqPublisher>(provider =>
+{
+    var settings = provider.GetRequiredService<IRabbitMqSettings>();
+    var bus = provider.GetRequiredService<IBus>();
+    return new RabbitMqPublisher(settings, bus);
+});
+
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();

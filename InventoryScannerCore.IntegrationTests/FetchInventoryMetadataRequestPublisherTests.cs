@@ -1,4 +1,4 @@
-﻿using InventoryScannerCore.Enums;
+﻿using InventoryScanner.Messaging.Enums;
 using InventoryScannerCore.Events;
 using InventoryScannerCore.Publishers;
 using InventoryScannerCore.Settings;
@@ -16,8 +16,13 @@ namespace InventoryScannerCore.IntegrationTests
             var testHelper = new IntegrationTestDependencyHelper();
             await testHelper.SpinUp(withRabbit: true);
 
-            var publisher = testHelper.provider.GetRequiredService<IFetchInventoryMetadataRequestPublisher>();
-            var settings = testHelper.provider.GetRequiredService<ISettingsService>();
+            if (testHelper.Provider == null)
+            {
+                throw new InvalidOperationException("Provider is not initialized.");
+            }
+
+            var publisher = testHelper.Provider.GetRequiredService<IFetchInventoryMetadataRequestPublisher>();
+            var settings = testHelper.Provider.GetRequiredService<ISettingsService>();
             var queueName = settings.GetRabbitMqSettings().FetchInventoryMetadataQueueName;
 
             using (var rabbit = new RabbitTestContext(settings.GetRabbitMqSettings()))
@@ -30,7 +35,7 @@ namespace InventoryScannerCore.IntegrationTests
                 Assert.That(messages, Is.Not.Null);
                 Assert.That(messages.Count, Is.EqualTo(1));
                 Assert.That(messages.First().Barcode, Is.EqualTo(barcode));
-                Assert.That(Guid.TryParse(messages.First().EventId, out _), Is.True);
+                Assert.That(messages.First().EventId, Is.TypeOf<Guid>());
                 Assert.That((DateTime.UtcNow - messages.First().Timestamp).TotalSeconds, Is.LessThan(5));
 
                 await rabbit.PurgeQueue(queueName);
@@ -43,8 +48,13 @@ namespace InventoryScannerCore.IntegrationTests
             var testHelper = new IntegrationTestDependencyHelper();
             await testHelper.SpinUp(withRabbit: true);
 
-            var publisher = testHelper.provider.GetRequiredService<IFetchInventoryMetadataRequestPublisher>();
-            var settings = testHelper.provider.GetRequiredService<ISettingsService>();
+            if (testHelper.Provider == null)
+            {
+                throw new InvalidOperationException("Provider is not initialized.");
+            }
+
+            var publisher = testHelper.Provider.GetRequiredService<IFetchInventoryMetadataRequestPublisher>();
+            var settings = testHelper.Provider.GetRequiredService<ISettingsService>();
             var queueName = settings.GetRabbitMqSettings().FetchInventoryMetadataQueueName;
 
             using (var rabbit = new RabbitTestContext(settings.GetRabbitMqSettings()))
@@ -76,10 +86,15 @@ namespace InventoryScannerCore.IntegrationTests
             var testHelper = new IntegrationTestDependencyHelper();
             await testHelper.SpinUp(withRabbit: true);
 
-            var publisher = testHelper.provider.GetRequiredService<IFetchInventoryMetadataRequestPublisher>();
-            var rabbitChannel = testHelper.rabbitChannel;
-            var rabbitConnection = testHelper.rabbitConnection;
-            var settings = testHelper.provider.GetRequiredService<ISettingsService>();
+            if (testHelper.Provider == null)
+            {
+                throw new InvalidOperationException("Provider is not initialized.");
+            }
+
+            var publisher = testHelper.Provider.GetRequiredService<IFetchInventoryMetadataRequestPublisher>();
+            var rabbitChannel = testHelper.RabbitChannel;
+            var rabbitConnection = testHelper.RabbitConnection;
+            var settings = testHelper.Provider.GetRequiredService<ISettingsService>();
             var queueName = settings.GetRabbitMqSettings().FetchInventoryMetadataQueueName;
 
             using (var rabbit = new RabbitTestContext(settings.GetRabbitMqSettings()))
@@ -89,14 +104,14 @@ namespace InventoryScannerCore.IntegrationTests
                 await rabbit.ShutdownRabbitMqAsync();
                 var result = await publisher.RequestFetchInventoryMetadata(barcode);
 
-                Assert.That(result.Status, Is.EqualTo(PublisherResponseStatus.Error));
+                Assert.That(result.Status, Is.EqualTo(PublisherResponseStatus.Failure));
                 Assert.That(result.Data.Count, Is.EqualTo(1));
                 Assert.That(result.Data.First(), Is.TypeOf<FetchInventoryMetadataEvent>());
                 Assert.That(((FetchInventoryMetadataEvent)result.Data.First()).Barcode, Is.EqualTo(barcode));
                 Assert.That(result.Errors.Count, Is.EqualTo(1));
                 Assert.That(result.Errors.First().StartsWith("RabbitMQ Error: Unable to reach rabbit host. Message: "));
 
-                await rabbit.RestartRabbitMqAsync();
+                await rabbit.StartRabbitMqAsync();
                 await rabbit.PurgeQueue(queueName, true);
             }
         }
@@ -107,10 +122,15 @@ namespace InventoryScannerCore.IntegrationTests
             var testHelper = new IntegrationTestDependencyHelper();
             await testHelper.SpinUp(withRabbit: true);
 
-            var publisher = testHelper.provider.GetRequiredService<IFetchInventoryMetadataRequestPublisher>();
-            var rabbitChannel = testHelper.rabbitChannel;
-            var rabbitConnection = testHelper.rabbitConnection;
-            var settings = testHelper.provider.GetRequiredService<ISettingsService>();
+            if (testHelper.Provider == null)
+            {
+                throw new InvalidOperationException("Provider is not initialized.");
+            }
+
+            var publisher = testHelper.Provider.GetRequiredService<IFetchInventoryMetadataRequestPublisher>();
+            var rabbitChannel = testHelper.RabbitChannel;
+            var rabbitConnection = testHelper.RabbitConnection;
+            var settings = testHelper.Provider.GetRequiredService<ISettingsService>();
             var queueName = settings.GetRabbitMqSettings().FetchInventoryMetadataQueueName;
 
             using (var rabbit = new RabbitTestContext(settings.GetRabbitMqSettings()))

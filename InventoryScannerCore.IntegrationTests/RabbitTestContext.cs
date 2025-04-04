@@ -11,8 +11,8 @@ namespace InventoryScannerCore.IntegrationTests
 {
     public class RabbitTestContext : IDisposable
     {
-        private IConnection connection;
-        private IModel channel;
+        private IConnection? connection;
+        private IModel? channel;
         private readonly RabbitMqSettings rabbitSettings;
 
         public RabbitTestContext(RabbitMqSettings rabbitSettings)
@@ -37,7 +37,6 @@ namespace InventoryScannerCore.IntegrationTests
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
 
-            // Ensure exchange and queue are set up
             channel.ExchangeDeclare(
                 exchange: rabbitSettings.FetchInventoryMetadataExchangeName,
                 type: ExchangeType.Fanout,
@@ -111,7 +110,7 @@ namespace InventoryScannerCore.IntegrationTests
             await StartRabbitMqAsync(containerName, host, amqpPort, managementPort, username, password, retryDelayMs, timeoutSeconds);
         }
 
-        private async Task StartRabbitMqAsync(
+        public async Task StartRabbitMqAsync(
             string containerName = "rabbitmq",
             string host = "localhost", 
             int amqpPort = 5672, 
@@ -159,7 +158,7 @@ namespace InventoryScannerCore.IntegrationTests
             };
         }
 
-        public async Task WaitForRabbitMqManagementApiAsync(
+        public static async Task WaitForRabbitMqManagementApiAsync(
             string host = "localhost",
             int port = 15672,
             string username = "guest",
@@ -208,7 +207,7 @@ namespace InventoryScannerCore.IntegrationTests
             throw new TimeoutException($"RabbitMQ management API at {endpoint} was not healthy after {timeoutSeconds} seconds.");
         }
 
-        public async Task WaitForAmqpPortReadyAsync(string host, int port, int timeoutMs = 15000, int delayMs = 500)
+        public static async Task WaitForAmqpPortReadyAsync(string host, int port, int timeoutMs = 15000, int delayMs = 500)
         {
             Console.WriteLine($"Waiting for full AMQP handshake at {host}:{port}...");
 
@@ -249,6 +248,8 @@ namespace InventoryScannerCore.IntegrationTests
         {
             try { channel?.Close(); } catch { }
             try { connection?.Close(); } catch { }
+
+            GC.SuppressFinalize(this);
         }
     }
 }
