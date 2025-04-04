@@ -11,11 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EasyNetQ" Version="7.8.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="Npgsql" Version="9.0.3" />
     <PackageReference Include="Polly" Version="8.5.2" />
-    <PackageReference Include="Silverback.Integration" Version="4.6.2" />
-    <PackageReference Include="Silverback.Integration.RabbitMQ" Version="4.6.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.3" />
   </ItemGroup>

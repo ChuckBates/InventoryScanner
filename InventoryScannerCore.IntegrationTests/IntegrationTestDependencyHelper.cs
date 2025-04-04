@@ -5,9 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RabbitMQ.Client;
+using EasyNetQ;
 using System.Diagnostics;
 using System.Net.Sockets;
+using RabbitMQ.Client;
 
 namespace InventoryScannerCore.IntegrationTests
 {
@@ -68,10 +69,10 @@ namespace InventoryScannerCore.IntegrationTests
 
         private void AddRabbitServices()
         {
-            services
-                .AddSilverback()
-                .WithConnectionToMessageBroker(options => options.AddRabbit())
-                .AddEndpointsConfigurator<RabbitEndpointsConfigurator>();
+            var settingsService = services.BuildServiceProvider().GetRequiredService<ISettingsService>();
+            var rabbitSettings = settingsService.GetRabbitMqSettings();
+            var connectionString = $"host={rabbitSettings.HostName}:{rabbitSettings.AmqpPort};username={rabbitSettings.UserName};password={rabbitSettings.Password}";
+            services.AddSingleton(RabbitHutch.CreateBus(connectionString));
 
             services.AddScoped<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
             services.AddSingleton<IHostApplicationLifetime, FakeHostApplicationLifetime>();

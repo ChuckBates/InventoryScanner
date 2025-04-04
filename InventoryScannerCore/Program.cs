@@ -4,6 +4,7 @@ using InventoryScannerCore.Repositories;
 using InventoryScannerCore.UnitTests;
 using InventoryScannerCore.Workflows;
 using InventoryScannerCore.Settings;
+using EasyNetQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,11 +20,10 @@ if (builder.Environment.IsDevelopment())
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-builder.Services
-    .AddSilverback()
-    .WithConnectionToMessageBroker(options => options
-        .AddRabbit())
-    .AddEndpointsConfigurator<RabbitEndpointsConfigurator>();
+var rabbitSettings = builder.Configuration.GetSection("Settings:RabbitMQ").Get<RabbitMqSettings>();
+var connectionString = $"host={rabbitSettings.HostName}:{rabbitSettings.AmqpPort};username={rabbitSettings.UserName};password={rabbitSettings.Password}";
+
+builder.Services.AddSingleton(RabbitHutch.CreateBus(connectionString));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();

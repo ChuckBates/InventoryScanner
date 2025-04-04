@@ -1,23 +1,28 @@
-﻿using InventoryScannerCore.Enums;
+﻿using EasyNetQ;
+using InventoryScannerCore.Enums;
 using InventoryScannerCore.Events;
+using InventoryScannerCore.Settings;
 using Polly;
-using Silverback.Messaging.Broker;
-using Silverback.Messaging.Publishing;
+using RabbitMQ.Client.Exceptions;
+using System.Text;
+using System.Text.Json;
 
 namespace InventoryScannerCore.Publishers
 {
     public class FetchInventoryMetadataRequestPublisher : IFetchInventoryMetadataRequestPublisher
     {
-        private readonly IPublisher publisher;
+        private readonly IBus bus;
+        private readonly ISettingsService settingsService;
         private readonly AsyncPolicy retryPolicy;
 
-        public FetchInventoryMetadataRequestPublisher(IPublisher publisher)
+        public FetchInventoryMetadataRequestPublisher(IBus bus, ISettingsService settingsService)
         {
-            this.publisher = publisher;
-            this.retryPolicy = Policy
-                .Handle<ProduceException>()
+            this.bus = bus;
+            this.settingsService = settingsService;
+            retryPolicy = Policy
+                .Handle<Exception>(ex => IsTransient(ex))
                 .WaitAndRetryAsync(
-                    retryCount: 5, 
+                    retryCount: settingsService.GetRabbitMqSettings().PublishRetryCount,
                     sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(2),
                     onRetry: (ex, timespan) =>
                     {
@@ -37,11 +42,23 @@ namespace InventoryScannerCore.Publishers
 
             try
             {
-                await retryPolicy.ExecuteAsync(async () => 
+                await retryPolicy.ExecuteAsync(async () =>
+                {
+                    var exchange = await bus.Advanced.ExchangeDeclareAsync(
+                        settingsService.GetRabbitMqSettings().FetchInventoryMetadataExchangeName,
+                        type: "fanout",
+                        durable: true,
+                        autoDelete: false);
+
+                    var body = Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(message));
+                    var properties = new MessageProperties
                     {
-                        Console.WriteLine("Publishing message to RabbitMQ");
-                        await publisher.PublishAsync(message);
-                    });
+                        ContentType = "application/json",
+                        DeliveryMode = 2
+                    };
+
+                    await bus.Advanced.PublishAsync(exchange, string.Empty, false, properties, body);
+                });
             }
             catch (Exception e)
             {
@@ -51,6 +68,24 @@ namespace InventoryScannerCore.Publishers
             }
 
             return response;
+        }
+        private static bool IsTransient(Exception ex)
+        {
+            if (ex is EasyNetQException) return true;
+
+            if (ex.InnerException is RabbitMQ.Client.Exceptions.BrokerUnreachableException)
+                return true;
+
+            if (ex.InnerException is System.IO.EndOfStreamException)
+                return false; // This indicates permanent closure
+
+            if (ex is AlreadyClosedException)
+                return false;
+
+            if (ex.Message.Contains("End of stream") || ex.Message.Contains("Already closed"))
+                return false;
+
+            return true;
         }
     }
 }

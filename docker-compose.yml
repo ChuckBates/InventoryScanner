@@ -48,17 +48,6 @@ services:
       timeout: 5s
       retries: 5
 
-  toxiproxy:
-    image: ghcr.io/shopify/toxiproxy:2.5.0
-    container_name: toxiproxy
-    ports:
-      - "8474:8474"
-      - "5673:5673"
-      - "15673:15673"
-    entrypoint: ["/toxiproxy", "-host=0.0.0.0"]
-    depends_on:
-     - rabbitmq
-
 volumes:
   postgres-data:
   rabbitmq-data:

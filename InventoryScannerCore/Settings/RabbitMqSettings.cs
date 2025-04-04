@@ -9,5 +9,7 @@
         public string Password { get; set; }
         public string FetchInventoryMetadataQueueName { get; set; }
         public string FetchInventoryMetadataExchangeName { get; set; }
+        public int PublishRetryCount { get; set; }
+        public int ConnectionTimeout { get; set; }
     }
 }
