@@ -7,8 +7,9 @@ using InventoryScanner.Messaging.Implementation;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using InventoryScanner.Messaging.IntegrationTests.Constructs;
 
-namespace InventoryScanner.Messaging.IntegrationTests
+namespace InventoryScanner.Messaging.IntegrationTests.Helpers
 {
     public class IntegrationTestDependencyHelper
     {
@@ -92,22 +93,22 @@ namespace InventoryScanner.Messaging.IntegrationTests
             RabbitConnection = factory.CreateConnection();
             RabbitChannel = RabbitConnection.CreateModel();
             RabbitChannel.ExchangeDeclare(
-                exchange: rabbitMqSettings.FetchInventoryMetadataExchangeName,
+                exchange: rabbitMqSettings.ExchangeName,
                 type: ExchangeType.Fanout,
                 durable: true,
                 autoDelete: false,
                 arguments: null);
 
             RabbitChannel.QueueDeclare(
-                queue: rabbitMqSettings.FetchInventoryMetadataQueueName,
+                queue: rabbitMqSettings.QueueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
 
             RabbitChannel.QueueBind(
-                queue: rabbitMqSettings.FetchInventoryMetadataQueueName,
-                exchange: rabbitMqSettings.FetchInventoryMetadataExchangeName,
+                queue: rabbitMqSettings.QueueName,
+                exchange: rabbitMqSettings.ExchangeName,
                 routingKey: "");
         }
     }

@@ -1,6 +1,6 @@
 ﻿using InventoryScanner.Messaging.Models;
 
-namespace InventoryScanner.Messaging.IntegrationTests
+namespace InventoryScanner.Messaging.IntegrationTests.Constructs
 {
     public class TestEvent : IRabbitMqEvent
     {

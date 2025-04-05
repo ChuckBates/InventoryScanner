@@ -1,8 +1,10 @@
 using InventoryScanner.Messaging.Enums;
+using InventoryScanner.Messaging.IntegrationTests.Constructs;
+using InventoryScanner.Messaging.IntegrationTests.Helpers;
 using InventoryScanner.Messaging.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InventoryScanner.Messaging.IntegrationTests
+namespace InventoryScanner.Messaging.IntegrationTests.Tests
 {
     [TestFixture]
     [NonParallelizable]
@@ -25,7 +27,7 @@ namespace InventoryScanner.Messaging.IntegrationTests
 
             publisher = testHelper.Provider.GetRequiredService<IRabbitMqPublisher>();
             settings = testHelper.Provider.GetRequiredService<IRabbitMqSettings>();
-            queueName = settings.FetchInventoryMetadataQueueName;
+            queueName = settings.QueueName;
         }
 
         [Test]

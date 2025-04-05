@@ -5,8 +5,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using InventoryScanner.Messaging.Interfaces;
+using InventoryScanner.Messaging.IntegrationTests.Constructs;
 
-namespace InventoryScanner.Messaging.IntegrationTests
+namespace InventoryScanner.Messaging.IntegrationTests.Helpers
 {
     public class RabbitTestHelper : IDisposable
     {
@@ -19,7 +20,7 @@ namespace InventoryScanner.Messaging.IntegrationTests
             this.rabbitSettings = rabbitSettings;
             BuildConnection();
 
-            PurgeQueue(rabbitSettings.FetchInventoryMetadataQueueName).Wait(3000);
+            PurgeQueue(rabbitSettings.QueueName).Wait(3000);
         }
 
         private void BuildConnection()
@@ -37,20 +38,20 @@ namespace InventoryScanner.Messaging.IntegrationTests
             channel = connection.CreateModel();
 
             channel.ExchangeDeclare(
-                exchange: rabbitSettings.FetchInventoryMetadataExchangeName,
+                exchange: rabbitSettings.ExchangeName,
                 type: ExchangeType.Fanout,
                 durable: true,
                 autoDelete: false);
 
             channel.QueueDeclare(
-                queue: rabbitSettings.FetchInventoryMetadataQueueName,
+                queue: rabbitSettings.QueueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false);
 
             channel.QueueBind(
-                queue: rabbitSettings.FetchInventoryMetadataQueueName,
-                exchange: rabbitSettings.FetchInventoryMetadataExchangeName,
+                queue: rabbitSettings.QueueName,
+                exchange: rabbitSettings.ExchangeName,
                 routingKey: "");
         }
 
@@ -63,7 +64,7 @@ namespace InventoryScanner.Messaging.IntegrationTests
                 BuildConnection();
             }
 
-            channel.QueuePurge(queueName);
+            channel?.QueuePurge(queueName);
             await Task.Delay(300);
         }
 
@@ -76,7 +77,7 @@ namespace InventoryScanner.Messaging.IntegrationTests
             {
                 while (true)
                 {
-                    var result = channel.BasicGet(queueName, autoAck: true);
+                    var result = channel?.BasicGet(queueName, autoAck: true);
                     if (result == null) break;
 
                     var body = Encoding.UTF8.GetString(result.Body.ToArray());
