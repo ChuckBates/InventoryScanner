@@ -4,7 +4,7 @@ using Npgsql;
 using System.Data;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("InventoryScannerCore.IntegrationTests")]
+[assembly: InternalsVisibleTo("InventoryScanner.Core.IntegrationTests")]
 
 namespace InventoryScannerCore.Repositories
 {

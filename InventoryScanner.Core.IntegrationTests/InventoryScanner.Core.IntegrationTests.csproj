@@ -30,11 +30,11 @@
 	<PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
 	<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
-	<PackageReference Include="System.Linq" />
+	<PackageReference Include="System.Linq" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InventoryScannerCore\InventoryScannerCore.csproj" />
+    <ProjectReference Include="..\InventoryScanner.Core\InventoryScanner.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
