@@ -8,9 +8,9 @@
         public int AmqpPort { get; }
         public int ManagementPort { get; }
         public int PublishRetryCount { get; }
-        public string FetchInventoryMetadataQueueName { get; }
-        public string FetchInventoryMetadataExchangeName { get; }
         public int ConnectionTimeout { get; }
+        public string ExchangeName { get; }
+        public string QueueName { get; }
 
     }
 }

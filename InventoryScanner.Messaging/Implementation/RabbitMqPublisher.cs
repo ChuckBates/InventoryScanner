@@ -36,7 +36,7 @@ namespace InventoryScanner.Messaging.Implementation
                 try
                 {
                     var exchange = await bus.Advanced.ExchangeDeclareAsync(
-                        settings.FetchInventoryMetadataExchangeName,
+                        settings.ExchangeName,
                         type: "fanout",
                         durable: true,
                         autoDelete: false);
