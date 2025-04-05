@@ -1,6 +1,6 @@
-﻿using InventoryScannerCore.Models;
+﻿using InventoryScanner.Core.Models;
 
-namespace InventoryScannerCore.Repositories
+namespace InventoryScanner.Core.Repositories
 {
     public interface IInventoryRepository
     {

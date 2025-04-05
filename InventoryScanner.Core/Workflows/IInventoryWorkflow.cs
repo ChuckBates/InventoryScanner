@@ -1,6 +1,6 @@
-﻿using InventoryScannerCore.Models;
+﻿using InventoryScanner.Core.Models;
 
-namespace InventoryScannerCore.Workflows
+namespace InventoryScanner.Core.Workflows
 {
     public interface IInventoryWorkflow
     {

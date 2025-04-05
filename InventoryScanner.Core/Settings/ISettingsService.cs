@@ -1,4 +1,4 @@
-﻿namespace InventoryScannerCore.Settings
+﻿namespace InventoryScanner.Core.Settings
 {
     public interface ISettingsService
     {

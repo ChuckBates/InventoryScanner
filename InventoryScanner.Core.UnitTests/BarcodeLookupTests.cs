@@ -1,11 +1,11 @@
-﻿using InventoryScannerCore.Lookups;
-using InventoryScannerCore.Models;
-using InventoryScannerCore.Settings;
+﻿using InventoryScanner.Core.Lookups;
+using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Settings;
 using Moq;
 using Moq.Protected;
 using System.Text.Json;
 
-namespace InventoryScannerCore.UnitTests
+namespace InventoryScanner.Core.UnitTests
 {
     [TestFixture]
     public class BarcodeLookupTests

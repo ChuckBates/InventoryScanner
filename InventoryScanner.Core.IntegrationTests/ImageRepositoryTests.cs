@@ -1,6 +1,6 @@
-﻿using InventoryScannerCore.Repositories;
+﻿using InventoryScanner.Core.Repositories;
 
-namespace InventoryScannerCore.IntegrationTests
+namespace InventoryScanner.Core.IntegrationTests
 {
     [TestFixture]
     public class ImageRepositoryTests

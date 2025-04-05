@@ -1,8 +1,8 @@
-using InventoryScannerCore.Lookups;
-using InventoryScannerCore.Repositories;
-using InventoryScannerCore.UnitTests;
-using InventoryScannerCore.Workflows;
-using InventoryScannerCore.Settings;
+using InventoryScanner.Core.Lookups;
+using InventoryScanner.Core.Repositories;
+using InventoryScanner.Core.UnitTests;
+using InventoryScanner.Core.Workflows;
+using InventoryScanner.Core.Settings;
 using EasyNetQ;
 using InventoryScanner.Messaging.Interfaces;
 using InventoryScanner.Messaging.Implementation;

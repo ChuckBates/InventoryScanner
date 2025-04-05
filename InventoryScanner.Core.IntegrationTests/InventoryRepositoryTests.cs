@@ -1,9 +1,9 @@
-using InventoryScannerCore.Models;
-using InventoryScannerCore.Repositories;
-using InventoryScannerCore.Settings;
+using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Repositories;
+using InventoryScanner.Core.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InventoryScannerCore.IntegrationTests
+namespace InventoryScanner.Core.IntegrationTests
 {
     [TestFixture]
     public class InventoryRepositoryTests

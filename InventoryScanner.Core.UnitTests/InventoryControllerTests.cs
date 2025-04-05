@@ -1,11 +1,11 @@
-using InventoryScannerCore.Controllers;
-using InventoryScannerCore.Enums;
-using InventoryScannerCore.Models;
-using InventoryScannerCore.Repositories;
-using InventoryScannerCore.Workflows;
+using InventoryScanner.Core.Controllers;
+using InventoryScanner.Core.Enums;
+using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Repositories;
+using InventoryScanner.Core.Workflows;
 using Moq;
 
-namespace InventoryScannerCore.UnitTests
+namespace InventoryScanner.Core.UnitTests
 {
     [TestFixture]
     public class InventoryControllerTests

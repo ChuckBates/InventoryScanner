@@ -1,11 +1,11 @@
-﻿using InventoryScannerCore.Controllers;
-using InventoryScannerCore.Settings;
+﻿using InventoryScanner.Core.Controllers;
+using InventoryScanner.Core.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace InventoryScannerCore.IntegrationTests
+namespace InventoryScanner.Core.IntegrationTests
 {
     public class IntegrationTestDependencyHelper
     {

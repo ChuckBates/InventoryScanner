@@ -1,12 +1,12 @@
-﻿using InventoryScannerCore.Models;
-using InventoryScannerCore.Settings;
+﻿using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Settings;
 using Npgsql;
 using System.Data;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("InventoryScanner.Core.IntegrationTests")]
 
-namespace InventoryScannerCore.Repositories
+namespace InventoryScanner.Core.Repositories
 {
     public class InventoryRepository : IInventoryRepository
     {

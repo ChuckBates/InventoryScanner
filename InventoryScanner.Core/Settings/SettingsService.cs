@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace InventoryScannerCore.Settings
+namespace InventoryScanner.Core.Settings
 {
     public class SettingsService : ISettingsService
     {

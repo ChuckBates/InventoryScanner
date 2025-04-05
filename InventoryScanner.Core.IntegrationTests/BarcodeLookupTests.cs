@@ -1,9 +1,9 @@
-﻿using InventoryScannerCore.Lookups;
-using InventoryScannerCore.Models;
-using InventoryScannerCore.Settings;
+﻿using InventoryScanner.Core.Lookups;
+using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InventoryScannerCore.IntegrationTests
+namespace InventoryScanner.Core.IntegrationTests
 {
     [TestFixture]
     public class BarcodeLookupTests

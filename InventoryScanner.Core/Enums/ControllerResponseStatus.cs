@@ -1,4 +1,4 @@
-﻿namespace InventoryScannerCore.Enums
+﻿namespace InventoryScanner.Core.Enums
 {
     public class ControllerResponseStatus
     {

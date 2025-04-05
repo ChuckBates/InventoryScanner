@@ -1,6 +1,6 @@
-﻿using InventoryScannerCore.Models;
+﻿using InventoryScanner.Core.Models;
 
-namespace InventoryScannerCore.Workflows
+namespace InventoryScanner.Core.Workflows
 {
     public class InventoryWorkflowResponse(string status, List<Inventory> data, List<string> errors)
     {

@@ -1,6 +1,6 @@
 ﻿using InventoryScanner.Messaging.Interfaces;
 
-namespace InventoryScannerCore.Settings
+namespace InventoryScanner.Core.Settings
 {
     public class RabbitMqSettings : IRabbitMqSettings
     {

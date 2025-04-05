@@ -1,6 +1,6 @@
 ﻿using InventoryScanner.Messaging.Implementation;
 
-namespace InventoryScannerCore.Publishers
+namespace InventoryScanner.Core.Publishers
 {
     public interface IFetchInventoryMetadataRequestPublisher
     {

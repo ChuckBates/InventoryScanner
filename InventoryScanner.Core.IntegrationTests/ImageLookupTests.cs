@@ -1,8 +1,8 @@
-﻿using InventoryScannerCore.Lookups;
-using InventoryScannerCore.Settings;
+﻿using InventoryScanner.Core.Lookups;
+using InventoryScanner.Core.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace InventoryScannerCore.IntegrationTests
+namespace InventoryScanner.Core.IntegrationTests
 {
     [TestFixture]
     public class ImageLookupTests

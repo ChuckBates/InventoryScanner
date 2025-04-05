@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace InventoryScannerCore.Repositories
+namespace InventoryScanner.Core.Repositories
 {
     public interface IImageRepository
     {

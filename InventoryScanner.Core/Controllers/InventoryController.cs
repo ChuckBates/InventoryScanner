@@ -1,9 +1,10 @@
-﻿using InventoryScannerCore.Enums;
-using InventoryScannerCore.Models;
-using InventoryScannerCore.Workflows;
+﻿using InventoryScanner.Core.Controllers;
+using InventoryScanner.Core.Enums;
+using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Workflows;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InventoryScannerCore.Controllers
+namespace InventoryScanner.Core.Controllers
 {
     [ApiController]
     [Route("[controller]")]

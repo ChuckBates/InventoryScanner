@@ -1,8 +1,9 @@
 ﻿using InventoryScanner.Messaging.Implementation;
 using InventoryScanner.Messaging.Interfaces;
-using InventoryScannerCore.Events;
+using InventoryScanner.Core.Events;
 
 namespace InventoryScannerCore.Publishers
+namespace InventoryScanner.Core.Publishers
 {
     public class FetchInventoryMetadataRequestPublisher : RabbitMqPublisherBase, IFetchInventoryMetadataRequestPublisher
     {

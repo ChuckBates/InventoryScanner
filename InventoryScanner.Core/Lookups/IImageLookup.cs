@@ -1,5 +1,5 @@
 ﻿
-namespace InventoryScannerCore.Lookups
+namespace InventoryScanner.Core.Lookups
 {
     public interface IImageLookup
     {

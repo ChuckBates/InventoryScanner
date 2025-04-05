@@ -1,8 +1,8 @@
-﻿using InventoryScannerCore.Models;
-using InventoryScannerCore.Settings;
+﻿using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Settings;
 using System.Text.Json;
 
-namespace InventoryScannerCore.Lookups
+namespace InventoryScanner.Core.Lookups
 {
     public class BarcodeLookup : IBarcodeLookup
     {

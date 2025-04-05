@@ -1,6 +1,6 @@
-﻿using InventoryScannerCore.Settings;
+﻿using InventoryScanner.Core.Settings;
 
-namespace InventoryScannerCore.Lookups
+namespace InventoryScanner.Core.Lookups
 {
     public class ImageLookup : IImageLookup
     {

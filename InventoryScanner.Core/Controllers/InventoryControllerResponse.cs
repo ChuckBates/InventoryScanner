@@ -1,7 +1,7 @@
-﻿using InventoryScannerCore.Enums;
-using InventoryScannerCore.Models;
+﻿using InventoryScanner.Core.Enums;
+using InventoryScanner.Core.Models;
 
-namespace InventoryScannerCore.Controllers
+namespace InventoryScanner.Core.Controllers
 {
     public class InventoryControllerResponse(string status, List<Inventory> data, string error = "")
     {

@@ -1,11 +1,11 @@
-﻿using InventoryScannerCore.Enums;
-using InventoryScannerCore.Lookups;
-using InventoryScannerCore.Models;
-using InventoryScannerCore.Repositories;
-using InventoryScannerCore.Workflows;
+﻿using InventoryScanner.Core.Enums;
+using InventoryScanner.Core.Lookups;
+using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Repositories;
+using InventoryScanner.Core.Workflows;
 using System.Text.RegularExpressions;
 
-namespace InventoryScannerCore.UnitTests
+namespace InventoryScanner.Core.UnitTests
 {
     public class InventoryWorkflow : IInventoryWorkflow
     {

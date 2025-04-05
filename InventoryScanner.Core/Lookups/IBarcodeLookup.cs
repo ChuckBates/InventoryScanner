@@ -1,6 +1,6 @@
-﻿using InventoryScannerCore.Models;
+﻿using InventoryScanner.Core.Models;
 
-namespace InventoryScannerCore.Lookups
+namespace InventoryScanner.Core.Lookups
 {
     public interface IBarcodeLookup
     {

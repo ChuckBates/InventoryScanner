@@ -2,7 +2,7 @@
 using EasyNetQ;
 using InventoryScanner.Messaging.Models;
 
-namespace InventoryScannerCore.Events
+namespace InventoryScanner.Core.Events
 {
     [Queue("fetch-inventory-metadata-queue", ExchangeName = "fetch-inventory-metadata-exchange")]
     public class FetchInventoryMetadataEvent : IRabbitMqEvent
