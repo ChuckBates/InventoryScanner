@@ -12,6 +12,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
     {
         IRabbitMqSettings settings;
         IRabbitMqPublisher publisher;
+        string exchangeName;
         string queueName;
 
         [OneTimeSetUp]
@@ -27,6 +28,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
 
             publisher = testHelper.Provider.GetRequiredService<IRabbitMqPublisher>();
             settings = testHelper.Provider.GetRequiredService<IRabbitMqSettings>();
+            exchangeName = settings.ExchangeName;
             queueName = settings.QueueName;
         }
 
@@ -43,7 +45,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
 
             using (var rabbit = new RabbitTestHelper(settings))
             {
-                await publisher.PublishAsync(testEvent);
+                await publisher.PublishAsync(testEvent, exchangeName);
 
                 var messages = await rabbit.ReadMessages<TestEvent>(queueName, 1);
 
@@ -84,9 +86,9 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
 
             using (var rabbit = new RabbitTestHelper(settings))
             {
-                await publisher.PublishAsync(testEvent1);
-                await publisher.PublishAsync(testEvent2);
-                await publisher.PublishAsync(testEvent3);
+                await publisher.PublishAsync(testEvent1, exchangeName);
+                await publisher.PublishAsync(testEvent2, exchangeName);
+                await publisher.PublishAsync(testEvent3, exchangeName);
 
                 var messages = await rabbit.ReadMessages<TestEvent>(queueName, 3);
 
@@ -115,7 +117,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
             using (var rabbit = new RabbitTestHelper(settings))
             {
                 await rabbit.ShutdownRabbitMqAsync();
-                var result = await publisher.PublishAsync(testEvent);
+                var result = await publisher.PublishAsync(testEvent, exchangeName);
 
                 Assert.That(result.Status, Is.EqualTo(PublisherResponseStatus.Failure));
                 Assert.That(result.Data.Count, Is.EqualTo(1));
@@ -144,7 +146,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
             {
                 await rabbit.RestartRabbitMqAsync();
 
-                var result = await publisher.PublishAsync(testEvent);
+                var result = await publisher.PublishAsync(testEvent, exchangeName);
 
                 Assert.That(result.Status, Is.EqualTo(PublisherResponseStatus.Success));
                 Assert.That(result.Data.Count, Is.EqualTo(1));

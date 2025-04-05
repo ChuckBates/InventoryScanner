@@ -5,8 +5,8 @@ using InventoryScanner.Core.Workflows;
 using InventoryScanner.Core.Settings;
 using EasyNetQ;
 using InventoryScanner.Messaging.Interfaces;
-using InventoryScanner.Messaging.Implementation;
 using Microsoft.Extensions.Options;
+using InventoryScanner.Messaging.Publishing;
 
 var builder = WebApplication.CreateBuilder(args);
 

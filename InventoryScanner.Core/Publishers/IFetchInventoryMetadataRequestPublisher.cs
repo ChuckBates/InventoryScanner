@@ -1,4 +1,4 @@
-﻿using InventoryScanner.Messaging.Implementation;
+﻿using InventoryScanner.Messaging.Publishing;
 
 namespace InventoryScanner.Core.Publishers
 {

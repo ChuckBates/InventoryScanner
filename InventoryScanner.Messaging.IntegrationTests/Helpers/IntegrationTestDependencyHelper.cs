@@ -3,11 +3,11 @@ using EasyNetQ;
 using RabbitMQ.Client;
 using InventoryScanner.Messaging.Interfaces;
 using Microsoft.Extensions.Options;
-using InventoryScanner.Messaging.Implementation;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using InventoryScanner.Messaging.IntegrationTests.Constructs;
+using InventoryScanner.Messaging.Publishing;
 
 namespace InventoryScanner.Messaging.IntegrationTests.Helpers
 {

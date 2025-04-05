@@ -1,13 +1,18 @@
-﻿using InventoryScanner.Messaging.Implementation;
-using InventoryScanner.Messaging.Interfaces;
+﻿using InventoryScanner.Messaging.Interfaces;
 using InventoryScanner.Core.Events;
+using InventoryScanner.Core.Settings;
+using InventoryScanner.Messaging.Publishing;
 
-namespace InventoryScannerCore.Publishers
 namespace InventoryScanner.Core.Publishers
 {
     public class FetchInventoryMetadataRequestPublisher : RabbitMqPublisherBase, IFetchInventoryMetadataRequestPublisher
     {
-        public FetchInventoryMetadataRequestPublisher(IRabbitMqPublisher publisher) : base(publisher) {}
+        private readonly IRabbitMqSettings settings;
+
+        public FetchInventoryMetadataRequestPublisher(IRabbitMqPublisher publisher, ISettingsService settings) : base(publisher)
+        {
+            this.settings = settings.GetRabbitMqSettings();
+        }
 
         public async Task<PublisherResponse> RequestFetchInventoryMetadata(string barcode)
         {
@@ -18,7 +23,7 @@ namespace InventoryScanner.Core.Publishers
                 Timestamp = DateTime.UtcNow
             };
 
-            return await PublishAsync(message);
+            return await PublishAsync(message, settings.ExchangeName);
         }
     }
 }
