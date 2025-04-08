@@ -2,10 +2,10 @@
 
 namespace InventoryScanner.Messaging.IntegrationTests.Constructs
 {
-    public class TestEvent : IRabbitMqEvent
+    public class TestMessage : IRabbitMqMessage
     {
-        public required string Barcode { get; set; }
-        public Guid EventId { get; set; }
+        public required string Barcode { get; set; } = null!;
+        public Guid MessageId { get; set; }
         public DateTime Timestamp { get; set; }
     }
 }

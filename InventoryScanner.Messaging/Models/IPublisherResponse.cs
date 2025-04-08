@@ -5,7 +5,7 @@ namespace InventoryScanner.Messaging.Models
     public interface IPublisherResponse
     {
         PublisherResponseStatus Status { get; }
-        IReadOnlyList<IRabbitMqEvent> Data { get; }
+        IReadOnlyList<IRabbitMqMessage> Data { get; }
         IReadOnlyList<string> Errors { get; }
     }
 }

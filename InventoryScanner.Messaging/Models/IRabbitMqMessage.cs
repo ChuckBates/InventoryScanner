@@ -1,8 +1,8 @@
 ﻿namespace InventoryScanner.Messaging.Models
 {
-    public interface IRabbitMqEvent
+    public interface IRabbitMqMessage
     {
-        Guid EventId { get; }
+        Guid MessageId { get; }
         DateTime Timestamp { get; }
     }
 }

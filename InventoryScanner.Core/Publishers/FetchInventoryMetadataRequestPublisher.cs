@@ -19,7 +19,7 @@ namespace InventoryScanner.Core.Publishers
             var message = new FetchInventoryMetadataEvent
             {
                 Barcode = barcode,
-                EventId = Guid.NewGuid(),
+                MessageId = Guid.NewGuid(),
                 Timestamp = DateTime.UtcNow
             };
 
