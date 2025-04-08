@@ -12,6 +12,7 @@ namespace InventoryScanner.Core.Settings
         public string? FetchInventoryMetadataQueueName { get; set; }
         public string? FetchInventoryMetadataExchangeName { get; set; }
         public int PublishRetryCount { get; set; }
+        public int SubscribeRetryCount { get; set; }
         public int ConnectionTimeout { get; set; }
         public string ExchangeName => FetchInventoryMetadataExchangeName ?? string.Empty;
         public string QueueName => FetchInventoryMetadataQueueName ?? string.Empty;

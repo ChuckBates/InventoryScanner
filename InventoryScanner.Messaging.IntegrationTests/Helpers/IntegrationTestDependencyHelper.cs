@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using InventoryScanner.Messaging.IntegrationTests.Constructs;
 using InventoryScanner.Messaging.Publishing;
+using InventoryScanner.Messaging.Subscribing;
 
 namespace InventoryScanner.Messaging.IntegrationTests.Helpers
 {
@@ -22,11 +23,13 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
         public async Task SpinUp()
         {
             AddSettingsService();
+
+            await ConnectToRabbitAsync();
+
             AddRabbitServices();
 
             Provider = services.BuildServiceProvider();
 
-            await ConnectToRabbitAsync();
             await StartHostedServicesAsync();
         }
 
@@ -62,6 +65,8 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
             var rabbitSettings = tempProvider.GetRequiredService<IRabbitMqSettings>();
             var connectionString = $"host={rabbitSettings.HostName}:{rabbitSettings.AmqpPort};username={rabbitSettings.UserName};password={rabbitSettings.Password}";
             services.AddSingleton(RabbitHutch.CreateBus(connectionString));
+            services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
+            services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, TestSubscriberLifecycleObserver>();
 
             services.AddSingleton<IRabbitMqPublisher>(provider =>
             {
@@ -69,29 +74,34 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
                 var bus = provider.GetRequiredService<IBus>();
                 return new RabbitMqPublisher(settings, bus);
             });
+            services.AddSingleton<IRabbitMqSubscriber>(provider =>
+            {
+                var settings = provider.GetRequiredService<IRabbitMqSettings>();
+                var connectionManager = provider.GetRequiredService<IRabbitMqConnectionManager>();
+                var subscriberLifecycleObserver = provider.GetRequiredService<IRabbitMqSubscriberLifecycleObserver>();
+                return new RabbitMqSubscriber(connectionManager, settings, subscriberLifecycleObserver);
+            });
         }
 
         private async Task ConnectToRabbitAsync()
         {
-            if (Provider == null)
-            {
-                throw new InvalidOperationException("Provider is not initialized.");
-            }
-
-            var rabbitMqSettings = Provider.GetRequiredService<IRabbitMqSettings>();
+            using var tempProvider = services.BuildServiceProvider();
+            var rabbitMqSettings = tempProvider.GetRequiredService<IRabbitMqSettings>();
 
             var factory = new ConnectionFactory
             {
                 HostName = rabbitMqSettings.HostName,
                 UserName = rabbitMqSettings.UserName,
                 Password = rabbitMqSettings.Password,
-                Port = rabbitMqSettings.AmqpPort
+                Port = rabbitMqSettings.AmqpPort,
+                DispatchConsumersAsync = true
             };
 
             await RabbitTestHelper.WaitForRabbitMqManagementApiAsync(rabbitMqSettings.HostName, rabbitMqSettings.ManagementPort, timeoutSeconds: 10);
 
             RabbitConnection = factory.CreateConnection();
             RabbitChannel = RabbitConnection.CreateModel();
+
             RabbitChannel.ExchangeDeclare(
                 exchange: rabbitMqSettings.ExchangeName,
                 type: ExchangeType.Fanout,

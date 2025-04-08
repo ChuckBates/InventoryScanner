@@ -10,6 +10,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Constructs
         public required string UserName { get; set; }
         public required string Password { get; set; }
         public int PublishRetryCount { get; set; }
+        public int SubscribeRetryCount { get; set; }
         public int ConnectionTimeout { get; set; }
         public string? MessagingIntegrationTestQueueName { get; set; }
         public string? MessagingIntegrationTestExchangeName { get; set; }
