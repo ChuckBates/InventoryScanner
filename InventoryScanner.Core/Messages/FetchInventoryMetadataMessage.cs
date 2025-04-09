@@ -1,7 +1,6 @@
-﻿
-using InventoryScanner.Messaging.Models;
+﻿using InventoryScanner.Messaging.Models;
 
-namespace InventoryScanner.Core.Events
+namespace InventoryScanner.Core.Messages
 {
     public class FetchInventoryMetadataMessage : IRabbitMqMessage
     {
