@@ -46,8 +46,6 @@ builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

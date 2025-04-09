@@ -4,7 +4,6 @@ services:
     container_name: "inventoryscanner-core"
     ports:
     - "5000:8080"
-    - "5001:8081"
     build:
       context: .
       dockerfile: Dockerfile
