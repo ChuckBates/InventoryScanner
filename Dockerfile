@@ -13,18 +13,18 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY ["InventoryScannerCore/InventoryScannerCore.csproj", "InventoryScannerCore/"]
+COPY ["InventoryScanner.Core/InventoryScanner.Core.csproj", "InventoryScanner.Core/"]
 COPY ["InventoryScanner.Messaging/InventoryScanner.Messaging.csproj", "InventoryScanner.Messaging/"]
-RUN dotnet restore "InventoryScannerCore/InventoryScannerCore.csproj"
+RUN dotnet restore "InventoryScanner.Core/InventoryScanner.Core.csproj"
 
 COPY . .
-WORKDIR "/src/InventoryScannerCore"
-RUN dotnet build "./InventoryScannerCore.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/InventoryScanner.Core"
+RUN dotnet build "./InventoryScanner.Core.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./InventoryScannerCore.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./InventoryScanner.Core.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
@@ -41,5 +41,5 @@ RUN apt-get update && apt-get install -y wget ca-certificates && \
 USER app
 
 # Wait for RabbitMQ and Postgres to be ready before starting the app
-ENTRYPOINT ["dockerize", "-wait", "tcp://rabbitmq:5672", "-wait", "tcp://postgres:5432", "-timeout", "30s", "dotnet", "InventoryScannerCore.dll"]
+ENTRYPOINT ["dockerize", "-wait", "tcp://rabbitmq:5672", "-wait", "tcp://postgres:5432", "-timeout", "30s", "dotnet", "InventoryScanner.Core.dll"]
 
