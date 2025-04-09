@@ -2,11 +2,9 @@
 using InventoryScanner.Messaging.IntegrationTests.Helpers;
 using InventoryScanner.Messaging.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework.Interfaces;
 using RabbitMQ.Client.Exceptions;
 using System.Text.Json;
 using InventoryScanner.Messaging.Publishing;
-using InventoryScanner.Messaging.Subscribing;
 
 namespace InventoryScanner.Messaging.IntegrationTests.Tests
 {

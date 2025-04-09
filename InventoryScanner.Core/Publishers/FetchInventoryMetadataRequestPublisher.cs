@@ -7,14 +7,14 @@ namespace InventoryScanner.Core.Publishers
 {
     public class FetchInventoryMetadataRequestPublisher : RabbitMqPublisherBase, IFetchInventoryMetadataRequestPublisher
     {
-        private readonly IRabbitMqSettings settings;
+        private readonly RabbitMqSettings settings;
 
         public FetchInventoryMetadataRequestPublisher(IRabbitMqPublisher publisher, ISettingsService settings) : base(publisher)
         {
             this.settings = settings.GetRabbitMqSettings();
         }
 
-        public async Task<PublisherResponse> RequestFetchInventoryMetadata(string barcode)
+        public async Task<PublisherResponse> PublishRequest(string barcode)
         {
             var message = new FetchInventoryMetadataMessage
             {
@@ -23,7 +23,7 @@ namespace InventoryScanner.Core.Publishers
                 Timestamp = DateTime.UtcNow
             };
 
-            return await PublishAsync(message, settings.ExchangeName);
+            return await PublishAsync(message, settings.FetchInventoryMetadataExchangeName);
         }
     }
 }

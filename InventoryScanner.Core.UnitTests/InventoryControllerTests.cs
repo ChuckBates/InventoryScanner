@@ -204,7 +204,7 @@ namespace InventoryScanner.Core.UnitTests
         {
             var inventory = new Inventory("526485157884", "", "", 5, "", []);
             var error = "An error occurred.";
-            mockInventoryWorkflow.Setup(x => x.Add(inventory)).ReturnsAsync(new InventoryWorkflowResponse(WorkflowResponseStatus.Error, null, new List<string> { error }));
+            mockInventoryWorkflow.Setup(x => x.Add(inventory)).ReturnsAsync(new InventoryWorkflowResponse(WorkflowResponseStatus.Failure, null, new List<string> { error }));
 
             var result = await inventoryController.Add(inventory);
 

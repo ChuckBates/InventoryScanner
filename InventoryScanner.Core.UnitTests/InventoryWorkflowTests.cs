@@ -1,8 +1,12 @@
 ﻿using InventoryScanner.Core.Enums;
-using InventoryScanner.Core.Lookups;
+using InventoryScanner.Core.Events;
 using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Publishers;
 using InventoryScanner.Core.Repositories;
 using InventoryScanner.Core.Workflows;
+using InventoryScanner.Messaging.Enums;
+using InventoryScanner.Messaging.Publishing;
+using InventoryScanner.TestUtilities;
 using Moq;
 
 namespace InventoryScanner.Core.UnitTests
@@ -12,24 +16,20 @@ namespace InventoryScanner.Core.UnitTests
     {
         InventoryWorkflow workflow;
         Mock<IInventoryRepository> mockInventoryRepository;
-        Mock<IBarcodeLookup> mockBarcodeLookup;
-        Mock<IImageRepository> mockImageRepository;
-        Mock<IImageLookup> mockImageLookup;
+        Mock<IFetchInventoryMetadataRequestPublisher> mockFetchInventoryMetadataRequestPublisher;
 
         [SetUp]
         public void Setup()
         {
             mockInventoryRepository = new Mock<IInventoryRepository>();
-            mockBarcodeLookup = new Mock<IBarcodeLookup>();
-            mockImageRepository = new Mock<IImageRepository>();
-            mockImageLookup = new Mock<IImageLookup>();
-            workflow = new InventoryWorkflow(mockInventoryRepository.Object, mockBarcodeLookup.Object, mockImageLookup.Object, mockImageRepository.Object);
+            mockFetchInventoryMetadataRequestPublisher = new Mock<IFetchInventoryMetadataRequestPublisher>();
+            workflow = new InventoryWorkflow(mockInventoryRepository.Object, mockFetchInventoryMetadataRequestPublisher.Object);
         }
 
         [Test]
-        public async Task When_calling_get_workflow()
+        public async Task When_calling_get_workflow_successfully()
         {
-            var barcode = "123456";
+            var barcode = Barcodes.Generate();
             var title = "Test-Product";
             var description = "Test-Description";
             var quantity = 1;
@@ -44,7 +44,7 @@ namespace InventoryScanner.Core.UnitTests
                 ImagePath = imagePath,
                 Categories = categories
             };
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [expectedInventory], []);
+            var expectedResponse = InventoryWorkflowResponse.Success([expectedInventory]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(expectedInventory);
 
@@ -59,7 +59,7 @@ namespace InventoryScanner.Core.UnitTests
         public async Task When_calling_get_workflow_and_retrieval_throws()
         {
             var barcode = "123456";
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up barcode: Failed to retrieve inventory."]);
+            var expectedResponse = InventoryWorkflowResponse.Failure("Error looking up barcode: Failed to retrieve inventory.");
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ThrowsAsync(new Exception("Unknown error"));
 
@@ -74,7 +74,7 @@ namespace InventoryScanner.Core.UnitTests
         public async Task When_calling_get_workflow_and_retrieval_is_empty()
         {
             var barcode = "123456";
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up barcode: Inventory not found."]);
+            var expectedResponse = InventoryWorkflowResponse.Failure("Error looking up barcode: Inventory not found.");
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(null as Inventory);
 
@@ -86,7 +86,7 @@ namespace InventoryScanner.Core.UnitTests
         }
 
         [Test]
-        public async Task When_calling_get_all_workflow()
+        public async Task When_calling_get_all_workflow_successfully()
         {
             var inventoryList = new List<Inventory>
             {
@@ -109,7 +109,7 @@ namespace InventoryScanner.Core.UnitTests
                     Categories = new List<string>()
                 }
             };
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, inventoryList, []);
+            var expectedResponse = InventoryWorkflowResponse.Success(inventoryList);
 
             mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync(inventoryList);
 
@@ -121,7 +121,7 @@ namespace InventoryScanner.Core.UnitTests
         [Test]
         public async Task When_calling_get_all_workflow_and_retrieval_throws()
         {
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up all inventory: Failed to retrieve inventory."]);
+            var expectedResponse = InventoryWorkflowResponse.Failure("Error looking up all inventory: Failed to retrieve inventory.");
 
             mockInventoryRepository.Setup(x => x.GetAll()).ThrowsAsync(new Exception("Unknown error"));
 
@@ -135,7 +135,7 @@ namespace InventoryScanner.Core.UnitTests
         [Test]
         public async Task When_calling_get_all_workflow_and_retrieval_is_empty()
         {
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up all inventory: Inventory not found."]);
+            var expectedResponse = InventoryWorkflowResponse.Failure("Error looking up all inventory: Inventory not found.");
 
             mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync([]);
 
@@ -147,385 +147,117 @@ namespace InventoryScanner.Core.UnitTests
         }
 
         [Test]
-        public async Task When_calling_add_workflow()
+        public async Task When_calling_add_workflow_successfully()
         {
-            var barcode = "123456";
-            var title = "Test-Product";
-            var description = "Test-Description";
+            var barcode = Barcodes.Generate();
+            var messageId = Guid.NewGuid();
+            var timestamp = DateTime.UtcNow;
             var quantity = 1;
-            var categories = new List<string>();
-            var imageUrl = "https://test.com/image.png";
-            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
             var inventory = new Inventory
             {
                 Barcode = barcode,
                 Quantity = quantity
             };
-            var updatedInventory = new Inventory
-            {
-                Barcode = barcode,
-                Title = title,
-                Description = description,
-                Quantity = quantity,
-                ImagePath = imagePath,
-                Categories = categories
-            };
-            var imageStream = new MemoryStream();
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], []);
+            var expectedPublisherResponse = new PublisherResponse
+            (
+                PublisherResponseStatus.Success,
+                [new FetchInventoryMetadataMessage { Barcode = barcode, MessageId = messageId, Timestamp = timestamp }],
+                []
+            );
+            var expectedWorkflowResponse = InventoryWorkflowResponse.Success([inventory]);
 
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
-            {
-                product = new BarcodeProduct
-                {
-                    barcode = inventory.Barcode,
-                    title = title,
-                    description = description,
-                    images = [imageUrl]
-                }
-            });
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
-            mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
-            Assert.That(result, Is.EqualTo(expectedResponse));
+            Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
-            mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
-                    x.Title == title &&
-                    x.Description == description &&
-                    x.Quantity == quantity &&
-                    x.ImagePath == imagePath &&
-                    x.Categories.SequenceEqual(categories)
+                    x.Quantity == quantity
                 )), Times.Once);
         }
 
         [Test]
-        public async Task When_calling_add_workflow_and_barcode_lookup_returns_null()
+        public async Task When_calling_add_workflow_and_the_publish_fails()
         {
-            var barcode = "123456";
-            var inventory = new Inventory
-            {
-                Barcode = barcode
-            };
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up barcode: Barcode not found."]);
-
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(null as Barcode);
-
-            var result = await workflow.Add(inventory);
-
-            Assert.That(result, Is.EqualTo(expectedResponse));
-
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(It.IsAny<string>()), Times.Never);
-            mockImageRepository.Verify(x => x.Insert(It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
-            mockInventoryRepository.Verify(x => x.Insert(It.IsAny<Inventory>()), Times.Never);
-        }
-
-        [Test]
-        public async Task When_calling_add_workflow_and_barcode_lookup_returns_no_images()
-        {
-            var barcode = "123456";
-            var title = "Test-Product";
-            var description = "Test-Description";
+            var barcode = Barcodes.Generate();
+            var messageId = Guid.NewGuid();
+            var timestamp = DateTime.UtcNow;
             var quantity = 1;
-            var categories = new List<string>();
-            var imagePath = "";
             var inventory = new Inventory
             {
                 Barcode = barcode,
                 Quantity = quantity
             };
-            var updatedInventory = new Inventory
-            {
-                Barcode = barcode,
-                Title = title,
-                Description = description,
-                Quantity = quantity,
-                ImagePath = string.Empty,
-                Categories = categories
-            };
-            var imageStream = new MemoryStream();
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], ["Error looking up barcode: Image not found."]);
+            var publishError = "error publishing";
+            var expectedPublisherResponse = new PublisherResponse
+            (
+                PublisherResponseStatus.Failure,
+                [],
+                [publishError]
+            );
+            var expectedWorkflowResponse = InventoryWorkflowResponse.Success([inventory]);
+            expectedWorkflowResponse.Errors.Add(publishError);  
 
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
-            {
-                product = new BarcodeProduct
-                {
-                    barcode = inventory.Barcode,
-                    title = title,
-                    description = description,
-                    images = []
-                }
-            });
-            mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
-            Assert.That(result, Is.EqualTo(expectedResponse));
+            Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(It.IsAny<string>()), Times.Never);
-            mockImageRepository.Verify(x => x.Insert(It.IsAny<MemoryStream>(), It.IsAny<string>()), Times.Never);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
-                    x.Title == title &&
-                    x.Description == description &&
-                    x.Quantity == quantity &&
-                    x.ImagePath == imagePath &&
-                    x.Categories.SequenceEqual(categories)
+                    x.Quantity == quantity
                 )), Times.Once);
         }
 
         [Test]
-        public async Task When_calling_add_workflow_and_barcode_lookup_returns_multiple_images()
+        public async Task When_calling_add_workflow_and_the_repository_fails_to_save()
         {
-            var barcode = "123456";
-            var title = "Test-Product";
-            var description = "Test-Description";
+            var barcode = Barcodes.Generate();
+            var messageId = Guid.NewGuid();
+            var timestamp = DateTime.UtcNow;
             var quantity = 1;
-            var categories = new List<string>();
-            var imageUrl1 = "https://test.com/image1.jpg";
-            var imageUrl2 = "https://test.com/image2.jpg";
-            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpg";
             var inventory = new Inventory
             {
                 Barcode = barcode,
                 Quantity = quantity
             };
-            var updatedInventory = new Inventory
-            {
-                Barcode = barcode,
-                Title = title,
-                Description = description,
-                Quantity = quantity,
-                ImagePath = imagePath,
-                Categories = categories
-            };
-            var imageStream = new MemoryStream();
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], []);
+            var repositoryError = $"Error saving barcode {barcode}: Failed to update inventory.";
+            var expectedPublisherResponse = new PublisherResponse
+            (
+                PublisherResponseStatus.Success,
+                [new FetchInventoryMetadataMessage { Barcode = barcode, MessageId = messageId, Timestamp = timestamp }],
+                []
+            );
+            var expectedWorkflowResponse = InventoryWorkflowResponse.Failure(repositoryError);
 
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
-            {
-                product = new BarcodeProduct
-                {
-                    barcode = inventory.Barcode,
-                    title = title,
-                    description = description,
-                    images = [imageUrl1, imageUrl2]
-                }
-            });
-            mockImageLookup.Setup(x => x.Get(imageUrl1)).ReturnsAsync(imageStream);
-            mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(0);
 
             var result = await workflow.Add(inventory);
 
-            Assert.That(result, Is.EqualTo(expectedResponse));
+            Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl1), Times.Once);
-            mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
-                    x.Title == title &&
-                    x.Description == description &&
-                    x.Quantity == quantity &&
-                    x.ImagePath == imagePath &&
-                    x.Categories.SequenceEqual(categories)
+                    x.Quantity == quantity
                 )), Times.Once);
         }
 
         [Test]
-        public async Task When_calling_add_workflow_and_the_image_stream_cannot_be_retrieved()
+        public async Task When_calling_update_workflow_sucessfully_with_refetch_false()
         {
-            var barcode = "123456";
-            var title = "Test-Product";
-            var description = "Test-Description";
-            var quantity = 1;
-            var categories = new List<string>();
-            var imageUrl = "https://test.com/image.jpg";
-            var imagePath = "";
-            var inventory = new Inventory
-            {
-                Barcode = barcode,
-                Quantity = quantity
-            };
-            var imageStream = null as Stream;
-            var updatedInventory = new Inventory
-            {
-                Barcode = barcode,
-                Title = title,
-                Description = description,
-                Quantity = quantity,
-                ImagePath = imagePath,
-                Categories = categories
-            };
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], ["Error looking up barcode: Image retrieval failed."]);
-
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
-            {
-                product = new BarcodeProduct
-                {
-                    barcode = inventory.Barcode,
-                    title = title,
-                    description = description,
-                    images = [imageUrl]
-                }
-            });
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
-
-            var result = await workflow.Add(inventory);
-
-            Assert.That(result, Is.EqualTo(expectedResponse));
-
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
-            mockImageRepository.Verify(x => x.Insert(It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
-            mockInventoryRepository.Verify(x => x.Insert(
-                It.Is<Inventory>(x =>
-                    x.Barcode == barcode &&
-                    x.Title == title &&
-                    x.Description == description &&
-                    x.Quantity == quantity &&
-                    x.ImagePath == imagePath &&
-                    x.Categories.SequenceEqual(categories)
-                )), Times.Once);
-        }
-
-        [Test]
-        public async Task When_calling_add_workflow_and_the_image_cannot_be_saved()
-        {
-            var barcode = "123456";
-            var title = "Test-Product";
-            var description = "Test-Description";
-            var quantity = 1;
-            var categories = new List<string>();
-            var imageUrl = "https://test.com/image.jpg";
-            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpg";
-            var imageRepoErrorMessage = "Error Message";
-            var inventory = new Inventory
-            {
-                Barcode = barcode,
-                Quantity = quantity
-            };
-            var imageStream = new MemoryStream();
-            var updatedInventory = new Inventory
-            {
-                Barcode = barcode,
-                Title = title,
-                Description = description,
-                Quantity = quantity,
-                ImagePath = string.Empty,
-                Categories = categories
-            };
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], ["Error looking up barcode: Failed to save image."]);
-
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
-            {
-                product = new BarcodeProduct
-                {
-                    barcode = inventory.Barcode,
-                    title = title,
-                    description = description,
-                    images = [imageUrl]
-                }
-            });
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
-            mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync(imageRepoErrorMessage);
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
-
-            var result = await workflow.Add(inventory);
-
-            Assert.That(result, Is.EqualTo(expectedResponse));
-
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
-            mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
-            mockInventoryRepository.Verify(x => x.Insert(
-                It.Is<Inventory>(x =>
-                    x.Barcode == barcode &&
-                    x.Title == title &&
-                    x.Description == description &&
-                    x.Quantity == quantity &&
-                    x.ImagePath == string.Empty &&
-                    x.Categories.SequenceEqual(categories)
-                )), Times.Once);
-        }
-
-        [Test]
-        public async Task When_calling_add_workflow_and_the_inventory_fails_to_save()
-        {
-            var barcode = "123456";
-            var title = "Test-Product";
-            var description = "Test-Description";
-            var quantity = 1;
-            var categories = new List<string>();
-            var imageUrl = "https://test.com/image.jpg";
-            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.jpg";
-            var inventory = new Inventory
-            {
-                Barcode = barcode,
-                Quantity = quantity
-            };
-            var updatedInventory = new Inventory
-            {
-                Barcode = barcode,
-                Title = title,
-                Description = description,
-                Quantity = quantity,
-                ImagePath = imagePath,
-                Categories = categories
-            };
-            var imageStream = new MemoryStream();
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Error, [], ["Error looking up barcode: Failed to save inventory."]);
-
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
-            {
-                product = new BarcodeProduct
-                {
-                    barcode = inventory.Barcode,
-                    title = title,
-                    description = description,
-                    images = [imageUrl]
-                }
-            });
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
-            mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(0);
-
-            var result = await workflow.Add(inventory);
-
-            Assert.That(result, Is.EqualTo(expectedResponse));
-
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
-            mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
-            mockInventoryRepository.Verify(x => x.Insert(
-                It.Is<Inventory>(x =>
-                    x.Barcode == barcode &&
-                    x.Title == title &&
-                    x.Description == description &&
-                    x.Quantity == quantity &&
-                    x.ImagePath == imagePath &&
-                    x.Categories.SequenceEqual(categories)
-                )), Times.Once);
-
-        }
-
-        [Test]
-        public async Task When_calling_update_workflow_and_refetch_is_false()
-        {
-            var barcode = "123456";
+            var barcode = Barcodes.Generate();
             var title = "Test-Product";
             var description = "Test-Description";
             var quantity = 1;
@@ -541,91 +273,137 @@ namespace InventoryScanner.Core.UnitTests
                 ImagePath = imagePath,
                 Categories = categories
             };
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], []);
+            var expectedResponse = InventoryWorkflowResponse.Success([updatedInventory]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(updatedInventory);
             mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
 
-            var result = await workflow.Update(inventory);
+            var result = await workflow.Update(inventory, refetch: false);
 
             Assert.That(result, Is.EqualTo(expectedResponse));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(inventory), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(It.IsAny<string>()), Times.Never);
         }
 
         [Test]
-        public async Task When_calling_update_workflow_and_refetch_is_true()
+        public async Task When_calling_update_workflow_sucessfully_with_refetch_true()
         {
-            var barcode = "123456";
+            var barcode = Barcodes.Generate();
             var title = "Test-Product";
-            var quantity = 1;
             var description = "Test-Description";
+            var quantity = 1;
             var categories = new List<string>();
-            var imageUrl = "https://test.com/image.png";
             var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
-            var updatedTitle = "Test-Product-Updated";
-            var updatedQuantity = 2;
-            var updatedDescription = "Test-Description-Updated";
-            var updatedImageUrl = "https://test.com/image-updated.png";
-            var updatedImagePath = Directory.GetCurrentDirectory() + $"/Images/{updatedTitle}-{barcode}.png";
-
-            var recievedInventoryFromController = new Inventory
-            {
-                Barcode = barcode,
-                Quantity = updatedQuantity
-            };
-            var originalInventoryFromRepository = new Inventory
+            var inventory = new Inventory { Barcode = barcode, Quantity = quantity + 1 };
+            var messageId = Guid.NewGuid();
+            var timestamp = DateTime.UtcNow;
+            var expectedPublisherResponse = new PublisherResponse
+            (
+                PublisherResponseStatus.Success,
+                [new FetchInventoryMetadataMessage { Barcode = barcode, MessageId = messageId, Timestamp = timestamp }],
+                []
+            );
+            var updatedInventory = new Inventory
             {
                 Barcode = barcode,
                 Title = title,
                 Description = description,
-                Quantity = quantity,
+                Quantity = quantity + 1,
                 ImagePath = imagePath,
                 Categories = categories
+            };
+            var expectedResponse = InventoryWorkflowResponse.Success([updatedInventory]);
+
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
+            mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(updatedInventory);
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
+
+            var result = await workflow.Update(inventory, refetch: true);
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+
+            mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
+            mockInventoryRepository.Verify(x => x.Insert(inventory), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
+        }
+
+        [Test]
+        public async Task When_calling_update_workflow_and_the_publish_fails()
+        {
+            var barcode = Barcodes.Generate();
+            var messageId = Guid.NewGuid();
+            var timestamp = DateTime.UtcNow;
+            var quantity = 1;
+            var title = "Test-Product";
+            var description = "Test-Description";
+            var categories = new List<string>();
+            var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
+            var inventory = new Inventory
+            {
+                Barcode = barcode,
+                Quantity = quantity + 1
             };
             var updatedInventory = new Inventory
             {
                 Barcode = barcode,
-                Title = updatedTitle,
-                Description = updatedDescription,
-                Quantity = updatedQuantity,
-                ImagePath = updatedImagePath,
+                Title = title,
+                Description = description,
+                Quantity = quantity + 1,
+                ImagePath = imagePath,
                 Categories = categories
             };
-            var imageStream = new MemoryStream();
-            var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], []);
+            var publishError = "error publishing";
+            var expectedPublisherResponse = new PublisherResponse
+            (
+                PublisherResponseStatus.Failure,
+                [],
+                [publishError]
+            );
+            var expectedWorkflowResponse = InventoryWorkflowResponse.Success([updatedInventory]);
+            expectedWorkflowResponse.Errors.Add(publishError);
 
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
-            {
-                product = new BarcodeProduct
-                {
-                    barcode = barcode,
-                    title = updatedTitle,
-                    description = updatedDescription,
-                    images = [updatedImageUrl]
-                }
-            });
-            mockImageLookup.Setup(x => x.Get(updatedImageUrl)).ReturnsAsync(imageStream);
-            mockImageRepository.Setup(x => x.Insert(imageStream, updatedImagePath)).ReturnsAsync("success");
-            mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(updatedInventory);
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
 
-            var result = await workflow.Update(recievedInventoryFromController, true);
+            var result = await workflow.Update(inventory, refetch: true);
 
-            Assert.That(result, Is.EqualTo(expectedResponse));
+            Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockBarcodeLookup.Verify(x => x.Get(barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(updatedImageUrl), Times.Once);
-            mockImageRepository.Verify(x => x.Insert(imageStream, updatedImagePath), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
-                    x.Title == updatedTitle &&
-                    x.Description == updatedDescription &&
-                    x.Quantity == updatedQuantity &&
-                    x.ImagePath == updatedImagePath &&
-                    x.Categories.SequenceEqual(categories)
+                    x.Quantity == quantity + 1
+                )), Times.Once);
+        }
+
+        [Test]
+        public async Task When_calling_update_workflow_and_the_repository_fails_to_save()
+        {
+            var barcode = Barcodes.Generate();
+            var quantity = 1;
+            var inventory = new Inventory
+            {
+                Barcode = barcode,
+                Quantity = quantity
+            };
+            var repositoryError = $"Error updating barcode {barcode}: Failed to update inventory.";
+            
+            var expectedWorkflowResponse = InventoryWorkflowResponse.Failure(repositoryError);
+
+            mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(0);
+
+            var result = await workflow.Update(inventory);
+
+            Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
+
+            mockInventoryRepository.Verify(x => x.Insert(
+                It.Is<Inventory>(x =>
+                    x.Barcode == barcode &&
+                    x.Quantity == quantity
                 )), Times.Once);
         }
     }

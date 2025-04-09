@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InventoryScanner.Core\InventoryScanner.Core.csproj" />
+    <ProjectReference Include="..\InventoryScanner.TestUtilities\InventoryScanner.TestUtilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

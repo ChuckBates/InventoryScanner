@@ -18,7 +18,7 @@ namespace InventoryScanner.Core.Controllers
             try
             {
                 var workflowResponse = await inventoryWorkflow.GetAll();
-                if (workflowResponse.Status == WorkflowResponseStatus.Error)
+                if (workflowResponse.Status == WorkflowResponseStatus.Failure)
                 {
                     response.Status = ControllerResponseStatus.Error;
                     response.Error = "Error retrieving inventory data: " + string.Join(", ", workflowResponse.Errors);
@@ -45,7 +45,7 @@ namespace InventoryScanner.Core.Controllers
             try
             {
                 var workflowResponse = await inventoryWorkflow.Get(barcode);
-                if (workflowResponse.Status == WorkflowResponseStatus.Error)
+                if (workflowResponse.Status == WorkflowResponseStatus.Failure)
                 {
                     response.Status = ControllerResponseStatus.Error;
                     response.Error = "Error retrieving inventory data: " + string.Join(", ", workflowResponse.Errors);

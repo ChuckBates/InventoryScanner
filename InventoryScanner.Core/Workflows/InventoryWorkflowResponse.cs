@@ -1,4 +1,5 @@
-﻿using InventoryScanner.Core.Models;
+﻿using InventoryScanner.Core.Enums;
+using InventoryScanner.Core.Models;
 
 namespace InventoryScanner.Core.Workflows
 {
@@ -7,6 +8,11 @@ namespace InventoryScanner.Core.Workflows
         public string Status { get; set; } = status;
         public List<Inventory> Data { get; set; } = data;
         public List<string> Errors { get; set; } = errors;
+        public static InventoryWorkflowResponse Failure(string message) =>
+            new(WorkflowResponseStatus.Failure, [], [message]);
+
+        public static InventoryWorkflowResponse Success(List<Inventory> items) =>
+            new(WorkflowResponseStatus.Success, items, []);
 
         public override bool Equals(object? obj)
         {

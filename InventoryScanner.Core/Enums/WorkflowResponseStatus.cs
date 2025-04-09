@@ -3,6 +3,6 @@
     public class WorkflowResponseStatus
     {
         public static readonly string Success = "Success";
-        public static readonly string Error = "Error";
+        public static readonly string Failure = "Failure";
     }
 }
