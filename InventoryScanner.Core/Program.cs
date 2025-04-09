@@ -9,6 +9,7 @@ using InventoryScanner.Messaging.Infrastructure;
 using InventoryScanner.Core.Observers;
 using InventoryScanner.Core.Subscribers;
 using Microsoft.Extensions.Options;
+using InventoryScanner.Core.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,13 +52,14 @@ builder.Services.AddMessaging(connectionString, startup: true);
 builder.Services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, FetchInventoryMetadataObserver>();
 builder.Services.AddHostedService<FetchInventoryMetadataSubscriber>();
 
-builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
-builder.Services.AddScoped<IImageRepository, ImageRepository>();
-builder.Services.AddScoped<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
+builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
+builder.Services.AddSingleton<IImageRepository, ImageRepository>();
+builder.Services.AddSingleton<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
+builder.Services.AddSingleton<IFetchInventoryMetadataRequestDeadLetterPublisher, FetchInventoryMetadataRequestDeadLetterPublisher>();
+builder.Services.AddSingleton<IFetchInventoryMetadataMessageHandler, FetchInventoryMetadataMessageHandler>();
 builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();
-builder.Services.AddScoped<IBarcodeLookup, BarcodeLookup>();
-builder.Services.AddScoped<IImageLookup, ImageLookup>();
-builder.Services.AddScoped<HttpClient, HttpClient>();
+builder.Services.AddSingleton<IBarcodeLookup, BarcodeLookup>();
+builder.Services.AddSingleton<IImageLookup, ImageLookup>();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();

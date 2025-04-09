@@ -70,22 +70,25 @@ namespace InventoryScanner.Core.UnitTests
         {
             var response = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [], []);
 
-            var publishResponse = await fetchInventoryMetadataRequestPublisher.PublishRequest(inventory.Barcode);
-            if (publishResponse.Status == Messaging.Enums.PublisherResponseStatus.Failure)
-            {
-                response.Errors.AddRange(publishResponse.Errors);
-            }
-
             var rowsAffected = await inventoryRepository.Insert(inventory);
             if (rowsAffected == 0)
             {
                 response.Status = WorkflowResponseStatus.Failure;
                 response.Data.Clear();
-                response.Errors.Add($"Error saving barcode { inventory.Barcode }: Failed to update inventory.");
+                response.Errors.Add($"Error saving barcode {inventory.Barcode}: Failed to update inventory.");
             }
             else
             {
                 response.Data.Add(inventory);
+            }
+
+            if (rowsAffected > 0)
+            {
+                var publishResponse = await fetchInventoryMetadataRequestPublisher.PublishRequest(inventory.Barcode);
+                if (publishResponse.Status == Messaging.Enums.PublisherResponseStatus.Failure)
+                {
+                    response.Errors.AddRange(publishResponse.Errors);
+                }
             }
 
             return response;

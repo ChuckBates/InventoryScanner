@@ -7,10 +7,10 @@ namespace InventoryScanner.Core.Lookups
         HttpClient client;
         ISettingsService settings;
 
-        public ImageLookup(ISettingsService settings, HttpClient client)
+        public ImageLookup(ISettingsService settings)
         {
             this.settings = settings;
-            this.client = client;
+            this.client = new HttpClient();
         }
 
         public async Task<Stream?> Get(string imageUrl)

@@ -1,5 +1,4 @@
-﻿using InventoryScanner.Core.Enums;
-using InventoryScanner.Core.Events;
+﻿using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Publishers;
 using InventoryScanner.Core.Repositories;
@@ -231,22 +230,15 @@ namespace InventoryScanner.Core.UnitTests
                 Quantity = quantity
             };
             var repositoryError = $"Error saving barcode {barcode}: Failed to update inventory.";
-            var expectedPublisherResponse = new PublisherResponse
-            (
-                PublisherResponseStatus.Success,
-                [new FetchInventoryMetadataMessage { Barcode = barcode, MessageId = messageId, Timestamp = timestamp }],
-                []
-            );
             var expectedWorkflowResponse = InventoryWorkflowResponse.Failure(repositoryError);
 
-            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
             mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(0);
 
             var result = await workflow.Add(inventory);
 
             Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(It.IsAny<string>()), Times.Never);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&

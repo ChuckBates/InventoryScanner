@@ -9,10 +9,10 @@ namespace InventoryScanner.Core.Lookups
         HttpClient client;
         ISettingsService settings;
 
-        public BarcodeLookup(ISettingsService settings, HttpClient client)
+        public BarcodeLookup(ISettingsService settings)
         {
             this.settings = settings;
-            this.client = client;
+            this.client = new HttpClient();
         }
 
         public async Task<Barcode> Get(string barcode)
