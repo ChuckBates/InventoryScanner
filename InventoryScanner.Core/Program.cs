@@ -7,6 +7,8 @@ using EasyNetQ;
 using InventoryScanner.Messaging.Interfaces;
 using Microsoft.Extensions.Options;
 using InventoryScanner.Messaging.Publishing;
+using EasyNetQ.Serialization.SystemTextJson;
+using EasyNetQ.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,12 +28,11 @@ var connectionString = $"host={rabbitSettings.HostName}:{rabbitSettings.AmqpPort
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<ISettingsService, SettingsService>();
 builder.Services.AddSingleton<IRabbitMqSettings>(sp => sp.GetRequiredService<IOptions<RabbitMqSettings>>().Value);
-builder.Services.AddSingleton<IRabbitMqPublisher>(provider =>
+
+builder.Services.AddSingleton(RabbitHutch.CreateBus(connectionString, reg =>
 {
-    var settings = provider.GetRequiredService<IRabbitMqSettings>();
-    var bus = provider.GetRequiredService<IBus>();
-    return new RabbitMqPublisher(settings, bus);
-});
+    reg.Register<ISerializer>(_ => new SystemTextJsonSerializer());
+}));
 
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();

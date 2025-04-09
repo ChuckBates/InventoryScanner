@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using InventoryScanner.Messaging.IntegrationTests.Constructs;
 using InventoryScanner.Messaging.Publishing;
 using InventoryScanner.Messaging.Subscribing;
+using EasyNetQ.DI;
+using EasyNetQ.Serialization.SystemTextJson;
 
 namespace InventoryScanner.Messaging.IntegrationTests.Helpers
 {
@@ -64,7 +66,11 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
             using var tempProvider = services.BuildServiceProvider();
             var rabbitSettings = tempProvider.GetRequiredService<IRabbitMqSettings>();
             var connectionString = $"host={rabbitSettings.HostName}:{rabbitSettings.AmqpPort};username={rabbitSettings.UserName};password={rabbitSettings.Password}";
-            services.AddSingleton(RabbitHutch.CreateBus(connectionString));
+
+            services.AddSingleton(RabbitHutch.CreateBus(connectionString, reg =>
+            {
+                reg.Register<ISerializer>(_ => new SystemTextJsonSerializer());
+            }));
             services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
             services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, TestSubscriberLifecycleObserver>();
 
