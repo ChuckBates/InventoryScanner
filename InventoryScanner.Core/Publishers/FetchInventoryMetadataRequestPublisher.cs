@@ -1,7 +1,7 @@
 ﻿using InventoryScanner.Messaging.Interfaces;
-using InventoryScanner.Core.Events;
 using InventoryScanner.Core.Settings;
 using InventoryScanner.Messaging.Publishing;
+using InventoryScanner.Core.Messages;
 
 namespace InventoryScanner.Core.Publishers
 {
