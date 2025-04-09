@@ -16,7 +16,7 @@ namespace InventoryScanner.Core.Publishers
 
         public async Task<PublisherResponse> RequestFetchInventoryMetadata(string barcode)
         {
-            var message = new FetchInventoryMetadataEvent
+            var message = new FetchInventoryMetadataMessage
             {
                 Barcode = barcode,
                 MessageId = Guid.NewGuid(),
