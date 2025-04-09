@@ -2,7 +2,7 @@
 using Polly;
 using RabbitMQ.Client;
 
-namespace InventoryScanner.Messaging
+namespace InventoryScanner.Messaging.Infrastructure
 {
     public class RabbitMqConnectionManager : IRabbitMqConnectionManager
     {
