@@ -9,12 +9,12 @@ namespace InventoryScanner.Core.Settings
         public int ManagementPort { get; set; }
         public required string UserName { get; set; }
         public required string Password { get; set; }
-        public string? FetchInventoryMetadataQueueName { get; set; }
-        public string? FetchInventoryMetadataExchangeName { get; set; }
+        public required string FetchInventoryMetadataQueueName { get; set; }
+        public required string FetchInventoryMetadataExchangeName { get; set; }
         public int PublishRetryCount { get; set; }
         public int SubscribeRetryCount { get; set; }
         public int ConnectionTimeout { get; set; }
-        public string ExchangeName => FetchInventoryMetadataExchangeName ?? string.Empty;
-        public string QueueName => FetchInventoryMetadataQueueName ?? string.Empty;
+        public string ExchangeName { get; set; } = string.Empty;
+        public string QueueName { get; set; } = string.Empty;
     }
 }

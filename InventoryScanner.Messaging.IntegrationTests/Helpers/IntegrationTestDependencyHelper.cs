@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using EasyNetQ;
 using RabbitMQ.Client;
 using InventoryScanner.Messaging.Interfaces;
 using Microsoft.Extensions.Options;
@@ -7,10 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using InventoryScanner.Messaging.IntegrationTests.Constructs;
-using InventoryScanner.Messaging.Publishing;
-using InventoryScanner.Messaging.Subscribing;
-using EasyNetQ.DI;
-using EasyNetQ.Serialization.SystemTextJson;
+using InventoryScanner.Messaging.Infrastructure;
 
 namespace InventoryScanner.Messaging.IntegrationTests.Helpers
 {
@@ -67,26 +63,17 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
             var rabbitSettings = tempProvider.GetRequiredService<IRabbitMqSettings>();
             var connectionString = $"host={rabbitSettings.HostName}:{rabbitSettings.AmqpPort};username={rabbitSettings.UserName};password={rabbitSettings.Password}";
 
-            services.AddSingleton(RabbitHutch.CreateBus(connectionString, reg =>
+            services.Configure<List<RabbitMqInfrastructureTarget>>(opts =>
             {
-                reg.Register<ISerializer>(_ => new SystemTextJsonSerializer());
-            }));
-            services.AddSingleton<IRabbitMqConnectionManager, RabbitMqConnectionManager>();
+                opts.Add(new RabbitMqInfrastructureTarget
+                {
+                    ExchangeName = rabbitSettings.ExchangeName,
+                    QueueName = rabbitSettings.QueueName,
+                    ExchangeType = "fanout"
+                });
+            });
+            services.AddMessaging(connectionString, startup: false);
             services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, TestSubscriberLifecycleObserver>();
-
-            services.AddSingleton<IRabbitMqPublisher>(provider =>
-            {
-                var settings = provider.GetRequiredService<IRabbitMqSettings>();
-                var bus = provider.GetRequiredService<IBus>();
-                return new RabbitMqPublisher(settings, bus);
-            });
-            services.AddSingleton<IRabbitMqSubscriber>(provider =>
-            {
-                var settings = provider.GetRequiredService<IRabbitMqSettings>();
-                var connectionManager = provider.GetRequiredService<IRabbitMqConnectionManager>();
-                var subscriberLifecycleObserver = provider.GetRequiredService<IRabbitMqSubscriberLifecycleObserver>();
-                return new RabbitMqSubscriber(connectionManager, settings, subscriberLifecycleObserver);
-            });
         }
 
         private async Task ConnectToRabbitAsync()
@@ -107,25 +94,6 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
 
             RabbitConnection = factory.CreateConnection();
             RabbitChannel = RabbitConnection.CreateModel();
-
-            RabbitChannel.ExchangeDeclare(
-                exchange: rabbitMqSettings.ExchangeName,
-                type: ExchangeType.Fanout,
-                durable: true,
-                autoDelete: false,
-                arguments: null);
-
-            RabbitChannel.QueueDeclare(
-                queue: rabbitMqSettings.QueueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
-
-            RabbitChannel.QueueBind(
-                queue: rabbitMqSettings.QueueName,
-                exchange: rabbitMqSettings.ExchangeName,
-                routingKey: "");
         }
     }
 }
