@@ -40,6 +40,12 @@ builder.Services.Configure<List<RabbitMqInfrastructureTarget>>(opts =>
         QueueName = rabbitSettings?.FetchInventoryMetadataQueueName ?? string.Empty,
         ExchangeType = "fanout"
     });
+    opts.Add(new RabbitMqInfrastructureTarget
+    {
+        ExchangeName = rabbitSettings?.FetchInventoryMetadataDeadLetterExchangeName ?? string.Empty,
+        QueueName = rabbitSettings?.FetchInventoryMetadataDeadLetterQueueName ?? string.Empty,
+        ExchangeType = "fanout"
+    });
 });
 
 builder.Services.AddMessaging(connectionString, startup: true);
