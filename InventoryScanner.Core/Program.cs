@@ -3,53 +3,53 @@ using InventoryScanner.Core.Repositories;
 using InventoryScanner.Core.UnitTests;
 using InventoryScanner.Core.Workflows;
 using InventoryScanner.Core.Settings;
-using EasyNetQ;
 using InventoryScanner.Messaging.Interfaces;
-using Microsoft.Extensions.Options;
-using InventoryScanner.Messaging.Publishing;
 using InventoryScanner.Core.Publishers;
-using EasyNetQ.Serialization.SystemTextJson;
-using EasyNetQ.DI;
 using InventoryScanner.Messaging.Infrastructure;
-using InventoryScanner.Messaging.Subscribing;
+using InventoryScanner.Core.Observers;
+using InventoryScanner.Core.Subscribers;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-builder.Services.Configure<Settings>(options => builder.Configuration.GetSection("Settings").Bind(options));
-
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddUserSecrets<Program>();
 }
 
-var rabbitSettings = builder.Configuration.GetSection("Settings:RabbitMQ").Get<RabbitMqSettings>();
-var connectionString = $"host={rabbitSettings?.HostName}:{rabbitSettings?.AmqpPort};username={rabbitSettings?.UserName};password={rabbitSettings?.Password}";
+var settingsSection = builder.Configuration.GetSection("Settings");
+var rabbitMqSettings = settingsSection.Get<Settings>()?.RabbitMQ ?? throw new InvalidOperationException("Rabbit settings are invalid.");
+
+builder.Services.Configure<Settings>(settingsSection);
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<Settings>>().Value);
+builder.Services.AddSingleton<ISettingsService, SettingsService>();
+builder.Services.AddSingleton<IRabbitMqSettings>(rabbitMqSettings ?? throw new InvalidOperationException("RabbitMQ settings are missing or incomplete."));
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSingleton<ISettingsService, SettingsService>();
-builder.Services.AddSingleton<IRabbitMqSettings>(sp => sp.GetRequiredService<IOptions<RabbitMqSettings>>().Value);
 
 builder.Services.Configure<List<RabbitMqInfrastructureTarget>>(opts =>
 {
     opts.Add(new RabbitMqInfrastructureTarget
     {
-        ExchangeName = rabbitSettings?.FetchInventoryMetadataExchangeName ?? string.Empty,
-        QueueName = rabbitSettings?.FetchInventoryMetadataQueueName ?? string.Empty,
+        ExchangeName = rabbitMqSettings.FetchInventoryMetadataExchangeName ?? string.Empty,
+        QueueName = rabbitMqSettings.FetchInventoryMetadataQueueName ?? string.Empty,
         ExchangeType = "fanout"
     });
     opts.Add(new RabbitMqInfrastructureTarget
     {
-        ExchangeName = rabbitSettings?.FetchInventoryMetadataDeadLetterExchangeName ?? string.Empty,
-        QueueName = rabbitSettings?.FetchInventoryMetadataDeadLetterQueueName ?? string.Empty,
+        ExchangeName = rabbitMqSettings.FetchInventoryMetadataDeadLetterExchangeName ?? string.Empty,
+        QueueName = rabbitMqSettings.FetchInventoryMetadataDeadLetterQueueName ?? string.Empty,
         ExchangeType = "fanout"
     });
 });
 
+var connectionString = $"host={rabbitMqSettings.HostName}:{rabbitMqSettings.AmqpPort};username={rabbitMqSettings.UserName};password={rabbitMqSettings.Password}";
 builder.Services.AddMessaging(connectionString, startup: true);
-builder.Services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, EmptyRabbitMqLifecycleObserver>();
+builder.Services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, FetchInventoryMetadataObserver>();
+builder.Services.AddHostedService<FetchInventoryMetadataSubscriber>();
 
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
