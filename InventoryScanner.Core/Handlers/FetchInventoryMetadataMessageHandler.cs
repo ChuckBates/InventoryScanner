@@ -12,13 +12,20 @@ namespace InventoryScanner.Core.Handlers
         private readonly IImageLookup imageLookup;
         private readonly IImageRepository imageRepository;
         private readonly IInventoryRepository inventoryRepository;
+        private readonly ILogger<FetchInventoryMetadataMessageHandler> logger;
 
-        public FetchInventoryMetadataMessageHandler(IBarcodeLookup barcodeLookup, IImageLookup imageLookup, IImageRepository imageRepository, IInventoryRepository inventoryRepository)
+        public FetchInventoryMetadataMessageHandler(
+            IBarcodeLookup barcodeLookup, 
+            IImageLookup imageLookup, 
+            IImageRepository imageRepository, 
+            IInventoryRepository inventoryRepository, 
+            ILogger<FetchInventoryMetadataMessageHandler> logger)
         {
             this.barcodeLookup = barcodeLookup;
             this.imageLookup = imageLookup;
             this.imageRepository = imageRepository;
             this.inventoryRepository = inventoryRepository;
+            this.logger = logger;
         }
 
         public async Task Handle(FetchInventoryMetadataMessage message)
@@ -41,7 +48,7 @@ namespace InventoryScanner.Core.Handlers
                     {
                         errorExceptions.Add(new Exception(error));
                     }
-                    // Log errors
+                    logger.LogError("Error handling metadata update message: {Errors} ", string.Join(", ", errorExceptions));
                 }
                 inventory.ImagePath = imagePath;
             }

@@ -22,7 +22,7 @@ namespace InventoryScanner.Core.IntegrationTests
                 throw new Exception("Settings service is null.");
             }
 
-            barcodeLookup = new BarcodeLookup(settingsService, new HttpClient());
+            barcodeLookup = new BarcodeLookup(settingsService);
         }
 
         [Test]

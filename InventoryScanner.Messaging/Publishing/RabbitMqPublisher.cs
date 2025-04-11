@@ -4,6 +4,7 @@ using System.Text;
 using Polly;
 using EasyNetQ;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 
 [assembly: InternalsVisibleTo("InventoryScanner.Messaging.IntegrationTests")]
 
@@ -13,11 +14,13 @@ namespace InventoryScanner.Messaging.Publishing
     {
         private readonly IRabbitMqSettings settings;
         private readonly IBus bus;
+        private readonly ILogger<RabbitMqPublisher> logger;
 
-        public RabbitMqPublisher(IRabbitMqSettings settings, IBus bus)
+        public RabbitMqPublisher(IRabbitMqSettings settings, IBus bus, ILogger<RabbitMqPublisher> logger)
         {
             this.settings = settings;
             this.bus = bus;
+            this.logger = logger;
         }
 
         public async Task<PublisherResponse> PublishAsync<TEvent>(TEvent message, string exchangeName) where TEvent : class, IRabbitMqMessage
@@ -31,7 +34,7 @@ namespace InventoryScanner.Messaging.Publishing
                     sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
                     onRetry: (ex, ts) =>
                     {
-                        Console.WriteLine($"[Retry] {ex.GetType().Name}: {ex.Message}");
+                        logger.LogError(ex, "Error occurred while publishing message to RabbitMQ. Retrying in {TotalSeconds} seconds...", ts.TotalSeconds);
                     });
 
             response = await retryPolicy.ExecuteAsync(async () =>
@@ -53,12 +56,14 @@ namespace InventoryScanner.Messaging.Publishing
                         MessageId = Guid.NewGuid().ToString()
                     };
 
+                    logger.LogInformation("Publishing message to RabbitMQ exchange {exchange}: {Message}", exchangeName, message);
                     await bus.Advanced.PublishAsync(exchange, string.Empty, false, properties, body);
                 }
                 catch (Exception ex)
                 {
-                    var meesage = $"RabbitMQ Error: Unable to reach rabbit host. Message: {ex.Message}";
-                    return PublisherResponse.Failed([meesage], [message]);
+                    var errorMessage = $"RabbitMQ Error: Unable to reach rabbit host. Message: {ex.Message}";
+                    logger.LogError(ex, "RabbitMQ Error: Unable to reach rabbit host. Message: {Message}", ex.Message);
+                    return PublisherResponse.Failed([errorMessage], [message]);
                 }
 
                 return response;

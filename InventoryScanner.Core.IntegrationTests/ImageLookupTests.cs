@@ -21,7 +21,7 @@ namespace InventoryScanner.Core.IntegrationTests
                 throw new Exception("Settings service is null.");
             }
 
-            imageLookup = new ImageLookup(settingsService, new HttpClient());
+            imageLookup = new ImageLookup(settingsService);
         }
 
         [Test]

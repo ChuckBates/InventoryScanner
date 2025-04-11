@@ -19,7 +19,10 @@ namespace InventoryScanner.Core.UnitTests
         {
             mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockSettingsService = new Mock<ISettingsService>();
-            barcodeLookup = new BarcodeLookup(mockSettingsService.Object, new HttpClient(mockHttpMessageHandler.Object));
+            barcodeLookup = new BarcodeLookup(mockSettingsService.Object)
+            {
+                client = new HttpClient(mockHttpMessageHandler.Object)
+            };
         }
 
         [Test]

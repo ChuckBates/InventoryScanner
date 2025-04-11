@@ -10,6 +10,8 @@ using InventoryScanner.Core.Observers;
 using InventoryScanner.Core.Subscribers;
 using Microsoft.Extensions.Options;
 using InventoryScanner.Core.Handlers;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,8 +63,23 @@ builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();
 builder.Services.AddSingleton<IBarcodeLookup, BarcodeLookup>();
 builder.Services.AddSingleton<IImageLookup, ImageLookup>();
 
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("System", LogEventLevel.Warning)
+    .MinimumLevel.Override("EasyNetQ", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore.Server.Kestrel", LogEventLevel.Error)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+        "logs/inventoryscanner.core.log", 
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 14)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 var app = builder.Build();

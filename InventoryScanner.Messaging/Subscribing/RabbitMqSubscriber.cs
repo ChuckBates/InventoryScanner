@@ -1,5 +1,6 @@
 ﻿using InventoryScanner.Messaging.Interfaces;
 using InventoryScanner.Messaging.Models;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -11,12 +12,14 @@ namespace InventoryScanner.Messaging.Subscribing
         private readonly IRabbitMqSettings settings;
         private readonly IRabbitMqConnectionManager connectionManager;
         private readonly IRabbitMqSubscriberLifecycleObserver? lifecycleObserver;
+        private readonly ILogger<RabbitMqSubscriber> logger;
 
-        public RabbitMqSubscriber(IRabbitMqConnectionManager connectionManager, IRabbitMqSettings settings, IRabbitMqSubscriberLifecycleObserver? lifecycleObserver)
+        public RabbitMqSubscriber(IRabbitMqConnectionManager connectionManager, IRabbitMqSettings settings, IRabbitMqSubscriberLifecycleObserver? lifecycleObserver, ILogger<RabbitMqSubscriber> logger)
         {
             this.connectionManager = connectionManager;
             this.settings = settings;
             this.lifecycleObserver = lifecycleObserver ?? new EmptyRabbitMqLifecycleObserver();
+            this.logger = logger;
         }
 
         public async Task SubscribeAsync<TMessage>(string queueName, CancellationToken cancellationToken = default) where TMessage : class, IRabbitMqMessage
@@ -88,7 +91,7 @@ namespace InventoryScanner.Messaging.Subscribing
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[Cancel Error] {ex.Message}");
+                    logger.LogError(ex, "Error occurred while cancelling RabbitMQ consumer.");
                 }
             });
         }

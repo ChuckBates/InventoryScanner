@@ -1,13 +1,16 @@
 ﻿using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Settings;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+
+[assembly: InternalsVisibleTo("InventoryScanner.Core.UnitTests")]
 
 namespace InventoryScanner.Core.Lookups
 {
     public class BarcodeLookup : IBarcodeLookup
     {
-        HttpClient client;
-        ISettingsService settings;
+        internal HttpClient client;
+        private readonly ISettingsService settings;
 
         public BarcodeLookup(ISettingsService settings)
         {

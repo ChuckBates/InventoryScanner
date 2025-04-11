@@ -17,13 +17,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		postgres-init\create_tables.sql = postgres-init\create_tables.sql
 		Dockerfile = Dockerfile
+		loki\local-config.yaml = loki\local-config.yaml
+		promtail\promtail.yaml = promtail\promtail.yaml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryScanner.Messaging", "InventoryScanner.Messaging\InventoryScanner.Messaging.csproj", "{8F20C95C-B3C9-4754-A93B-37017D7F0C53}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryScanner.Messaging.IntegrationTests", "InventoryScanner.Messaging.IntegrationTests\InventoryScanner.Messaging.IntegrationTests.csproj", "{B0FEE55D-92DE-4243-B92B-311F76BC5348}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryScanner.TestUtilities", "InventoryScanner.TestUtilities\InventoryScanner.TestUtilities.csproj", "{F792F779-2166-40B1-944F-CA0843660C1D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryScanner.TestUtilities", "InventoryScanner.TestUtilities\InventoryScanner.TestUtilities.csproj", "{F792F779-2166-40B1-944F-CA0843660C1D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

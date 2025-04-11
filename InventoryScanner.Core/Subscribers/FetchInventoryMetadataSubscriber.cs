@@ -9,11 +9,13 @@ namespace InventoryScanner.Core.Subscribers
     {
         private readonly IRabbitMqSubscriber subscriber;
         private readonly RabbitMqSettings settings;
+        private readonly ILogger<FetchInventoryMetadataSubscriber> logger;
 
-        public FetchInventoryMetadataSubscriber(IRabbitMqSubscriber subscriber, IRabbitMqSettings settings)
+        public FetchInventoryMetadataSubscriber(IRabbitMqSubscriber subscriber, IRabbitMqSettings settings, ILogger<FetchInventoryMetadataSubscriber> logger)
         {
             this.subscriber = subscriber;
             this.settings = (RabbitMqSettings)settings;
+            this.logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,7 +27,7 @@ namespace InventoryScanner.Core.Subscribers
                            sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
                            onRetry: (ex, ts) =>
                            {
-                               Console.WriteLine($"[Retry] {ex.GetType().Name}: {ex.Message}");
+                               logger.LogError(ex, "Error occurred while subscribing to RabbitMQ. Retrying in {TimeSpan} seconds...", ts.TotalSeconds);
                            });
 
             await retryPolicy.ExecuteAsync(async () => await subscriber.SubscribeAsync<FetchInventoryMetadataMessage>(queueName: settings.FetchInventoryMetadataQueueName, cancellationToken: stoppingToken));

@@ -4,6 +4,7 @@ using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Repositories;
 using InventoryScanner.TestUtilities;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Text.Json;
 
@@ -16,6 +17,7 @@ namespace InventoryScanner.Core.UnitTests
         private Mock<IImageLookup> mockImageLookup;
         private Mock<IImageRepository> mockImageRepository;
         private Mock<IInventoryRepository> mockInventoryRepository;
+        private Mock<ILogger<FetchInventoryMetadataMessageHandler>> mockLogger;
         private FetchInventoryMetadataMessageHandler handler;
 
         [SetUp]
@@ -25,7 +27,8 @@ namespace InventoryScanner.Core.UnitTests
             mockImageLookup = new Mock<IImageLookup>();
             mockImageRepository = new Mock<IImageRepository>();
             mockInventoryRepository = new Mock<IInventoryRepository>();
-            handler = new FetchInventoryMetadataMessageHandler(mockBarcodeLookup.Object, mockImageLookup.Object, mockImageRepository.Object, mockInventoryRepository.Object);
+            mockLogger = new Mock<ILogger<FetchInventoryMetadataMessageHandler>>();
+            handler = new FetchInventoryMetadataMessageHandler(mockBarcodeLookup.Object, mockImageLookup.Object, mockImageRepository.Object, mockInventoryRepository.Object, mockLogger.Object);
         }
 
         [Test]
@@ -307,6 +310,16 @@ namespace InventoryScanner.Core.UnitTests
                     x.ImagePath == imagePath &&
                     x.Categories.SequenceEqual(categories)
                 )), Times.Once);
+            mockLogger.Verify(
+                x => x.Log(
+                    It.Is<LogLevel>(l => l == LogLevel.Error),
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error looking up barcode: Image retrieval failed.")),
+                    It.IsAny<Exception>(),
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)
+                ),
+                Times.Once
+            );
         }
 
         [Test]
@@ -341,7 +354,6 @@ namespace InventoryScanner.Core.UnitTests
                 ImagePath = string.Empty,
                 Categories = categories
             };
-            //var expectedResponse = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [updatedInventory], ["Error looking up barcode: Failed to save image."]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
             mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
@@ -373,6 +385,16 @@ namespace InventoryScanner.Core.UnitTests
                     x.ImagePath == string.Empty &&
                     x.Categories.SequenceEqual(categories)
                 )), Times.Once);
+            mockLogger.Verify(
+                x => x.Log(
+                    It.Is<LogLevel>(l => l == LogLevel.Error),
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error looking up barcode: Failed to save image.")),
+                    It.IsAny<Exception>(),
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)
+                ),
+                Times.Once
+            );
         }
 
         [Test]
