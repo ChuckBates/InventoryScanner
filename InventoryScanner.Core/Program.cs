@@ -48,6 +48,12 @@ builder.Services.Configure<List<RabbitMqInfrastructureTarget>>(opts =>
         QueueName = rabbitMqSettings.FetchInventoryMetadataDeadLetterQueueName ?? string.Empty,
         ExchangeType = "fanout"
     });
+    opts.Add(new RabbitMqInfrastructureTarget
+    {
+        ExchangeName = rabbitMqSettings.InventoryUpdatedExchangeName ?? string.Empty,
+        QueueName = rabbitMqSettings.InventoryUpdatedQueueName ?? string.Empty,
+        ExchangeType = "fanout"
+    });
 });
 
 var connectionString = $"host={rabbitMqSettings.HostName}:{rabbitMqSettings.AmqpPort};username={rabbitMqSettings.UserName};password={rabbitMqSettings.Password}";
@@ -58,6 +64,7 @@ builder.Services.AddHostedService<FetchInventoryMetadataSubscriber>();
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
 builder.Services.AddSingleton<IImageRepository, ImageRepository>();
 builder.Services.AddSingleton<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
+builder.Services.AddSingleton<IInventoryUpdatedPublisher, InventoryUpdatedPublisher>();
 builder.Services.AddSingleton<IFetchInventoryMetadataRequestDeadLetterPublisher, FetchInventoryMetadataRequestDeadLetterPublisher>();
 builder.Services.AddSingleton<IFetchInventoryMetadataMessageHandler, FetchInventoryMetadataMessageHandler>();
 builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();

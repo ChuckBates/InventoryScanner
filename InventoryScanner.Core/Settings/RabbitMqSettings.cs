@@ -13,6 +13,10 @@ namespace InventoryScanner.Core.Settings
         public required string FetchInventoryMetadataExchangeName { get; set; }
         public required string FetchInventoryMetadataDeadLetterQueueName { get; set; }
         public required string FetchInventoryMetadataDeadLetterExchangeName { get; set; }
+        public required string InventoryUpdatedQueueName { get; set; }
+        public required string InventoryUpdatedExchangeName { get; set; }
+        public required string InventoryUpdatedDeadLetterQueueName { get; set; }
+        public required string InventoryUpdatedDeadLetterExchangeName { get; set; }
         public int PublishRetryCount { get; set; }
         public int SubscribeRetryCount { get; set; }
         public int ConnectionTimeout { get; set; }
