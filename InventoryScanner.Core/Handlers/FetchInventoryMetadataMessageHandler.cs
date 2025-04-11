@@ -2,6 +2,7 @@
 using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Repositories;
+using InventoryScanner.Core.Publishers.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace InventoryScanner.Core.Handlers

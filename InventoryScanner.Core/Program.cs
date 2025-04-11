@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using InventoryScanner.Core.Handlers;
 using Serilog;
 using Serilog.Events;
+using InventoryScanner.Core.Publishers.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
