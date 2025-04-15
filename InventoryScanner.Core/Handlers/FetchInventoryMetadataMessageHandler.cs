@@ -2,7 +2,9 @@
 using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Repositories;
+using InventoryScanner.Core.Publishers.Interfaces;
 using System.Text.RegularExpressions;
+using InventoryScanner.Messaging.Enums;
 
 namespace InventoryScanner.Core.Handlers
 {
@@ -12,19 +14,22 @@ namespace InventoryScanner.Core.Handlers
         private readonly IImageLookup imageLookup;
         private readonly IImageRepository imageRepository;
         private readonly IInventoryRepository inventoryRepository;
+        private readonly IInventoryUpdatedPublisher inventoryUpdatedPublisher;
         private readonly ILogger<FetchInventoryMetadataMessageHandler> logger;
 
         public FetchInventoryMetadataMessageHandler(
-            IBarcodeLookup barcodeLookup, 
-            IImageLookup imageLookup, 
-            IImageRepository imageRepository, 
-            IInventoryRepository inventoryRepository, 
+            IBarcodeLookup barcodeLookup,
+            IImageLookup imageLookup,
+            IImageRepository imageRepository,
+            IInventoryRepository inventoryRepository,
+            IInventoryUpdatedPublisher inventoryUpdatedPublisher,
             ILogger<FetchInventoryMetadataMessageHandler> logger)
         {
             this.barcodeLookup = barcodeLookup;
             this.imageLookup = imageLookup;
             this.imageRepository = imageRepository;
             this.inventoryRepository = inventoryRepository;
+            this.inventoryUpdatedPublisher = inventoryUpdatedPublisher;
             this.logger = logger;
         }
 
@@ -59,6 +64,12 @@ namespace InventoryScanner.Core.Handlers
             if (rowsAffected == 0)
             {
                 throw new Exception("Error handling metadata update message: Failed to save inventory.");
+            }
+
+            var publishResponse = await inventoryUpdatedPublisher.Publish(updatedInventory);
+            if (publishResponse.Status != PublisherResponseStatus.Success)
+            {
+                logger.LogError("Error handling metadata update message: Failed to publish inventory update.");
             }
         }
 

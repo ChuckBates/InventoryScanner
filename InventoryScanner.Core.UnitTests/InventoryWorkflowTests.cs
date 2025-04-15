@@ -1,6 +1,6 @@
 ﻿using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
-using InventoryScanner.Core.Publishers;
+using InventoryScanner.Core.Publishers.Interfaces;
 using InventoryScanner.Core.Repositories;
 using InventoryScanner.Core.Workflows;
 using InventoryScanner.Messaging.Enums;

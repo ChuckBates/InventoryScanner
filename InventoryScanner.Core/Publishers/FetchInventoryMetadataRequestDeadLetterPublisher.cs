@@ -1,4 +1,5 @@
 ﻿using InventoryScanner.Core.Messages;
+using InventoryScanner.Core.Publishers.Interfaces;
 using InventoryScanner.Core.Settings;
 using InventoryScanner.Messaging.Interfaces;
 using InventoryScanner.Messaging.Publishing;

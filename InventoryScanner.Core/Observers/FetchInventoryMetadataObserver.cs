@@ -1,6 +1,6 @@
 ﻿using InventoryScanner.Core.Handlers;
 using InventoryScanner.Core.Messages;
-using InventoryScanner.Core.Publishers;
+using InventoryScanner.Core.Publishers.Interfaces;
 using InventoryScanner.Core.Settings;
 using InventoryScanner.Core.Subscribers;
 using InventoryScanner.Messaging.Interfaces;

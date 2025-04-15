@@ -1,6 +1,6 @@
 ﻿using InventoryScanner.Messaging.Publishing;
 
-namespace InventoryScanner.Core.Publishers
+namespace InventoryScanner.Core.Publishers.Interfaces
 {
     public interface IFetchInventoryMetadataRequestPublisher
     {
