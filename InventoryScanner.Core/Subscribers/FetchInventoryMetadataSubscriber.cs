@@ -1,5 +1,6 @@
 ﻿using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Settings;
+using InventoryScanner.Logging;
 using InventoryScanner.Messaging.Interfaces;
 using Polly;
 
@@ -9,9 +10,9 @@ namespace InventoryScanner.Core.Subscribers
     {
         private readonly IRabbitMqSubscriber subscriber;
         private readonly RabbitMqSettings settings;
-        private readonly ILogger<FetchInventoryMetadataSubscriber> logger;
+        private readonly IAppLogger<FetchInventoryMetadataSubscriber> logger;
 
-        public FetchInventoryMetadataSubscriber(IRabbitMqSubscriber subscriber, IRabbitMqSettings settings, ILogger<FetchInventoryMetadataSubscriber> logger)
+        public FetchInventoryMetadataSubscriber(IRabbitMqSubscriber subscriber, IRabbitMqSettings settings, IAppLogger<FetchInventoryMetadataSubscriber> logger)
         {
             this.subscriber = subscriber;
             this.settings = (RabbitMqSettings)settings;
@@ -27,7 +28,13 @@ namespace InventoryScanner.Core.Subscribers
                            sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
                            onRetry: (ex, ts) =>
                            {
-                               logger.LogError(ex, "Error occurred while subscribing to RabbitMQ. Retrying in {TimeSpan} seconds...", ts.TotalSeconds);
+                               logger.Warning(new LogContext
+                               {
+                                   Barcode = null,
+                                   Component = typeof(FetchInventoryMetadataSubscriber).Name,
+                                   Message = $"Error occurred while subscribing to RabbitMQ. Retrying in {ts.TotalSeconds} seconds...",
+                                   Operation = "Execute"
+                               });
                            });
 
             await retryPolicy.ExecuteAsync(async () => await subscriber.SubscribeAsync<FetchInventoryMetadataMessage>(queueName: settings.FetchInventoryMetadataQueueName, cancellationToken: stoppingToken));

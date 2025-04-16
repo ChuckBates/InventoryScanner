@@ -4,7 +4,7 @@ using System.Text;
 using Polly;
 using EasyNetQ;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
+using InventoryScanner.Logging;
 
 [assembly: InternalsVisibleTo("InventoryScanner.Messaging.IntegrationTests")]
 
@@ -14,9 +14,9 @@ namespace InventoryScanner.Messaging.Publishing
     {
         private readonly IRabbitMqSettings settings;
         private readonly IBus bus;
-        private readonly ILogger<RabbitMqPublisher> logger;
+        private readonly IAppLogger<RabbitMqPublisher> logger;
 
-        public RabbitMqPublisher(IRabbitMqSettings settings, IBus bus, ILogger<RabbitMqPublisher> logger)
+        public RabbitMqPublisher(IRabbitMqSettings settings, IBus bus, IAppLogger<RabbitMqPublisher> logger)
         {
             this.settings = settings;
             this.bus = bus;
@@ -34,7 +34,13 @@ namespace InventoryScanner.Messaging.Publishing
                     sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
                     onRetry: (ex, ts) =>
                     {
-                        logger.LogError(ex, "Error occurred while publishing message to RabbitMQ. Retrying in {TotalSeconds} seconds...", ts.TotalSeconds);
+                        logger.Error(ex, new LogContext
+                        {
+                            Barcode = null,
+                            Component = typeof(RabbitMqPublisher).Name,
+                            Message = $"Error occurred while publishing message to RabbitMQ. Retrying in {ts.TotalSeconds} seconds...",
+                            Operation = "Publish"
+                        });
                     });
 
             response = await retryPolicy.ExecuteAsync(async () =>
@@ -47,7 +53,8 @@ namespace InventoryScanner.Messaging.Publishing
                         durable: true,
                         autoDelete: false);
 
-                    var body = Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(message));
+                    var serializedMessage = System.Text.Json.JsonSerializer.Serialize(message);
+                    var body = Encoding.UTF8.GetBytes(serializedMessage);
                     var properties = new MessageProperties
                     {
                         ContentType = "application/json",
@@ -56,13 +63,25 @@ namespace InventoryScanner.Messaging.Publishing
                         MessageId = Guid.NewGuid().ToString()
                     };
 
-                    logger.LogInformation("Publishing message to RabbitMQ exchange {exchange}: {Message}", exchangeName, message);
+                    logger.Info(new LogContext
+                    {
+                        Barcode = null,
+                        Component = typeof(RabbitMqPublisher).Name,
+                        Message = $"Publishing message to RabbitMQ exchange {exchangeName}: {serializedMessage}",
+                        Operation = "Execute"
+                    });
                     await bus.Advanced.PublishAsync(exchange, string.Empty, false, properties, body);
                 }
                 catch (Exception ex)
                 {
                     var errorMessage = $"RabbitMQ Error: Unable to reach rabbit host. Message: {ex.Message}";
-                    logger.LogError(ex, "RabbitMQ Error: Unable to reach rabbit host. Message: {Message}", ex.Message);
+                    logger.Error(ex, new LogContext
+                    {
+                        Barcode = null,
+                        Component = typeof(RabbitMqPublisher).Name,
+                        Message = "RabbitMQ Error: Unable to reach rabbit host.",
+                        Operation = "Publish"
+                    });
                     return PublisherResponse.Failed([errorMessage], [message]);
                 }
 

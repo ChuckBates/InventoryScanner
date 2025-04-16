@@ -16,3 +16,17 @@ scrape_configs:
         labels:
           job: inventoryscanner.core
           __path__: /app/logs/*.log
+
+    pipeline_stages:
+      - json:
+          expressions:
+            timestamp: Timestamp
+            level: Level
+            message: Properties.Message
+            exception: Exception
+            class: Properties.Component
+            method: Properties.Operation
+            barcode: Properties.Barcode
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano   

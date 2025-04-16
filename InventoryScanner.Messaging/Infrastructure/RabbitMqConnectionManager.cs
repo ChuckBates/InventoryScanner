@@ -1,5 +1,5 @@
-﻿using InventoryScanner.Messaging.Interfaces;
-using Microsoft.Extensions.Logging;
+﻿using InventoryScanner.Logging;
+using InventoryScanner.Messaging.Interfaces;
 using Polly;
 using RabbitMQ.Client;
 
@@ -11,9 +11,9 @@ namespace InventoryScanner.Messaging.Infrastructure
         private readonly IRabbitMqSettings settings;
         private IConnection? connection;
         private readonly SemaphoreSlim semaphore = new(1, 1);
-        private readonly ILogger<RabbitMqConnectionManager> logger;
+        private readonly IAppLogger<RabbitMqConnectionManager> logger;
 
-        public RabbitMqConnectionManager(IRabbitMqSettings settings, ILogger<RabbitMqConnectionManager> logger)
+        public RabbitMqConnectionManager(IRabbitMqSettings settings, IAppLogger<RabbitMqConnectionManager> logger)
         {
             this.settings = settings;
             connectionFactory = new ConnectionFactory
@@ -43,7 +43,13 @@ namespace InventoryScanner.Messaging.Infrastructure
                            sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
                            onRetry: (ex, ts) =>
                            {
-                               logger.LogError(ex, "Error occurred while creating RabbitMQ connection. Retrying in {TimeSpan} seconds...", ts.TotalSeconds);
+                               logger.Error(ex, new LogContext
+                               {
+                                   Barcode = null,
+                                   Component = typeof(RabbitMqConnectionManager).Name,
+                                   Message = $"Error occurred while creating RabbitMQ connection. Retrying in {ts.TotalSeconds} seconds...",
+                                   Operation = "Get Connection"
+                               });
                            });
 
                     connection?.Dispose();

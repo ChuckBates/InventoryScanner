@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\InventoryScanner.Logging\InventoryScanner.Logging.csproj" />
     <ProjectReference Include="..\InventoryScanner.Messaging\InventoryScanner.Messaging.csproj" />
   </ItemGroup>
 

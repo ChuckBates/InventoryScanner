@@ -4,11 +4,10 @@ using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Publishers.Interfaces;
 using InventoryScanner.Core.Repositories;
+using InventoryScanner.Logging;
 using InventoryScanner.Messaging.Publishing;
 using InventoryScanner.TestUtilities;
-using Microsoft.Extensions.Logging;
 using Moq;
-using System.Text.Json;
 
 namespace InventoryScanner.Core.UnitTests
 {
@@ -20,7 +19,7 @@ namespace InventoryScanner.Core.UnitTests
         private Mock<IImageRepository> mockImageRepository;
         private Mock<IInventoryRepository> mockInventoryRepository;
         private Mock<IInventoryUpdatedPublisher> mockInventoryUpdatedPublisher;
-        private Mock<ILogger<FetchInventoryMetadataMessageHandler>> mockLogger;
+        private Mock<IAppLogger<FetchInventoryMetadataMessageHandler>> mockLogger;
         private FetchInventoryMetadataMessageHandler handler;
 
         [SetUp]
@@ -31,7 +30,7 @@ namespace InventoryScanner.Core.UnitTests
             mockImageRepository = new Mock<IImageRepository>();
             mockInventoryRepository = new Mock<IInventoryRepository>();
             mockInventoryUpdatedPublisher = new Mock<IInventoryUpdatedPublisher>();
-            mockLogger = new Mock<ILogger<FetchInventoryMetadataMessageHandler>>();
+            mockLogger = new Mock<IAppLogger<FetchInventoryMetadataMessageHandler>>();
             handler = new FetchInventoryMetadataMessageHandler(
                 mockBarcodeLookup.Object,
                 mockImageLookup.Object, 
@@ -174,6 +173,7 @@ namespace InventoryScanner.Core.UnitTests
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
             mockInventoryUpdatedPublisher.Setup(x => x.Publish(updatedInventory)).ReturnsAsync(expectedPublisherResponse);
+            mockLogger.Setup(x => x.Warning(It.IsAny<LogContext>()));
 
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
@@ -192,12 +192,12 @@ namespace InventoryScanner.Core.UnitTests
                 )), Times.Once);
             mockInventoryUpdatedPublisher.Verify(x => x.Publish(updatedInventory), Times.Once);
             mockLogger.Verify(
-                x => x.Log(
-                    It.Is<LogLevel>(l => l == LogLevel.Error),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error handling metadata update message: Failed to publish inventory update.")),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)
+                x => x.Warning(
+                    It.Is<LogContext>(l => 
+                        l.Barcode == barcode && 
+                        l.Message == "Error handling metadata update message: Failed to publish inventory update." &&
+                        l.Component == typeof(FetchInventoryMetadataMessageHandler).Name &&
+                        l.Operation == "Fetch Details")
                 ),
                 Times.Once);
         }
@@ -426,6 +426,7 @@ namespace InventoryScanner.Core.UnitTests
             mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
             mockInventoryUpdatedPublisher.Setup(x => x.Publish(updatedInventory)).ReturnsAsync(expectedPublisherResponse);
+            mockLogger.Setup(x => x.Warning(It.IsAny<LogContext>()));
 
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
@@ -443,15 +444,14 @@ namespace InventoryScanner.Core.UnitTests
                     x.Categories.SequenceEqual(categories)
                 )), Times.Once);
             mockLogger.Verify(
-                x => x.Log(
-                    It.Is<LogLevel>(l => l == LogLevel.Error),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error looking up barcode: Image retrieval failed.")),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)
+                x => x.Warning(
+                    It.Is<LogContext>(l =>
+                        l.Barcode == barcode &&
+                        l.Message == "Error looking up barcode: Image retrieval failed." &&
+                        l.Component == typeof(FetchInventoryMetadataMessageHandler).Name &&
+                        l.Operation == "Save Image")
                 ),
-                Times.Once
-            );
+                Times.Once);
         }
 
         [Test]
@@ -510,6 +510,7 @@ namespace InventoryScanner.Core.UnitTests
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync(imageRepoErrorMessage);
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
             mockInventoryUpdatedPublisher.Setup(x => x.Publish(updatedInventory)).ReturnsAsync(expectedPublisherResponse);
+            mockLogger.Setup(x => x.Warning(It.IsAny<LogContext>()));
 
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
@@ -527,15 +528,14 @@ namespace InventoryScanner.Core.UnitTests
                     x.Categories.SequenceEqual(categories)
                 )), Times.Once);
             mockLogger.Verify(
-                x => x.Log(
-                    It.Is<LogLevel>(l => l == LogLevel.Error),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error looking up barcode: Failed to save image.")),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)
+                x => x.Warning(
+                    It.Is<LogContext>(l =>
+                        l.Barcode == barcode &&
+                        l.Message == "Error looking up barcode: Failed to save image." &&
+                        l.Component == typeof(FetchInventoryMetadataMessageHandler).Name &&
+                        l.Operation == "Save Image")
                 ),
-                Times.Once
-            );
+                Times.Once);
         }
 
         [Test]

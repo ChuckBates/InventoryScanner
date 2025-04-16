@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryScanner.TestUtilit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryScanner.Client", "InventoryScanner.Client\InventoryScanner.Client.csproj", "{54EE6412-1A2E-4567-A7EF-9A6EEF9EC981}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryScanner.Logging", "InventoryScanner.Logging\InventoryScanner.Logging.csproj", "{D08E8CAF-318A-4DE9-88F5-6B14331F2733}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{54EE6412-1A2E-4567-A7EF-9A6EEF9EC981}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54EE6412-1A2E-4567-A7EF-9A6EEF9EC981}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54EE6412-1A2E-4567-A7EF-9A6EEF9EC981}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D08E8CAF-318A-4DE9-88F5-6B14331F2733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D08E8CAF-318A-4DE9-88F5-6B14331F2733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D08E8CAF-318A-4DE9-88F5-6B14331F2733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D08E8CAF-318A-4DE9-88F5-6B14331F2733}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

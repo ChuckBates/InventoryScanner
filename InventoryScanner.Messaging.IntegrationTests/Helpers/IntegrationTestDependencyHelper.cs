@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using InventoryScanner.Messaging.IntegrationTests.Constructs;
 using InventoryScanner.Messaging.Infrastructure;
+using InventoryScanner.Logging;
 
 namespace InventoryScanner.Messaging.IntegrationTests.Helpers
 {
@@ -74,6 +75,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
             });
             services.AddMessaging(connectionString, startup: false);
             services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, TestSubscriberLifecycleObserver>();
+            services.AddSingleton(typeof(IAppLogger<>), typeof(AppLogger<>));
         }
 
         private async Task ConnectToRabbitAsync()

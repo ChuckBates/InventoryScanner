@@ -13,6 +13,9 @@ using InventoryScanner.Core.Handlers;
 using Serilog;
 using Serilog.Events;
 using InventoryScanner.Core.Publishers.Interfaces;
+using Serilog.Formatting.Compact;
+using InventoryScanner.Logging;
+using Serilog.Formatting.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +73,7 @@ builder.Services.AddSingleton<IFetchInventoryMetadataMessageHandler, FetchInvent
 builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();
 builder.Services.AddSingleton<IBarcodeLookup, BarcodeLookup>();
 builder.Services.AddSingleton<IImageLookup, ImageLookup>();
+builder.Services.AddSingleton(typeof(IAppLogger<>), typeof(AppLogger<>));
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -78,8 +82,9 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("EasyNetQ", LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.AspNetCore.Server.Kestrel", LogEventLevel.Error)
     .Enrich.FromLogContext()
-    .WriteTo.Console()
+    .WriteTo.Console(new JsonFormatter(renderMessage: true))
     .WriteTo.File(
+        new JsonFormatter(renderMessage: true),
         "logs/inventoryscanner.core.log", 
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 14)

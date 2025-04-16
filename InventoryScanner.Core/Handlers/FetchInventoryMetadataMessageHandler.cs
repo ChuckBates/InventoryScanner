@@ -5,6 +5,7 @@ using InventoryScanner.Core.Repositories;
 using InventoryScanner.Core.Publishers.Interfaces;
 using System.Text.RegularExpressions;
 using InventoryScanner.Messaging.Enums;
+using InventoryScanner.Logging;
 
 namespace InventoryScanner.Core.Handlers
 {
@@ -15,7 +16,7 @@ namespace InventoryScanner.Core.Handlers
         private readonly IImageRepository imageRepository;
         private readonly IInventoryRepository inventoryRepository;
         private readonly IInventoryUpdatedPublisher inventoryUpdatedPublisher;
-        private readonly ILogger<FetchInventoryMetadataMessageHandler> logger;
+        private readonly IAppLogger<FetchInventoryMetadataMessageHandler> logger;
 
         public FetchInventoryMetadataMessageHandler(
             IBarcodeLookup barcodeLookup,
@@ -23,7 +24,7 @@ namespace InventoryScanner.Core.Handlers
             IImageRepository imageRepository,
             IInventoryRepository inventoryRepository,
             IInventoryUpdatedPublisher inventoryUpdatedPublisher,
-            ILogger<FetchInventoryMetadataMessageHandler> logger)
+            IAppLogger<FetchInventoryMetadataMessageHandler> logger)
         {
             this.barcodeLookup = barcodeLookup;
             this.imageLookup = imageLookup;
@@ -44,18 +45,8 @@ namespace InventoryScanner.Core.Handlers
             var barcode = await barcodeLookup.Get(message.Barcode) ?? throw new Exception("Error handling metadata update message: Barcode not found.");
 
             if (barcode.product.images.Length > 0)
-            {
-                var (imagePath, errors) = await SaveImage(barcode);
-                if (errors.Count > 0)
-                {
-                    var errorExceptions = new List<Exception>();
-                    foreach (var error in errors)
-                    {
-                        errorExceptions.Add(new Exception(error));
-                    }
-                    logger.LogError("Error handling metadata update message: {Errors} ", string.Join(", ", errorExceptions));
-                }
-                inventory.ImagePath = imagePath;
+            {                
+                inventory.ImagePath = await SaveImage(barcode);
             }
 
             var updatedInventory = UpdateInventoryFromBarcode(inventory, barcode);
@@ -69,7 +60,13 @@ namespace InventoryScanner.Core.Handlers
             var publishResponse = await inventoryUpdatedPublisher.Publish(updatedInventory);
             if (publishResponse.Status != PublisherResponseStatus.Success)
             {
-                logger.LogError("Error handling metadata update message: Failed to publish inventory update.");
+                logger.Warning(new LogContext
+                {
+                    Barcode = barcode.product.barcode,
+                    Component = typeof(FetchInventoryMetadataMessageHandler).Name,
+                    Message = "Error handling metadata update message: Failed to publish inventory update.",
+                    Operation = "Fetch Details"
+                });
             }
         }
 
@@ -83,9 +80,9 @@ namespace InventoryScanner.Core.Handlers
             Categories = inventory.Categories
         };
 
-        private async Task<(string imagePath, List<string> errors)> SaveImage(Barcode barcode)
+        private async Task<string> SaveImage(Barcode barcode)
         {
-            var result = (imagePath: string.Empty, errors: new List<string>());
+            var result = string.Empty;
             var imageUrl = barcode.product.images[0];
             var extension = Regex.Match(imageUrl, "[^.]+$");
 
@@ -97,16 +94,28 @@ namespace InventoryScanner.Core.Handlers
                 var saveResult = await imageRepository.Insert(imageStream, despacedImagePath);
                 if (saveResult != "success")
                 {
-                    result.errors.Add("Error looking up barcode: Failed to save image.");
+                    logger.Warning(new LogContext
+                    {
+                        Barcode = barcode.product.barcode,
+                        Component = typeof(FetchInventoryMetadataMessageHandler).Name,
+                        Message = "Error looking up barcode: Failed to save image.",
+                        Operation = "Save Image"
+                    });
                 }
                 else
                 {
-                    result.imagePath = despacedImagePath;
+                    result = despacedImagePath;
                 }
             }
             else
             {
-                result.errors.Add("Error looking up barcode: Image retrieval failed.");
+                logger.Warning(new LogContext
+                {
+                    Barcode = barcode.product.barcode,
+                    Component = typeof(FetchInventoryMetadataMessageHandler).Name,
+                    Message = "Error looking up barcode: Image retrieval failed.",
+                    Operation = "Save Image"
+                });
             }
 
             return result;
