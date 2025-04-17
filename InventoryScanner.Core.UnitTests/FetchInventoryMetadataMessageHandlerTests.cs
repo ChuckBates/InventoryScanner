@@ -401,7 +401,8 @@ namespace InventoryScanner.Core.UnitTests
                 Description = description,
                 Quantity = quantity,
                 ImagePath = imagePath,
-                Categories = categories
+                Categories = categories,
+                UpdatedAt = DateTime.UtcNow
             };
             var expectedPublisherData = new InventoryUpdatedMessage
             {

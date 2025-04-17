@@ -77,7 +77,8 @@ namespace InventoryScanner.Core.Handlers
             Title = barcode.product.title,
             Description = barcode.product.description,
             ImagePath = inventory.ImagePath,
-            Categories = inventory.Categories
+            Categories = inventory.Categories,
+            UpdatedAt = DateTime.UtcNow
         };
 
         private async Task<string> SaveImage(Barcode barcode)

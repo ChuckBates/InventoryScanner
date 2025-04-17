@@ -5,8 +5,8 @@ namespace InventoryScanner.Core.Repositories
     public interface IInventoryRepository
     {
         Task Delete(string barcode);
-        Task<IEnumerable<Inventory>> GetAll();
         Task<Inventory?> Get(string barcode);
         Task<int> Insert(Inventory inventory);
+        Task<IEnumerable<Inventory>> GetAll(DateTime since, int pageNumber = 1, int pageSize = 50);
     }
 }

@@ -1,5 +1,4 @@
-﻿using InventoryScanner.Core.Controllers;
-using InventoryScanner.Core.Enums;
+﻿using InventoryScanner.Core.Enums;
 using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Workflows;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +10,14 @@ namespace InventoryScanner.Core.Controllers
     public class InventoryController(IInventoryWorkflow inventoryWorkflow) : Controller
     {
         [HttpGet(Name = "GetAllInventory")]
-        public async Task<InventoryControllerResponse> GetAll()
+        public async Task<InventoryControllerPaginatedResponse> GetAll(DateTime? since = null, int page = 1, int pageSize = 50)
         {
-            var response = new InventoryControllerResponse(ControllerResponseStatus.Success, []);
+            var response = new InventoryControllerPaginatedResponse(ControllerResponseStatus.Success, []);
+            var beginning = since ?? DateTime.MinValue;
 
             try
             {
-                var workflowResponse = await inventoryWorkflow.GetAll();
+                var workflowResponse = await inventoryWorkflow.GetAll(beginning, page, pageSize);
                 if (workflowResponse.Status == WorkflowResponseStatus.Failure)
                 {
                     response.Status = ControllerResponseStatus.Error;
@@ -25,7 +25,19 @@ namespace InventoryScanner.Core.Controllers
                     return response;
                 }
 
-                response.Data = workflowResponse.Data;
+                response.Page = page;
+                response.PageSize = pageSize;
+
+                if (workflowResponse.Data.Count > pageSize)
+                {
+                    response.HasMore = true;
+                    response.Data = workflowResponse.Data.Take(pageSize).ToList();
+                }
+                else
+                {
+                    response.HasMore = false;
+                    response.Data = workflowResponse.Data;
+                }
             }
             catch (Exception e)
             {

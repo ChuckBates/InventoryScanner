@@ -4,5 +4,6 @@ CREATE TABLE inventory (
 	description TEXT,
 	quantity INT NOT NULL,
 	image_path TEXT,
-	categories TEXT[]
+	categories TEXT[],
+	updated_at TIMESTAMP NOT NULL
 );

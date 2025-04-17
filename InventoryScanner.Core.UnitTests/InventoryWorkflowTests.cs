@@ -41,7 +41,8 @@ namespace InventoryScanner.Core.UnitTests
                 Description = description,
                 Quantity = quantity,
                 ImagePath = imagePath,
-                Categories = categories
+                Categories = categories,
+                UpdatedAt = DateTime.UtcNow
             };
             var expectedResponse = InventoryWorkflowResponse.Success([expectedInventory]);
 
@@ -85,7 +86,7 @@ namespace InventoryScanner.Core.UnitTests
         }
 
         [Test]
-        public async Task When_calling_get_all_workflow_successfully()
+        public async Task When_calling_get_all_workflow_with_no_filtering_successfully()
         {
             var inventoryList = new List<Inventory>
             {
@@ -96,7 +97,8 @@ namespace InventoryScanner.Core.UnitTests
                     Description = "Test-Description",
                     Quantity = 1,
                     ImagePath = Directory.GetCurrentDirectory() + $"/Images/Test-Product-123456.png",
-                    Categories = new List<string>()
+                    Categories = new List<string>(),
+                    UpdatedAt = DateTime.UtcNow
                 },
                 new Inventory
                 {
@@ -105,14 +107,50 @@ namespace InventoryScanner.Core.UnitTests
                     Description = "Test-Description-2",
                     Quantity = 2,
                     ImagePath = Directory.GetCurrentDirectory() + $"/Images/Test-Product-2-654321.png",
-                    Categories = new List<string>()
+                    Categories = new List<string>(),
+                    UpdatedAt = DateTime.UtcNow
                 }
             };
             var expectedResponse = InventoryWorkflowResponse.Success(inventoryList);
 
-            mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync(inventoryList);
+            mockInventoryRepository.Setup(x => x.GetAll(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(inventoryList);
 
-            var result = await workflow.GetAll();
+            var result = await workflow.GetAll(DateTime.MinValue, 1, 50);
+
+            Assert.That(result, Is.EqualTo(expectedResponse));
+        }
+
+        [Test]
+        public async Task When_calling_get_all_workflow_with_filtering_successfully()
+        {
+            var inventoryList = new List<Inventory>
+            {
+                new Inventory
+                {
+                    Barcode = "123456",
+                    Title = "Test-Product",
+                    Description = "Test-Description",
+                    Quantity = 1,
+                    ImagePath = Directory.GetCurrentDirectory() + $"/Images/Test-Product-123456.png",
+                    Categories = new List<string>(),
+                    UpdatedAt = DateTime.UtcNow.AddHours(-1)
+                },
+                new Inventory
+                {
+                    Barcode = "654321",
+                    Title = "Test-Product-2",
+                    Description = "Test-Description-2",
+                    Quantity = 2,
+                    ImagePath = Directory.GetCurrentDirectory() + $"/Images/Test-Product-2-654321.png",
+                    Categories = new List<string>(),
+                    UpdatedAt = DateTime.UtcNow
+                }
+            };
+            var expectedResponse = InventoryWorkflowResponse.Success([inventoryList[1]]);
+
+            mockInventoryRepository.Setup(x => x.GetAll(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(inventoryList.Skip(1));
+
+            var result = await workflow.GetAll(DateTime.UtcNow.AddMinutes(-15), 1, 1);
 
             Assert.That(result, Is.EqualTo(expectedResponse));
         }
@@ -122,13 +160,13 @@ namespace InventoryScanner.Core.UnitTests
         {
             var expectedResponse = InventoryWorkflowResponse.Failure("Error looking up all inventory: Failed to retrieve inventory.");
 
-            mockInventoryRepository.Setup(x => x.GetAll()).ThrowsAsync(new Exception("Unknown error"));
+            mockInventoryRepository.Setup(x => x.GetAll(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>())).ThrowsAsync(new Exception("Unknown error"));
 
-            var result = await workflow.GetAll();
+            var result = await workflow.GetAll(DateTime.MinValue, 1, 50);
 
             Assert.That(result, Is.EqualTo(expectedResponse));
 
-            mockInventoryRepository.Verify(x => x.GetAll(), Times.Once);
+            mockInventoryRepository.Verify(x => x.GetAll(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
         }
 
         [Test]
@@ -136,13 +174,13 @@ namespace InventoryScanner.Core.UnitTests
         {
             var expectedResponse = InventoryWorkflowResponse.Failure("Error looking up all inventory: Inventory not found.");
 
-            mockInventoryRepository.Setup(x => x.GetAll()).ReturnsAsync([]);
+            mockInventoryRepository.Setup(x => x.GetAll(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync([]);
 
-            var result = await workflow.GetAll();
+            var result = await workflow.GetAll(DateTime.MinValue, 1, 50);
 
             Assert.That(result, Is.EqualTo(expectedResponse));
 
-            mockInventoryRepository.Verify(x => x.GetAll(), Times.Once);
+            mockInventoryRepository.Verify(x => x.GetAll(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
         }
 
         [Test]
@@ -157,13 +195,19 @@ namespace InventoryScanner.Core.UnitTests
                 Barcode = barcode,
                 Quantity = quantity
             };
+            var updatedInventory = new Inventory
+            {
+                Barcode = barcode,
+                Quantity = quantity,
+                UpdatedAt = DateTime.UtcNow
+            };
             var expectedPublisherResponse = new PublisherResponse
             (
                 PublisherResponseStatus.Success,
                 [new FetchInventoryMetadataMessage { Barcode = barcode, MessageId = messageId, Timestamp = timestamp }],
                 []
             );
-            var expectedWorkflowResponse = InventoryWorkflowResponse.Success([inventory]);
+            var expectedWorkflowResponse = InventoryWorkflowResponse.Success([updatedInventory]);
 
             mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
             mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
@@ -176,7 +220,8 @@ namespace InventoryScanner.Core.UnitTests
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
-                    x.Quantity == quantity
+                    x.Quantity == quantity &&
+                    (x.UpdatedAt - updatedInventory.UpdatedAt).Duration() < TimeSpan.FromSeconds(1)
                 )), Times.Once);
         }
 
@@ -252,23 +297,25 @@ namespace InventoryScanner.Core.UnitTests
             var barcode = Barcodes.Generate();
             var title = "Test-Product";
             var description = "Test-Description";
-            var quantity = 1;
+            var oldQuantity = 1;
+            var newQuantity = oldQuantity + 1;
             var categories = new List<string>();
             var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
-            var inventory = new Inventory { Barcode = barcode, Quantity = quantity + 1 };
+            var inventory = new Inventory { Barcode = barcode, Quantity = newQuantity };
             var updatedInventory = new Inventory
             {
                 Barcode = barcode,
                 Title = title,
                 Description = description,
-                Quantity = quantity + 1,
+                Quantity = newQuantity,
                 ImagePath = imagePath,
-                Categories = categories
+                Categories = categories,
+                UpdatedAt = DateTime.UtcNow
             };
             var expectedResponse = InventoryWorkflowResponse.Success([updatedInventory]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(updatedInventory);
-            mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
+            mockInventoryRepository.Setup(x => x.Insert(It.IsAny<Inventory>())).ReturnsAsync(1);
 
             var result = await workflow.Update(inventory, refetch: false);
 
@@ -276,6 +323,12 @@ namespace InventoryScanner.Core.UnitTests
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(inventory), Times.Once);
+            mockInventoryRepository.Verify(x => x.Insert(
+                It.Is<Inventory>(x =>
+                    x.Barcode == barcode &&
+                    x.Quantity == newQuantity &&
+                    (x.UpdatedAt - updatedInventory.UpdatedAt).Duration() < TimeSpan.FromSeconds(10)
+                )), Times.Once);
             mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(It.IsAny<string>()), Times.Never);
         }
 
@@ -285,10 +338,11 @@ namespace InventoryScanner.Core.UnitTests
             var barcode = Barcodes.Generate();
             var title = "Test-Product";
             var description = "Test-Description";
-            var quantity = 1;
+            var oldQuantity = 1;
+            var newQuantity = oldQuantity + 1;
             var categories = new List<string>();
             var imagePath = Directory.GetCurrentDirectory() + $"/Images/{title}-{barcode}.png";
-            var inventory = new Inventory { Barcode = barcode, Quantity = quantity + 1 };
+            var inventory = new Inventory { Barcode = barcode, Quantity = newQuantity };
             var messageId = Guid.NewGuid();
             var timestamp = DateTime.UtcNow;
             var expectedPublisherResponse = new PublisherResponse
@@ -302,9 +356,10 @@ namespace InventoryScanner.Core.UnitTests
                 Barcode = barcode,
                 Title = title,
                 Description = description,
-                Quantity = quantity + 1,
+                Quantity = newQuantity,
                 ImagePath = imagePath,
-                Categories = categories
+                Categories = categories,
+                UpdatedAt = DateTime.UtcNow
             };
             var expectedResponse = InventoryWorkflowResponse.Success([updatedInventory]);
 

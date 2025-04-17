@@ -41,12 +41,12 @@ namespace InventoryScanner.Core.UnitTests
             return response;
         }
 
-        public async Task<InventoryWorkflowResponse> GetAll()
+        public async Task<InventoryWorkflowResponse> GetAll(DateTime since, int page, int pageSize)
         {
             var response = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [], []);
             try
             {
-                var inventories = (await inventoryRepository.GetAll())?.ToList();
+                var inventories = (await inventoryRepository.GetAll(since, page, pageSize))?.ToList();
                 if (inventories == null || inventories.Count == 0)
                 {
                     response.Status = WorkflowResponseStatus.Failure;
