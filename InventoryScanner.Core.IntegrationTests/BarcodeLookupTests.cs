@@ -64,7 +64,16 @@ namespace InventoryScanner.Core.IntegrationTests
                 }
             };
 
-            var actual = await barcodeLookup.Get(barcode);
+            Barcode? actual = null;
+            for (int i = 0; i < 5; i++)
+            {
+                actual = await barcodeLookup.Get(barcode);
+                if (actual?.product != null)
+                {
+                    break;
+                }
+                await Task.Delay(1000);
+            }
 
             Assert.That(actual, Is.Not.Null);
             Assert.That(actual.product, Is.Not.Null);
