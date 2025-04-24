@@ -1,7 +1,7 @@
 ﻿using InventoryScanner.Core.Handlers;
-using InventoryScanner.Core.Lookups;
 using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
+using InventoryScanner.Core.Wrappers;
 using InventoryScanner.Logging;
 using InventoryScanner.TestUtilities;
 using Moq;

@@ -1,6 +1,7 @@
-﻿using System.Net.WebSockets;
+﻿using InventoryScanner.Core.Wrappers;
+using System.Net.WebSockets;
 
-namespace InventoryScanner.Core.Lookups
+namespace InventoryScanner.Core.Wrappers
 {
     public class WebSocketWrapper : IWebSocketWrapper
     {

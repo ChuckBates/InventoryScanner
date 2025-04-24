@@ -5,17 +5,17 @@ using System.Text.Json;
 
 [assembly: InternalsVisibleTo("InventoryScanner.Core.UnitTests")]
 
-namespace InventoryScanner.Core.Lookups
+namespace InventoryScanner.Core.Wrappers
 {
-    public class BarcodeLookup : IBarcodeLookup
+    public class BarcodeWrapper : IBarcodeWrapper
     {
         internal HttpClient client;
         private readonly ISettingsService settings;
 
-        public BarcodeLookup(ISettingsService settings)
+        public BarcodeWrapper(ISettingsService settings)
         {
             this.settings = settings;
-            this.client = new HttpClient();
+            client = new HttpClient();
         }
 
         public async Task<Barcode> Get(string barcode)

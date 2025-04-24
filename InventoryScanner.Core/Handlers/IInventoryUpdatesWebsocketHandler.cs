@@ -1,5 +1,4 @@
-﻿
-using InventoryScanner.Core.Lookups;
+﻿using InventoryScanner.Core.Wrappers;
 
 namespace InventoryScanner.Core.Handlers
 {

@@ -1,8 +1,8 @@
 ﻿using InventoryScanner.Core.Models;
 
-namespace InventoryScanner.Core.Lookups
+namespace InventoryScanner.Core.Wrappers
 {
-    public interface IBarcodeLookup
+    public interface IBarcodeWrapper
     {
         Task<Barcode> Get(string barcode);
     }

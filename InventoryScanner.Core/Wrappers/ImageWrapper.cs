@@ -1,16 +1,16 @@
 ﻿using InventoryScanner.Core.Settings;
 
-namespace InventoryScanner.Core.Lookups
+namespace InventoryScanner.Core.Wrappers
 {
-    public class ImageLookup : IImageLookup
+    public class ImageWrapper : IImageWrapper
     {
         HttpClient client;
         ISettingsService settings;
 
-        public ImageLookup(ISettingsService settings)
+        public ImageWrapper(ISettingsService settings)
         {
             this.settings = settings;
-            this.client = new HttpClient();
+            client = new HttpClient();
         }
 
         public async Task<Stream?> Get(string imageUrl)

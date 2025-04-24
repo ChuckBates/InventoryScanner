@@ -1,9 +1,9 @@
 ﻿using InventoryScanner.Core.Handlers;
-using InventoryScanner.Core.Lookups;
 using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Publishers.Interfaces;
 using InventoryScanner.Core.Repositories;
+using InventoryScanner.Core.Wrappers;
 using InventoryScanner.Logging;
 using InventoryScanner.Messaging.Publishing;
 using InventoryScanner.TestUtilities;
@@ -14,8 +14,8 @@ namespace InventoryScanner.Core.UnitTests
     [TestFixture]
     public class FetchInventoryMetadataMessageHandlerTests
     {
-        private Mock<IBarcodeLookup> mockBarcodeLookup;
-        private Mock<IImageLookup> mockImageLookup;
+        private Mock<IBarcodeWrapper> mockBarcodeWrapper;
+        private Mock<IImageWrapper> mockImageWrapper;
         private Mock<IImageRepository> mockImageRepository;
         private Mock<IInventoryRepository> mockInventoryRepository;
         private Mock<IInventoryUpdatedPublisher> mockInventoryUpdatedPublisher;
@@ -25,15 +25,15 @@ namespace InventoryScanner.Core.UnitTests
         [SetUp]
         public void SetUp()
         {
-            mockBarcodeLookup = new Mock<IBarcodeLookup>();
-            mockImageLookup = new Mock<IImageLookup>();
+            mockBarcodeWrapper = new Mock<IBarcodeWrapper>();
+            mockImageWrapper = new Mock<IImageWrapper>();
             mockImageRepository = new Mock<IImageRepository>();
             mockInventoryRepository = new Mock<IInventoryRepository>();
             mockInventoryUpdatedPublisher = new Mock<IInventoryUpdatedPublisher>();
             mockLogger = new Mock<IAppLogger<FetchInventoryMetadataMessageHandler>>();
             handler = new FetchInventoryMetadataMessageHandler(
-                mockBarcodeLookup.Object,
-                mockImageLookup.Object, 
+                mockBarcodeWrapper.Object,
+                mockImageWrapper.Object, 
                 mockImageRepository.Object, 
                 mockInventoryRepository.Object, 
                 mockInventoryUpdatedPublisher.Object,
@@ -82,7 +82,7 @@ namespace InventoryScanner.Core.UnitTests
             var expectedPublisherResponse = PublisherResponse.Success([expectedPublisherData]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
+            mockBarcodeWrapper.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
             {
                 product = new BarcodeProduct
                 {
@@ -93,7 +93,7 @@ namespace InventoryScanner.Core.UnitTests
                 }
             });
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
+            mockImageWrapper.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
             mockInventoryUpdatedPublisher.Setup(x => x.Publish(updatedInventory)).ReturnsAsync(expectedPublisherResponse);
@@ -101,8 +101,8 @@ namespace InventoryScanner.Core.UnitTests
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
+            mockBarcodeWrapper.Verify(x => x.Get(inventory.Barcode), Times.Once);
+            mockImageWrapper.Verify(x => x.Get(imageUrl), Times.Once);
             mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
@@ -158,7 +158,7 @@ namespace InventoryScanner.Core.UnitTests
             var expectedPublisherResponse = PublisherResponse.Failed(["error publishing message"], [expectedPublisherData]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
+            mockBarcodeWrapper.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
             {
                 product = new BarcodeProduct
                 {
@@ -169,7 +169,7 @@ namespace InventoryScanner.Core.UnitTests
                 }
             });
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
+            mockImageWrapper.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
             mockInventoryUpdatedPublisher.Setup(x => x.Publish(updatedInventory)).ReturnsAsync(expectedPublisherResponse);
@@ -178,8 +178,8 @@ namespace InventoryScanner.Core.UnitTests
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
+            mockBarcodeWrapper.Verify(x => x.Get(inventory.Barcode), Times.Once);
+            mockImageWrapper.Verify(x => x.Get(imageUrl), Times.Once);
             mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
@@ -220,14 +220,14 @@ namespace InventoryScanner.Core.UnitTests
             Assert.That(exception.Message, Is.EqualTo("Error handling metadata update message: Inventory not found."));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
-            mockBarcodeLookup.Verify(x => x.Get(It.IsAny<string>()), Times.Never);
-            mockImageLookup.Verify(x => x.Get(It.IsAny<string>()), Times.Never);
+            mockBarcodeWrapper.Verify(x => x.Get(It.IsAny<string>()), Times.Never);
+            mockImageWrapper.Verify(x => x.Get(It.IsAny<string>()), Times.Never);
             mockImageRepository.Verify(x => x.Insert(It.IsAny<MemoryStream>(), It.IsAny<string>()), Times.Never);
             mockInventoryRepository.Verify(x => x.Insert(It.IsAny<Inventory>()), Times.Never);
         }
 
         [Test]
-        public void When_calling_handle_and_barcode_lookup_returns_no_images()
+        public void When_calling_handle_and_barcode_wrapper_returns_no_images()
         {
             var barcode = Barcodes.Generate();
             var title = "Test-Product";
@@ -267,7 +267,7 @@ namespace InventoryScanner.Core.UnitTests
             var expectedPublisherResponse = PublisherResponse.Failed(["error publishing message"], [expectedPublisherData]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
+            mockBarcodeWrapper.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
             {
                 product = new BarcodeProduct
                 {
@@ -283,8 +283,8 @@ namespace InventoryScanner.Core.UnitTests
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(It.IsAny<string>()), Times.Never);
+            mockBarcodeWrapper.Verify(x => x.Get(inventory.Barcode), Times.Once);
+            mockImageWrapper.Verify(x => x.Get(It.IsAny<string>()), Times.Never);
             mockImageRepository.Verify(x => x.Insert(It.IsAny<MemoryStream>(), It.IsAny<string>()), Times.Never);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
@@ -298,7 +298,7 @@ namespace InventoryScanner.Core.UnitTests
         }
 
         [Test]
-        public void When_calling_handle_and_barcode_lookup_returns_multiple_images()
+        public void When_calling_handle_and_barcode_wrapper_returns_multiple_images()
         {
             var barcode = Barcodes.Generate();
             var title = "Test-Product";
@@ -340,7 +340,7 @@ namespace InventoryScanner.Core.UnitTests
             var expectedPublisherResponse = PublisherResponse.Failed(["error publishing message"], [expectedPublisherData]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
+            mockBarcodeWrapper.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
             {
                 product = new BarcodeProduct
                 {
@@ -350,7 +350,7 @@ namespace InventoryScanner.Core.UnitTests
                     images = [imageUrl1, imageUrl2]
                 }
             });
-            mockImageLookup.Setup(x => x.Get(imageUrl1)).ReturnsAsync(imageStream);
+            mockImageWrapper.Setup(x => x.Get(imageUrl1)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
             mockInventoryUpdatedPublisher.Setup(x => x.Publish(updatedInventory)).ReturnsAsync(expectedPublisherResponse);
@@ -358,8 +358,8 @@ namespace InventoryScanner.Core.UnitTests
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl1), Times.Once);
+            mockBarcodeWrapper.Verify(x => x.Get(inventory.Barcode), Times.Once);
+            mockImageWrapper.Verify(x => x.Get(imageUrl1), Times.Once);
             mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
@@ -414,7 +414,7 @@ namespace InventoryScanner.Core.UnitTests
             var expectedPublisherResponse = PublisherResponse.Failed(["error publishing message"], [expectedPublisherData]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
+            mockBarcodeWrapper.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
             {
                 product = new BarcodeProduct
                 {
@@ -424,7 +424,7 @@ namespace InventoryScanner.Core.UnitTests
                     images = [imageUrl]
                 }
             });
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
+            mockImageWrapper.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
             mockInventoryUpdatedPublisher.Setup(x => x.Publish(updatedInventory)).ReturnsAsync(expectedPublisherResponse);
             mockLogger.Setup(x => x.Warning(It.IsAny<LogContext>()));
@@ -432,8 +432,8 @@ namespace InventoryScanner.Core.UnitTests
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
+            mockBarcodeWrapper.Verify(x => x.Get(inventory.Barcode), Times.Once);
+            mockImageWrapper.Verify(x => x.Get(imageUrl), Times.Once);
             mockImageRepository.Verify(x => x.Insert(It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
@@ -497,7 +497,7 @@ namespace InventoryScanner.Core.UnitTests
             var expectedPublisherResponse = PublisherResponse.Failed(["error publishing message"], [expectedPublisherData]);
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
+            mockBarcodeWrapper.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
             {
                 product = new BarcodeProduct
                 {
@@ -507,7 +507,7 @@ namespace InventoryScanner.Core.UnitTests
                     images = [imageUrl]
                 }
             });
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
+            mockImageWrapper.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync(imageRepoErrorMessage);
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(1);
             mockInventoryUpdatedPublisher.Setup(x => x.Publish(updatedInventory)).ReturnsAsync(expectedPublisherResponse);
@@ -516,8 +516,8 @@ namespace InventoryScanner.Core.UnitTests
             Assert.DoesNotThrowAsync(async () => await handler.Handle(message));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
+            mockBarcodeWrapper.Verify(x => x.Get(inventory.Barcode), Times.Once);
+            mockImageWrapper.Verify(x => x.Get(imageUrl), Times.Once);
             mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
@@ -572,7 +572,7 @@ namespace InventoryScanner.Core.UnitTests
             var imageStream = new MemoryStream();
 
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(inventory);
-            mockBarcodeLookup.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
+            mockBarcodeWrapper.Setup(x => x.Get(barcode)).ReturnsAsync(new Barcode
             {
                 product = new BarcodeProduct
                 {
@@ -582,7 +582,7 @@ namespace InventoryScanner.Core.UnitTests
                     images = [imageUrl]
                 }
             });
-            mockImageLookup.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
+            mockImageWrapper.Setup(x => x.Get(imageUrl)).ReturnsAsync(imageStream);
             mockImageRepository.Setup(x => x.Insert(imageStream, imagePath)).ReturnsAsync("success");
             mockInventoryRepository.Setup(x => x.Insert(updatedInventory)).ReturnsAsync(0);
 
@@ -591,8 +591,8 @@ namespace InventoryScanner.Core.UnitTests
             Assert.That(exception.Message, Is.EqualTo("Error handling metadata update message: Failed to save inventory."));
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
-            mockBarcodeLookup.Verify(x => x.Get(inventory.Barcode), Times.Once);
-            mockImageLookup.Verify(x => x.Get(imageUrl), Times.Once);
+            mockBarcodeWrapper.Verify(x => x.Get(inventory.Barcode), Times.Once);
+            mockImageWrapper.Verify(x => x.Get(imageUrl), Times.Once);
             mockImageRepository.Verify(x => x.Insert(imageStream, imagePath), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>

@@ -1,6 +1,6 @@
-﻿using InventoryScanner.Core.Lookups;
-using InventoryScanner.Core.Models;
+﻿using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Settings;
+using InventoryScanner.Core.Wrappers;
 using Moq;
 using Moq.Protected;
 using System.Text.Json;
@@ -8,18 +8,18 @@ using System.Text.Json;
 namespace InventoryScanner.Core.UnitTests
 {
     [TestFixture]
-    public class BarcodeLookupTests
+    public class BarcodeWrapperTests
     {
         Mock<HttpMessageHandler> mockHttpMessageHandler;
         Mock<ISettingsService> mockSettingsService;
-        BarcodeLookup barcodeLookup;
+        BarcodeWrapper barcodeWrapper;
 
         [SetUp]
         public void Setup()
         {
             mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             mockSettingsService = new Mock<ISettingsService>();
-            barcodeLookup = new BarcodeLookup(mockSettingsService.Object)
+            barcodeWrapper = new BarcodeWrapper(mockSettingsService.Object)
             {
                 client = new HttpClient(mockHttpMessageHandler.Object)
             };
@@ -58,7 +58,7 @@ namespace InventoryScanner.Core.UnitTests
                 .Setup(x => x.GetRapidApiKey())
                 .Returns("key");
 
-            var actual = await barcodeLookup.Get(barcode);
+            var actual = await barcodeWrapper.Get(barcode);
 
             Assert.That(actual, Is.Not.Null);
             Assert.That(actual.product.barcode, Is.EqualTo(expected.product.barcode));
@@ -86,7 +86,7 @@ namespace InventoryScanner.Core.UnitTests
                 .Setup(x => x.GetRapidApiKey())
                 .Returns("key");
 
-            var actual = barcodeLookup.Get(barcode).Result;
+            var actual = barcodeWrapper.Get(barcode).Result;
 
             Assert.That(actual.product, Is.Null);
         }
@@ -113,7 +113,7 @@ namespace InventoryScanner.Core.UnitTests
                 .Setup(x => x.GetRapidApiKey())
                 .Returns("key");
 
-            var actual = barcodeLookup.Get(barcode).Result;
+            var actual = barcodeWrapper.Get(barcode).Result;
 
             Assert.That(actual.product, Is.Null);
         }

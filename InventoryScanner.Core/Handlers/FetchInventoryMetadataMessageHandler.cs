@@ -1,33 +1,33 @@
-﻿using InventoryScanner.Core.Lookups;
-using InventoryScanner.Core.Messages;
+﻿using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Repositories;
 using InventoryScanner.Core.Publishers.Interfaces;
 using System.Text.RegularExpressions;
 using InventoryScanner.Messaging.Enums;
 using InventoryScanner.Logging;
+using InventoryScanner.Core.Wrappers;
 
 namespace InventoryScanner.Core.Handlers
 {
     public class FetchInventoryMetadataMessageHandler : IFetchInventoryMetadataMessageHandler
     {
-        private readonly IBarcodeLookup barcodeLookup;
-        private readonly IImageLookup imageLookup;
+        private readonly IBarcodeWrapper barcodeWrapper;
+        private readonly IImageWrapper imageWrapper;
         private readonly IImageRepository imageRepository;
         private readonly IInventoryRepository inventoryRepository;
         private readonly IInventoryUpdatedPublisher inventoryUpdatedPublisher;
         private readonly IAppLogger<FetchInventoryMetadataMessageHandler> logger;
 
         public FetchInventoryMetadataMessageHandler(
-            IBarcodeLookup barcodeLookup,
-            IImageLookup imageLookup,
+            IBarcodeWrapper barcodeWrapper,
+            IImageWrapper imageWrapper,
             IImageRepository imageRepository,
             IInventoryRepository inventoryRepository,
             IInventoryUpdatedPublisher inventoryUpdatedPublisher,
             IAppLogger<FetchInventoryMetadataMessageHandler> logger)
         {
-            this.barcodeLookup = barcodeLookup;
-            this.imageLookup = imageLookup;
+            this.barcodeWrapper = barcodeWrapper;
+            this.imageWrapper = imageWrapper;
             this.imageRepository = imageRepository;
             this.inventoryRepository = inventoryRepository;
             this.inventoryUpdatedPublisher = inventoryUpdatedPublisher;
@@ -42,7 +42,7 @@ namespace InventoryScanner.Core.Handlers
         private async Task FetchDetails(FetchInventoryMetadataMessage message)
         {
             var inventory = await inventoryRepository.Get(message.Barcode) ?? throw new Exception("Error handling metadata update message: Inventory not found.");
-            var barcode = await barcodeLookup.Get(message.Barcode) ?? throw new Exception("Error handling metadata update message: Barcode not found.");
+            var barcode = await barcodeWrapper.Get(message.Barcode) ?? throw new Exception("Error handling metadata update message: Barcode not found.");
 
             if (barcode.product.images.Length > 0)
             {                
@@ -87,7 +87,7 @@ namespace InventoryScanner.Core.Handlers
             var imageUrl = barcode.product.images[0];
             var extension = Regex.Match(imageUrl, "[^.]+$");
 
-            var imageStream = await imageLookup.Get(barcode.product.images[0]);
+            var imageStream = await imageWrapper.Get(barcode.product.images[0]);
             if (imageStream != null)
             {
                 var imagePath = Directory.GetCurrentDirectory() + $"/Images/{barcode.product.title}-{barcode.product.barcode}.{extension.Value ?? "jpg"}";

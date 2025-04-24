@@ -1,5 +1,4 @@
-﻿using InventoryScanner.Core.Lookups;
-using InventoryScanner.Core.Repositories;
+﻿using InventoryScanner.Core.Repositories;
 using InventoryScanner.Core.UnitTests;
 using InventoryScanner.Core.Workflows;
 using InventoryScanner.Core.Settings;
@@ -16,6 +15,7 @@ using InventoryScanner.Core.Publishers.Interfaces;
 using Serilog.Formatting.Compact;
 using InventoryScanner.Logging;
 using Serilog.Formatting.Json;
+using InventoryScanner.Core.Wrappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,8 +79,8 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<InventoryUpdatedSu
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
 builder.Services.AddSingleton<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();
-builder.Services.AddSingleton<IBarcodeLookup, BarcodeLookup>();
-builder.Services.AddSingleton<IImageLookup, ImageLookup>();
+builder.Services.AddSingleton<IBarcodeWrapper, BarcodeWrapper>();
+builder.Services.AddSingleton<IImageWrapper, ImageWrapper>();
 
 builder.Services.AddSingleton<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
 builder.Services.AddSingleton<IFetchInventoryMetadataRequestDeadLetterPublisher, FetchInventoryMetadataRequestDeadLetterPublisher>();

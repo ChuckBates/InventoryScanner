@@ -1,14 +1,14 @@
-﻿using InventoryScanner.Core.Lookups;
-using InventoryScanner.Core.Models;
+﻿using InventoryScanner.Core.Models;
 using InventoryScanner.Core.Settings;
+using InventoryScanner.Core.Wrappers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InventoryScanner.Core.IntegrationTests
 {
     [TestFixture]
-    public class BarcodeLookupTests
+    public class BarcodeWrapperTests
     {
-        BarcodeLookup barcodeLookup;
+        BarcodeWrapper barcodeWrapper;
 
         [OneTimeSetUp]
         public async Task SetupAsync()
@@ -22,7 +22,7 @@ namespace InventoryScanner.Core.IntegrationTests
                 throw new Exception("Settings service is null.");
             }
 
-            barcodeLookup = new BarcodeLookup(settingsService);
+            barcodeWrapper = new BarcodeWrapper(settingsService);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace InventoryScanner.Core.IntegrationTests
                 }
             };
 
-            var actual = await barcodeLookup.Get(barcode);
+            var actual = await barcodeWrapper.Get(barcode);
 
             Assert.That(actual, Is.Not.Null);
             Assert.That(actual.product.barcode, Is.EqualTo(expected.product.barcode));
@@ -67,7 +67,7 @@ namespace InventoryScanner.Core.IntegrationTests
             Barcode? actual = null;
             for (int i = 0; i < 5; i++)
             {
-                actual = await barcodeLookup.Get(barcode);
+                actual = await barcodeWrapper.Get(barcode);
                 if (actual?.product != null)
                 {
                     break;
@@ -88,7 +88,7 @@ namespace InventoryScanner.Core.IntegrationTests
         {
             string? barcode = null;
 
-            var actual = await barcodeLookup.Get(barcode);
+            var actual = await barcodeWrapper.Get(barcode);
 
             Assert.That(actual.product, Is.Null);
         }
@@ -98,7 +98,7 @@ namespace InventoryScanner.Core.IntegrationTests
         {
             var barcode = "0";
 
-            var actual = await barcodeLookup.Get(barcode);
+            var actual = await barcodeWrapper.Get(barcode);
 
             Assert.That(actual.product, Is.Null);
         }

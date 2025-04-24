@@ -1,5 +1,5 @@
 ﻿using InventoryScanner.Core.Handlers;
-using InventoryScanner.Core.Lookups;
+using InventoryScanner.Core.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.WebSockets;
 

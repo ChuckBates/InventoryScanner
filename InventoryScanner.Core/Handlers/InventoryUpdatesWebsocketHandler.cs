@@ -1,4 +1,4 @@
-﻿using InventoryScanner.Core.Lookups;
+﻿using InventoryScanner.Core.Wrappers;
 using InventoryScanner.Logging;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
