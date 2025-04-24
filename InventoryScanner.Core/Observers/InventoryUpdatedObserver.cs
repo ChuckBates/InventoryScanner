@@ -1,7 +1,6 @@
 ﻿using InventoryScanner.Core.Handlers;
 using InventoryScanner.Core.Messages;
 using InventoryScanner.Core.Publishers.Interfaces;
-using InventoryScanner.Core.Subscribers;
 using InventoryScanner.Logging;
 using InventoryScanner.Messaging.Interfaces;
 using InventoryScanner.Messaging.Models;
@@ -9,17 +8,17 @@ using RabbitMQ.Client;
 
 namespace InventoryScanner.Core.Observers
 {
-    public class FetchInventoryMetadataObserver : IRabbitMqSubscriberLifecycleObserver
+    public class InventoryUpdatedObserver : IRabbitMqSubscriberLifecycleObserver
     {
-        private readonly IFetchInventoryMetadataMessageHandler handler;
-        private readonly IFetchInventoryMetadataRequestDeadLetterPublisher deadLetterPublisher;
-        private readonly IAppLogger<FetchInventoryMetadataObserver> logger;
-        private string subscriberName = typeof(FetchInventoryMetadataSubscriber).Name;
+        private readonly IInventoryUpdatedMessageHandler handler;
+        private readonly IInventoryUpdatedDeadLetterPublisher deadLetterPublisher;
+        private readonly IAppLogger<InventoryUpdatedObserver> logger;
+        private string subscriberName = typeof(InventoryUpdatedObserver).Name;
 
-        public FetchInventoryMetadataObserver(
-            IFetchInventoryMetadataMessageHandler handler, 
-            IFetchInventoryMetadataRequestDeadLetterPublisher deadLetterPublisher, 
-            IAppLogger<FetchInventoryMetadataObserver> logger)
+        public InventoryUpdatedObserver(
+            IInventoryUpdatedMessageHandler handler,
+            IInventoryUpdatedDeadLetterPublisher deadLetterPublisher, 
+            IAppLogger<InventoryUpdatedObserver> logger)
         {
             this.handler = handler;
             this.deadLetterPublisher = deadLetterPublisher;
@@ -83,7 +82,7 @@ namespace InventoryScanner.Core.Observers
 
         public void OnMessageReceived(string queueName, IRabbitMqMessage message)
         {
-            if (message is FetchInventoryMetadataMessage request)
+            if (message is InventoryUpdatedMessage request)
             {
                 _ = Task.Run(async () =>
                 {

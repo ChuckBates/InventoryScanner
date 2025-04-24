@@ -84,7 +84,7 @@ namespace InventoryScanner.Core.UnitTests
 
             if (rowsAffected > 0)
             {
-                var publishResponse = await fetchInventoryMetadataRequestPublisher.PublishRequest(inventory.Barcode);
+                var publishResponse = await fetchInventoryMetadataRequestPublisher.Publish(inventory.Barcode);
                 if (publishResponse.Status == Messaging.Enums.PublisherResponseStatus.Failure)
                 {
                     response.Errors.AddRange(publishResponse.Errors);
@@ -99,7 +99,7 @@ namespace InventoryScanner.Core.UnitTests
             var response = new InventoryWorkflowResponse(WorkflowResponseStatus.Success, [], []);
             if (refetch)
             {
-                var publishResponse = await fetchInventoryMetadataRequestPublisher.PublishRequest(inventory.Barcode);
+                var publishResponse = await fetchInventoryMetadataRequestPublisher.Publish(inventory.Barcode);
                 if (publishResponse.Status == Messaging.Enums.PublisherResponseStatus.Failure)
                 {
                     response.Errors.AddRange(publishResponse.Errors);

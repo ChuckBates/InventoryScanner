@@ -3,8 +3,8 @@ using InventoryScanner.Messaging.Publishing;
 
 namespace InventoryScanner.Core.Publishers.Interfaces
 {
-    public interface IFetchInventoryMetadataRequestDeadLetterPublisher
+    public interface IInventoryUpdatedDeadLetterPublisher
     {
-        Task<PublisherResponse> Publish(FetchInventoryMetadataMessage message);
+        Task<PublisherResponse> Publish(InventoryUpdatedMessage message);
     }
 }

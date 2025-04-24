@@ -15,7 +15,7 @@ namespace InventoryScanner.Core.Publishers
             this.settings = settings.GetRabbitMqSettings();
         }
 
-        public async Task<PublisherResponse> PublishRequest(FetchInventoryMetadataMessage message)
+        public async Task<PublisherResponse> Publish(FetchInventoryMetadataMessage message)
         {
             return await PublishAsync(message, settings.FetchInventoryMetadataDeadLetterExchangeName);
         }

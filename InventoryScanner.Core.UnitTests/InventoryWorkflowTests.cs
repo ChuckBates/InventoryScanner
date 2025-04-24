@@ -209,14 +209,14 @@ namespace InventoryScanner.Core.UnitTests
             );
             var expectedWorkflowResponse = InventoryWorkflowResponse.Success([updatedInventory]);
 
-            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.Publish(barcode)).ReturnsAsync(expectedPublisherResponse);
             mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
             Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.Publish(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
@@ -247,14 +247,14 @@ namespace InventoryScanner.Core.UnitTests
             var expectedWorkflowResponse = InventoryWorkflowResponse.Success([inventory]);
             expectedWorkflowResponse.Errors.Add(publishError);  
 
-            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.Publish(barcode)).ReturnsAsync(expectedPublisherResponse);
             mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
 
             var result = await workflow.Add(inventory);
 
             Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.Publish(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
@@ -283,7 +283,7 @@ namespace InventoryScanner.Core.UnitTests
 
             Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(It.IsAny<string>()), Times.Never);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.Publish(It.IsAny<string>()), Times.Never);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&
@@ -329,7 +329,7 @@ namespace InventoryScanner.Core.UnitTests
                     x.Quantity == newQuantity &&
                     (x.UpdatedAt - updatedInventory.UpdatedAt).Duration() < TimeSpan.FromSeconds(10)
                 )), Times.Once);
-            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(It.IsAny<string>()), Times.Never);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.Publish(It.IsAny<string>()), Times.Never);
         }
 
         [Test]
@@ -363,7 +363,7 @@ namespace InventoryScanner.Core.UnitTests
             };
             var expectedResponse = InventoryWorkflowResponse.Success([updatedInventory]);
 
-            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.Publish(barcode)).ReturnsAsync(expectedPublisherResponse);
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(updatedInventory);
             mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
 
@@ -373,7 +373,7 @@ namespace InventoryScanner.Core.UnitTests
 
             mockInventoryRepository.Verify(x => x.Get(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(inventory), Times.Once);
-            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.Publish(barcode), Times.Once);
         }
 
         [Test]
@@ -411,7 +411,7 @@ namespace InventoryScanner.Core.UnitTests
             var expectedWorkflowResponse = InventoryWorkflowResponse.Success([updatedInventory]);
             expectedWorkflowResponse.Errors.Add(publishError);
 
-            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.PublishRequest(barcode)).ReturnsAsync(expectedPublisherResponse);
+            mockFetchInventoryMetadataRequestPublisher.Setup(x => x.Publish(barcode)).ReturnsAsync(expectedPublisherResponse);
             mockInventoryRepository.Setup(x => x.Get(barcode)).ReturnsAsync(updatedInventory);
             mockInventoryRepository.Setup(x => x.Insert(inventory)).ReturnsAsync(1);
 
@@ -419,7 +419,7 @@ namespace InventoryScanner.Core.UnitTests
 
             Assert.That(result, Is.EqualTo(expectedWorkflowResponse));
 
-            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.PublishRequest(barcode), Times.Once);
+            mockFetchInventoryMetadataRequestPublisher.Verify(x => x.Publish(barcode), Times.Once);
             mockInventoryRepository.Verify(x => x.Insert(
                 It.Is<Inventory>(x =>
                     x.Barcode == barcode &&

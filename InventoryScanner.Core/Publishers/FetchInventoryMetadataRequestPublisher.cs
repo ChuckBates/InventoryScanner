@@ -18,7 +18,7 @@ namespace InventoryScanner.Core.Publishers
             this.logger = logger;
         }
 
-        public async Task<PublisherResponse> PublishRequest(string barcode)
+        public async Task<PublisherResponse> Publish(string barcode)
         {
             var message = new FetchInventoryMetadataMessage
             {

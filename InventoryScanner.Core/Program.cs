@@ -57,6 +57,12 @@ builder.Services.Configure<List<RabbitMqInfrastructureTarget>>(opts =>
         QueueName = rabbitMqSettings.InventoryUpdatedQueueName ?? string.Empty,
         ExchangeType = "fanout"
     });
+    opts.Add(new RabbitMqInfrastructureTarget
+    {
+        ExchangeName = rabbitMqSettings.InventoryUpdatedDeadLetterExchangeName ?? string.Empty,
+        QueueName = rabbitMqSettings.InventoryUpdatedDeadLetterQueueName ?? string.Empty,
+        ExchangeType = "fanout"
+    });
 });
 
 var connectionString = $"host={rabbitMqSettings.HostName}:{rabbitMqSettings.AmqpPort};username={rabbitMqSettings.UserName};password={rabbitMqSettings.Password}";
@@ -66,15 +72,26 @@ builder.Services.AddSingleton<FetchInventoryMetadataObserver>();
 builder.Services.AddSingleton<FetchInventoryMetadataSubscriber>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<FetchInventoryMetadataSubscriber>());
 
+builder.Services.AddSingleton<InventoryUpdatedObserver>();
+builder.Services.AddSingleton<InventoryUpdatedSubscriber>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<InventoryUpdatedSubscriber>());
+
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
 builder.Services.AddSingleton<IImageRepository, ImageRepository>();
-builder.Services.AddSingleton<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
-builder.Services.AddSingleton<IInventoryUpdatedPublisher, InventoryUpdatedPublisher>();
-builder.Services.AddSingleton<IFetchInventoryMetadataRequestDeadLetterPublisher, FetchInventoryMetadataRequestDeadLetterPublisher>();
-builder.Services.AddSingleton<IFetchInventoryMetadataMessageHandler, FetchInventoryMetadataMessageHandler>();
 builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();
 builder.Services.AddSingleton<IBarcodeLookup, BarcodeLookup>();
 builder.Services.AddSingleton<IImageLookup, ImageLookup>();
+
+builder.Services.AddSingleton<IFetchInventoryMetadataRequestPublisher, FetchInventoryMetadataRequestPublisher>();
+builder.Services.AddSingleton<IFetchInventoryMetadataRequestDeadLetterPublisher, FetchInventoryMetadataRequestDeadLetterPublisher>();
+builder.Services.AddSingleton<IFetchInventoryMetadataMessageHandler, FetchInventoryMetadataMessageHandler>();
+
+builder.Services.AddSingleton<IInventoryUpdatedPublisher, InventoryUpdatedPublisher>();
+builder.Services.AddSingleton<IInventoryUpdatedDeadLetterPublisher, InventoryUpdatedDeadLetterPublisher>();
+builder.Services.AddSingleton<IInventoryUpdatedMessageHandler, InventoryUpdatedMessageHandler>();
+
+builder.Services.AddSingleton<IInventoryUpdatesWebsocketHandler, InventoryUpdatesWebsocketHandler>();
+
 builder.Services.AddSingleton(typeof(IAppLogger<>), typeof(AppLogger<>));
 
 Log.Logger = new LoggerConfiguration()
@@ -100,7 +117,7 @@ builder.Logging.SetMinimumLevel(LogLevel.Debug);
 var app = builder.Build();
 
 app.UseAuthorization();
-
+app.UseWebSockets();
 app.MapControllers();
 
 app.Run();

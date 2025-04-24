@@ -4,6 +4,6 @@ namespace InventoryScanner.Core.Publishers.Interfaces
 {
     public interface IFetchInventoryMetadataRequestPublisher
     {
-        Task<PublisherResponse> PublishRequest(string barcode);
+        Task<PublisherResponse> Publish(string barcode);
     }
 }
