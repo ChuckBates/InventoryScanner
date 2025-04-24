@@ -12,9 +12,9 @@ namespace InventoryScanner.Messaging.Subscribing
             this.rabbitMqSubscriber = rabbitMqSubscriber;
         }
 
-        protected Task SubscribeAsync<T>(string exchangeName, CancellationToken cancellationToken) where T : class, IRabbitMqMessage
+        protected Task SubscribeAsync<T>(string exchangeName, IRabbitMqSubscriberLifecycleObserver observer, CancellationToken cancellationToken) where T : class, IRabbitMqMessage
         {
-            return rabbitMqSubscriber.SubscribeAsync<T>(exchangeName, cancellationToken);
+            return rabbitMqSubscriber.SubscribeAsync<T>(exchangeName, observer, cancellationToken);
         }
     }
 }

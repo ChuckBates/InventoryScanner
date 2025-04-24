@@ -33,7 +33,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
             settings = testHelper.Provider.GetRequiredService<IRabbitMqSettings>();
             publisher = testHelper.Provider.GetRequiredService<IRabbitMqPublisher>();
             subscriber = testHelper.Provider.GetRequiredService<IRabbitMqSubscriber>();
-            lifecycleObserver = (TestSubscriberLifecycleObserver) testHelper.Provider.GetRequiredService<IRabbitMqSubscriberLifecycleObserver>();
+            lifecycleObserver = testHelper.Provider.GetRequiredService<TestSubscriberLifecycleObserver>();
             exchangeName = settings.ExchangeName;
             queueName = settings.QueueName;
         }
@@ -57,7 +57,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
 
             var subscriberCancellationTokenSource = new CancellationTokenSource();
 
-            await subscriber.SubscribeAsync<TestMessage>(queueName, subscriberCancellationTokenSource.Token);
+            await subscriber.SubscribeAsync<TestMessage>(queueName, lifecycleObserver, subscriberCancellationTokenSource.Token);
             await Task.Delay(100);
 
             await publisher.PublishAsync(testMessage, exchangeName);
@@ -82,7 +82,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
 
             var subscriberCancellationTokenSource = new CancellationTokenSource();
 
-            await subscriber.SubscribeAsync<TestMessage>(queueName, subscriberCancellationTokenSource.Token);
+            await subscriber.SubscribeAsync<TestMessage>(queueName, lifecycleObserver, subscriberCancellationTokenSource.Token);
             await Task.Delay(100);
 
             await publisher.PublishAsync(message1, exchangeName);
@@ -109,7 +109,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
                 await rabbitHelper.ShutdownRabbitMqAsync();
 
                 var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-                await subscriber.SubscribeAsync<TestMessage>(queueName, cancellationTokenSource.Token);
+                await subscriber.SubscribeAsync<TestMessage>(queueName, lifecycleObserver, cancellationTokenSource.Token);
 
                 Assert.That(lifecycleObserver.IsSubscriptionFailed, Is.True);
                 Assert.That(lifecycleObserver.SubscriptionFailedException, Is.Not.Null);
@@ -134,7 +134,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
 
             using (var rabbitHelper = new RabbitTestHelper(settings))
             {
-                await subscriber.SubscribeAsync<TestMessage>(queueName, cancelTokenSource.Token);
+                await subscriber.SubscribeAsync<TestMessage>(queueName, lifecycleObserver, cancelTokenSource.Token);
 
                 await rabbitHelper.ShutdownRabbitMqAsync();
                 await Task.Delay(1000);
@@ -148,7 +148,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
                 await publisher.PublishAsync(testMessage, exchangeName);
                 await Task.Delay(500);
 
-                await subscriber.SubscribeAsync<TestMessage>(queueName, cancelTokenSource.Token);
+                await subscriber.SubscribeAsync<TestMessage>(queueName, lifecycleObserver, cancelTokenSource.Token);
                 await Task.Delay(500);
 
                 Assert.That(lifecycleObserver.IsSubscribed, Is.True);
@@ -174,7 +174,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
                 await rabbitHelper.ShutdownRabbitMqAsync();
                 await Task.Delay(1000);
 
-                var subscribeTask = subscriber.SubscribeAsync<TestMessage>(queueName, cancelTokenSource.Token);
+                var subscribeTask = subscriber.SubscribeAsync<TestMessage>(queueName, lifecycleObserver, cancelTokenSource.Token);
                 await Task.Delay(1000);
 
                 Assert.That(lifecycleObserver.IsSubscriptionFailed, Is.False);
@@ -201,7 +201,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Tests
 
             var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-            await subscriber.SubscribeAsync<TestMessage>(queueName, cancelTokenSource.Token);
+            await subscriber.SubscribeAsync<TestMessage>(queueName, lifecycleObserver, cancelTokenSource.Token);
             await Task.Delay(100);
 
             var rawPublisher = publisher as RabbitMqPublisher;

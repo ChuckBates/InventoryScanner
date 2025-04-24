@@ -11,18 +11,16 @@ namespace InventoryScanner.Messaging.Subscribing
     {
         private readonly IRabbitMqSettings settings;
         private readonly IRabbitMqConnectionManager connectionManager;
-        private readonly IRabbitMqSubscriberLifecycleObserver? lifecycleObserver;
         private readonly IAppLogger<RabbitMqSubscriber> logger;
 
-        public RabbitMqSubscriber(IRabbitMqConnectionManager connectionManager, IRabbitMqSettings settings, IRabbitMqSubscriberLifecycleObserver? lifecycleObserver, IAppLogger<RabbitMqSubscriber> logger)
+        public RabbitMqSubscriber(IRabbitMqConnectionManager connectionManager, IRabbitMqSettings settings, IAppLogger<RabbitMqSubscriber> logger)
         {
             this.connectionManager = connectionManager;
             this.settings = settings;
-            this.lifecycleObserver = lifecycleObserver ?? new EmptyRabbitMqLifecycleObserver();
             this.logger = logger;
         }
 
-        public async Task SubscribeAsync<TMessage>(string queueName, CancellationToken cancellationToken = default) where TMessage : class, IRabbitMqMessage
+        public async Task SubscribeAsync<TMessage>(string queueName, IRabbitMqSubscriberLifecycleObserver observer, CancellationToken cancellationToken) where TMessage : class, IRabbitMqMessage
         {
             IConnection connection;
             IModel channel;
@@ -33,13 +31,13 @@ namespace InventoryScanner.Messaging.Subscribing
             }
             catch (Exception e)
             {
-                lifecycleObserver?.OnSubscriptionFailed(queueName, e);
+                observer.OnSubscriptionFailed(queueName, e);
                 return;
             }
 
             channel.ModelShutdown += (sender, args) =>
             {
-                lifecycleObserver?.OnShutdown(queueName, args);
+                observer.OnShutdown(queueName, args);
             };
 
             var consumer = new AsyncEventingBasicConsumer(channel);
@@ -55,7 +53,7 @@ namespace InventoryScanner.Messaging.Subscribing
 
                     if (message != null)
                     {
-                        lifecycleObserver?.OnMessageReceived(queueName, message);
+                        observer.OnMessageReceived(queueName, message);
                         channel.BasicAck(messageArgs.DeliveryTag, false);
                     }
                     else
@@ -65,7 +63,7 @@ namespace InventoryScanner.Messaging.Subscribing
                 }
                 catch (Exception e)
                 {
-                    lifecycleObserver?.OnMessageDeserializationFailed(queueName, json, e);
+                    observer.OnMessageDeserializationFailed(queueName, json, e);
                     channel.BasicNack(messageArgs.DeliveryTag, false, false);
                 }
             };
@@ -75,11 +73,11 @@ namespace InventoryScanner.Messaging.Subscribing
             try
             {
                 consumerTag = channel.BasicConsume(queueName, false, consumer);
-                lifecycleObserver?.OnSubscribed(queueName);
+                observer.OnSubscribed(queueName);
             }
             catch (Exception e)
             {
-                lifecycleObserver?.OnSubscriptionFailed(queueName, e);
+                observer.OnSubscriptionFailed(queueName, e);
                 return;
             }
 

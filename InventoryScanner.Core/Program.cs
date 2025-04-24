@@ -61,8 +61,10 @@ builder.Services.Configure<List<RabbitMqInfrastructureTarget>>(opts =>
 
 var connectionString = $"host={rabbitMqSettings.HostName}:{rabbitMqSettings.AmqpPort};username={rabbitMqSettings.UserName};password={rabbitMqSettings.Password}";
 builder.Services.AddMessaging(connectionString, startup: true);
-builder.Services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, FetchInventoryMetadataObserver>();
-builder.Services.AddHostedService<FetchInventoryMetadataSubscriber>();
+
+builder.Services.AddSingleton<FetchInventoryMetadataObserver>();
+builder.Services.AddSingleton<FetchInventoryMetadataSubscriber>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<FetchInventoryMetadataSubscriber>());
 
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
 builder.Services.AddSingleton<IImageRepository, ImageRepository>();

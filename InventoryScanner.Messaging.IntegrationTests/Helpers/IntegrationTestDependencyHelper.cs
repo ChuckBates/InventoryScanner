@@ -28,22 +28,6 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
             AddRabbitServices();
 
             Provider = services.BuildServiceProvider();
-
-            await StartHostedServicesAsync();
-        }
-
-        private async Task StartHostedServicesAsync()
-        {
-            if (Provider == null)
-            {
-                throw new InvalidOperationException("Provider is not initialized.");
-            }
-
-            var hostedServices = Provider.GetServices<IHostedService>();
-            foreach (var hostedService in hostedServices)
-            {
-                await hostedService.StartAsync(CancellationToken.None);
-            }
         }
 
         private void AddSettingsService()
@@ -74,7 +58,7 @@ namespace InventoryScanner.Messaging.IntegrationTests.Helpers
                 });
             });
             services.AddMessaging(connectionString, startup: false);
-            services.AddSingleton<IRabbitMqSubscriberLifecycleObserver, TestSubscriberLifecycleObserver>();
+            services.AddSingleton<TestSubscriberLifecycleObserver>();
             services.AddSingleton(typeof(IAppLogger<>), typeof(AppLogger<>));
         }
 
