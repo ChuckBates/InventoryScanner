@@ -79,6 +79,7 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<InventoryUpdatedSu
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
 builder.Services.AddSingleton<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IInventoryWorkflow, InventoryWorkflow>();
+builder.Services.AddScoped<IImageWorkflow, ImageWorkflow>();
 builder.Services.AddSingleton<IBarcodeWrapper, BarcodeWrapper>();
 builder.Services.AddSingleton<IImageWrapper, ImageWrapper>();
 

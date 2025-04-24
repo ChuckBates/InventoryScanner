@@ -9,6 +9,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./InventoryScanner.Core/logs:/app/logs
+      - ./Images:/app/Images
     networks:
       - default
     depends_on:
