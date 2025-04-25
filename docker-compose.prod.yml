@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  inventoryscannercore:
+    image: chuckbates/inventoryscanner:latest
+    container_name: inventoryscanner-core
+    ports:
+      - "5000:8080"
+    volumes:
+      - inventoryscanner-logs:/app/logs
+      - inventoryscanner-images:/app/Images
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  postgres:
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-init:/docker-entrypoint-initdb.d
+
+  rabbitmq:
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  grafana:
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  loki:
+    volumes:
+      - loki-data:/loki
+      - loki-config:/etc/loki
+
+  promtail:
+    volumes:
+      - promtail-data:/tmp
+      - inventoryscanner-logs:/app/logs:ro
+      - promtail-config:/etc/promtail
+
+volumes:
+  postgres-data:
+  postgres-init:
+  rabbitmq-data:
+  grafana-data:
+  loki-data:
+  loki-config:
+  promtail-data:
+  promtail-config:
+  inventoryscanner-logs:
+  inventoryscanner-images:
