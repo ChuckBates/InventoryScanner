@@ -36,4 +36,4 @@ jobs:
         sleep 5
 
         # Run deploy over the tunnel
-        ssh -o StrictHostKeyChecking=no -p 2222 github-deploy@localhost "~/deploy-inventoryscanner.sh"
+        ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -p 2222 github-deploy@localhost "~/deploy-inventoryscanner.sh"
